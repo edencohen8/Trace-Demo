@@ -1,0 +1,32 @@
+import {chromium} from '@playwright/test';
+const browser=await chromium.launch({channel:'msedge',headless:true});
+const page=await browser.newPage({viewport:{width:1512,height:1100},permissions:['clipboard-read','clipboard-write']});
+const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.goto('http://127.0.0.1:5173/?variant=L1',{waitUntil:'networkidle'});
+await page.locator('.overview-interval').first().click();
+console.log('Clicked complete interval',await page.locator('.detail-heading h2').textContent(),'old inspector',await page.locator('.evidence-inspector').count(),'points',await page.locator('.data-point').count());
+await page.getByRole('button',{name:'האירוע',exact:true}).click();
+await page.locator('.data-point[data-id="EV-107"]').click();
+await page.getByRole('button',{name:'העתקת נתוני המקור',exact:true}).click();
+console.log('Copied record',JSON.parse(await page.evaluate(()=>navigator.clipboard.readText())).event_id);
+await page.locator('#lens-draft').fill('בדוק @EV-110');
+console.log('Typed mention match',await page.locator('.mention-picker>button').first().textContent());
+await page.locator('.mention-picker>button').first().click();
+console.log('Draft retained',await page.locator('#lens-draft').inputValue(),'attached',await page.locator('.draft-tags').textContent());
+await page.getByRole('button',{name:'שליחת הודעה',exact:true}).click();
+await page.getByRole('textbox',{name:'חיפוש בציר הזמן',exact:true}).fill('unknown-nothing');
+console.log('Empty points',await page.locator('.data-point').count(),'stale inspector',await page.locator('.evidence-inspector').count());
+await page.locator('.lens-message.assistant .message-citations button').first().click();
+console.log('Citation restores',await page.locator('.evidence-inspector header .section-label').textContent());
+await page.getByRole('combobox',{name:'Choose lens design'}).selectOption('L3');
+await page.locator('.overview-interval').first().click();
+console.log('Chapters full interval',await page.locator('.detail-heading h2').textContent());
+await page.keyboard.press('Home');
+await page.getByRole('combobox',{name:'Choose lens design'}).selectOption('L4');
+await page.getByRole('slider',{name:'הזזת חלון הזמן'}).fill('24000');
+console.log('Scrubbed',await page.locator('.detail-heading h2').textContent());
+for(const v of ['T7','A']){
+ await page.goto('http://127.0.0.1:5173/?variant='+v,{waitUntil:'networkidle'});
+ console.log('Earlier design',v,'title',await page.locator('h1').first().textContent());
+}
+console.log('Browser errors',JSON.stringify(errors));await browser.close();

@@ -1,0 +1,31 @@
+{
+  "schema_version": "0.2",
+  "id": "position_jump",
+  "seed_offset": 250001,
+  "incident_local": "2026-10-08T14:03:00+03:00",
+  "faults": [
+    {
+      "type": "position_offset",
+      "start_offset_s": 0,
+      "end_offset_s": 92,
+      "delta_lat": 0.0107,
+      "delta_lon": -0.0141,
+      "revision_on": "R32",
+      "revision_off": "R31",
+      "warning_offsets_s": [
+        20,
+        45,
+        80
+      ]
+    }
+  ],
+  "special_targets": [],
+  "diary_incident_note": "בערך ב-{incident_time} נתון המיקום החיצוני בתצוגת הבקרה נראה לא הגיוני למשך זמן קצר. לא ברור אם הבעיה עדיין קיימת.",
+  "export": {
+    "exclude_message_types": [],
+    "omit_columns": [],
+    "target_ids": []
+  },
+  "private_expected": "External WGS84 reference displaced briefly; independent GPS/manual remain stable.",
+  "fixture_id": "case_002"
+}

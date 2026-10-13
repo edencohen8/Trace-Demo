@@ -1,0 +1,47 @@
+My project's name is TRACE you have a small starting context we made but we want to sharpen it.  TRACE is shortcut for Timeline Reconstruction Analysis, Correlation & Explanation.
+
+The idea is that I have a sensor, for example a radar, that is compromised of all the different systems in it - the sensor hardware, external systems connected to it, frontend services, backend services, and so on.
+
+Say I have a scenario where the radar worked but not as it should - for example I threw a paper plane and expected my mini-radar to be able to recognize it. However, after loading the entire system, I could see that the paper plane was not discovered.
+
+So what I want to do in TRACE is to be able to input all of the different logs from the systems to a unified timeline, inside a RAG/vercotr database/other method that would fit my requirements, so that an agent that has loop would be able to figure out from the logs what went wrong and why.
+
+In other words, for the plane for instance, I could tell the agent that in hour 14:03 I had a plane at 35 degrees at certain position, and it was not discovered by my mini-radar. The agent would then have to go in the logs to the specific time, and then iteratively in a loop start going backwards in time, inspecting the logs to see relevant failures or alerts.
+
+One such example can be that in a log of the sensor we could see certain part was hanging or failed or something.
+
+
+
+This is the basic idea.
+
+I am now trying to understand how to architect this system.
+
+At first I thought that i would need RAG with semantic search but i am not sure this is a good approach, considering my logs and their structure, and the way I want the agent to work.
+
+
+
+I basically have 3 types of logs, but all of them share a timestamp.
+
+The first type is a simple written by hand (in excel) a diary of events.
+
+This log in other words has a timestamp and a text in שפה חופשית. Since this is someting written manually the time would not always be exact and correct, since it even also be written a time after an event happened.
+
+The second type is a basic timestamp + log. The log text won't necessarily have constant structure. Each system in the general working system can write it as it sees fit, but the main thing to understand is that this log is something outputted by a system.
+
+The third type is a more complex one.
+
+This type corresponds to a single "logging" system I have in my system. I have sort of a 'sniffer' - where when the entire system works, it is running and recording all the messages passing between the different parts of the system - for example sensor-backend, backend-frontend, and so on. These messages correspond to a predefined set of messages compiled into an interface. Each message has its own structure, detailing the actual data of the message, for example altitude, elevation, position, and so on. With this type in mind, you have to consider that when performing an investigation such as in TRACE, an agent would sometimes have to look at a single message, or multiple messages and compare between them, and also sometimes look at a single field in a specific message, or even multiple fields in the message. And these can even be done one after the other if the investigation process requires it according to what the agents understand. You have to understand that this 'sniffer' system, when exporting log from, you can choose which fields exactly and which messages. This means that the user using TRACE would already have a log file that he thinks is relevant for the event - for example, in a case where for example the position reported by the mini-radar sensor is inconsistent, the log of the sniffer that the user would input to the system will contain 3 fields: manual position, gps position, and external sensor position. And then the agent would need to understand that the jumps in the log in the value of the external sensor position is indicating bad behavior of this external sensor, to also see that the positions of gps and manual don't 'jump' and of course would then validate this with logs from other system - showting the this external sensor logged an error or something.
+
+
+
+The system would work in 2 stages basically:
+
+the user would upload all the relevant logs first, and then would question the agent (chat maybe) about the event.
+
+
+
+So after the first stage i would have to run sort of a pipeline where the data from all the different systems would be 'normalized' and perhaps be inputted to a database, bigquery or something else, i really have no idea right now.
+
+
+
+For this prompt I have already an md file with these ideas more or less, this prompt is more accurate so if there are conflicts - the above text is the relevant source of truth. Update the architecture and discuss with me about the architechure. This is a critical step in the implementation and I want to plan an architecture that would support even more data in the future from other system logs. In other words to 'scale'.

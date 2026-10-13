@@ -1,0 +1,5 @@
+<script setup>
+import {computed} from 'vue';import {useTimeline} from './useTimeline';import {sources,binsFor,clock,duration} from './data';
+const {state,filtered,inspect}=useTimeline();
+const bins=computed(()=>binsFor(filtered.value,state.start,state.end,16).map(b=>({...b,events:filtered.value.filter(e=>e.t>=b.start&&e.t<b.end&&e.severity!=='normal')})));
+</script><template><div class="chronicle"><div class="chronicle-head"><span>זמן ↓</span><strong v-for="s in sources" :key="s.id">{{s.label}}</strong></div><div class="chronicle-row" v-for="b in bins" :key="b.start"><div class="chronicle-time"><b>{{clock(b.start)}}</b><small>{{duration(b.end-b.start)}}</small></div><button v-for="s in sources" :key="s.id" :class="{alert:b.events.some(e=>e.source===s.id)}" @click="inspect(b.start,b.end,{source:s.id})"><b>{{b.bySource[s.id]}} <small>רשומות</small></b><span>{{b.events.find(e=>e.source===s.id)?.title||(b.bySource[s.id]?'פעילות שגרתית':'אין רשומות')}}</span><small v-if="b.events.filter(e=>e.source===s.id).length">! {{b.events.filter(e=>e.source===s.id).length}} חריגות</small></button></div></div></template>

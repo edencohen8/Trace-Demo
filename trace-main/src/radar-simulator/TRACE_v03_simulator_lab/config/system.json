@@ -1,0 +1,35 @@
+{
+  "schema_version": "0.2",
+  "system_id": "SIM-SURVEILLANCE-01",
+  "clock": {"start_local": "2026-10-08T13:15:00+03:00", "duration_minutes": 90},
+  "default_seed": 1419,
+  "sensor": {"id": "RAD-01", "scan_period_s": 5, "max_range_km": 120, "confirmation_hits": 2, "termination_misses": 3,
+    "measurement_stddev_km": 0.045, "routine_confidence_mean": 0.91, "routine_confidence_stddev": 0.055,
+    "occasional_low_confidence_probability": 0.018, "occasional_confidence_loss": 0.30,
+    "clutter_probability_per_scan": 0.07, "clutter_confidence_range": [0.33,0.54]},
+  "filter": {"baseline_revision": "R31", "baseline_threshold": 0.64, "scope": "PSR_small_returns"},
+  "position": {"base_lat": 31.5168, "base_lon": 34.7662, "interval_s": 2, "gps_noise_lat_stddev": 0.000018, "gps_noise_lon_stddev": 0.000019, "external_noise_lat_stddev": 0.000028, "external_noise_lon_stddev": 0.000030},
+  "background": {"routine_iff_interval_s": 30, "routine_iff_codes": ["4132","4560","2051","3104"], "health_interval_s": 60, "log_interval_s": 60,
+    "arrival": {"first_after_s": 300, "every_s": 480, "lifetime_s": 1550, "lifetime_variation_s": 120},
+    "targets": [
+      {"id":"T-011","x":-31,"y":14,"vx":44,"vy":-8,"entry_s":0,"exit_s":10000000},
+      {"id":"T-012","x":8,"y":-35,"vx":-20,"vy":43,"entry_s":0,"exit_s":10000000},
+      {"id":"T-013","x":30,"y":18,"vx":-27,"vy":-12,"entry_s":120,"exit_s":10000000},
+      {"id":"T-014","x":-8,"y":-16,"vx":52,"vy":20,"entry_s":480,"exit_s":10000000},
+      {"id":"T-015","x":-39,"y":26,"vx":34,"vy":-22,"entry_s":0,"exit_s":10000000},
+      {"id":"T-016","x":15,"y":41,"vx":-36,"vy":-20,"entry_s":720,"exit_s":10000000},
+      {"id":"T-018","x":19,"y":-12,"vx":16,"vy":31,"entry_s":0,"exit_s":10000000}
+    ],
+    "benign_ui_warning_offsets_s": [360,1250,2871,3095,5100],
+    "benign_sensor_warning_offsets_s": [825,2220,4350]
+  },
+  "producer_clock_offset_ms": {"radar-psr-01":85,"track-core":-70,"position-bridge":135,"iff-receiver":95,"alert-router":-25,"ui-gateway":40},
+  "capture": {"capture_point": "fictional SIM-CAP-01 bus message tap", "max_recorder_jitter_ms": 160, "min_recorder_jitter_ms": 8},
+  "diary": {"observer_regular":"מפעיל משמרת א", "observer_incident":"מפעיל משמרת ב", "incident_record_delay_s":310,
+    "ordinary_entries": [
+      {"reported_offset_s":-1610,"recorded_offset_s":-1560,"precision":"בערך","note":"בדיקת תצוגה שגרתית. התנועה נראית רגילה, ללא משהו חריג לעין."},
+      {"reported_offset_s":-700,"recorded_offset_s":-620,"precision":"דקה","note":"החלפת משמרת קצרה. כמה מטרות מופיעות ונעלמות כרגיל מהאזור."},
+      {"reported_offset_s":330,"recorded_offset_s":510,"precision":"בערך","note":"עברתי שוב על המסך. כרגע לא רואה בעיה מתמשכת."},
+      {"reported_offset_s":1600,"recorded_offset_s":1650,"precision":"דקה","note":"סיכום ביניים: העומס נראה רגיל. היו כמה הודעות מערכת לא ברורות."}
+    ]}
+}

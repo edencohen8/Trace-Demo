@@ -1,0 +1,11 @@
+import {chromium} from '@playwright/test';
+const browser=await chromium.launch({channel:'msedge',headless:true});
+const page=await browser.newPage({viewport:{width:1440,height:1000}});
+await page.goto('http://127.0.0.1:5173/?variant=T1',{waitUntil:'networkidle'});
+await page.locator('.assistant-intro button').click();
+await page.locator('.filter-bar select').first().selectOption('voice');
+await page.locator('.message.assistant button').first().click();
+await page.locator('.evidence-panel').waitFor();
+console.log('Filtered citation opened:',await page.locator('.evidence-panel .eyebrow').textContent());
+console.log('Cleared source:',await page.locator('.filter-bar select').first().inputValue());
+await browser.close();

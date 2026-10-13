@@ -1,0 +1,38 @@
+# External service repositories cloned locally for workstation development
+infraservices/
+maestro_lite/
+
+# Local dependencies, builds, and test output
+node_modules/
+dist/
+coverage/
+test-results/
+playwright-report/
+*.log
+__pycache__/
+*.py[cod]
+.venv/
+
+# Local configuration, credentials, and investigation state
+.env
+.env.*
+!.env.example
+!.env.*.example
+.state/
+.config/gcloud/
+application_default_credentials.json
+service-account*.json
+credentials*.json
+*.pem
+*.key
+
+# Simulator output generated locally through the browser UI
+trace-main/src/radar-simulator/TRACE_v03_simulator_lab/runs/
+
+# Large generated histories are preserved in TRACE_v03_simulator_lab.zip.
+# See README.md to extract them for offline simulator validation.
+trace-main/src/radar-simulator/TRACE_v03_simulator_lab/internal_history/
+
+# OS files
+.DS_Store
+Thumbs.db

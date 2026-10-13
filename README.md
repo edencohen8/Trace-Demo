@@ -66,6 +66,22 @@ from a separate cloud workspace.
 
 ## Simulator
 
+The four full generated history files are included losslessly in
+`trace-main/src/radar-simulator/TRACE_v03_simulator_lab.zip`. Their unpacked copies
+exceed the upload interface's 16 MiB request limit, so they are kept in that archive
+instead of duplicated as individual Git files. The rest of the code and evidence
+fixtures are available directly in the checkout.
+
+Before running offline simulator validation or rebuilding its reports, restore
+the histories from the repository root (Python 3.10 or newer):
+
+```bash
+python -m zipfile -e trace-main/src/radar-simulator/TRACE_v03_simulator_lab.zip trace-main/src/radar-simulator/TRACE_v03_simulator_lab
+```
+
+The archive's 27 files were verified byte-for-byte against the supplied snapshot.
+The extracted histories stay ignored by Git and outside investigator runtime access.
+
 With Python 3.10 or newer, run from the repository root:
 
 ```bash

@@ -1,0 +1,4 @@
+<script setup>
+import { useInvestigation,sourceName,time } from './useInvestigation';
+const {state}=useInvestigation();defineProps({event:Object,compact:Boolean});
+</script><template><div v-if="event" class="evidence-detail"><div class="eyeline">{{sourceName(event)}} <span dir="ltr">{{event.id}}</span></div><h3>{{event.title}}</h3><div class="evidence-time"><bdi>{{time(event.t)}}<template v-if="event.end"> — {{time(event.end)}}</template></bdi><span>{{event.end?(event.end-event.t)+' שניות':'אירוע נקודתי'}}</span></div><p>{{event.detail}}</p><span class="evidence-kind">{{event.soft?'תמלול · ראיה רכה':event.derived?'פער מחושב בין רשומות':'רשומת מערכת'}}</span><details v-if="!compact"><summary>הצגת רשומת המקור</summary><pre>{{JSON.stringify(event.raw||{id:event.id,source:event.source,start:time(event.t),end:event.end?time(event.end):undefined,target:event.target},null,2)}}</pre></details></div></template>
