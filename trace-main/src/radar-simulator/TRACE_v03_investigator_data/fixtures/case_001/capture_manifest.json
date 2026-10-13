@@ -1,0 +1,109 @@
+{
+  "version": "0.2",
+  "investigation_id": "case_001",
+  "synthetic": true,
+  "source_clock": "Local offset in source TXT/diary: +0300",
+  "sniffer_capture_timezone": "UTC",
+  "window_local": {
+    "start": "2026-10-08T13:15:00+03:00",
+    "end": "2026-10-08T14:45:00+03:00"
+  },
+  "window_utc": {
+    "start": "2026-10-08T10:15:00.000Z",
+    "end": "2026-10-08T11:45:00.000Z"
+  },
+  "logged_time_metadata": {
+    "sensor.txt": "producer local time with explicit offset",
+    "tracking_service.txt": "UTC",
+    "ui_gateway.txt": "local time, second precision with offset label",
+    "external_position_adapter.txt": "local ISO with explicit offset",
+    "notification_service.txt": "UTC JSON lines",
+    "operator_diary.xlsx": "Excel local +03 wall-clock values (timezone recorded in manifest)"
+  },
+  "capture_point": "fictional SIM-CAP-01 bus message tap",
+  "export_selection": {
+    "message_types": [
+      "DetectionCandidate",
+      "FilterConfigApplied",
+      "IFFReply",
+      "PositionReport",
+      "RadarScan",
+      "SensorHealth",
+      "TrackTerminated",
+      "TrackUpdate",
+      "UiTrackPublished",
+      "UiTrackRemoved"
+    ],
+    "excluded_message_types": [],
+    "target_filter": "ALL",
+    "columns": [
+      "capture_time_utc",
+      "producer_time_utc",
+      "bus_sequence",
+      "message_id",
+      "message_type",
+      "producer",
+      "target_id",
+      "track_id",
+      "sensor_id",
+      "confidence",
+      "range_km",
+      "bearing_deg",
+      "x_km",
+      "y_km",
+      "track_state",
+      "filter_revision",
+      "threshold",
+      "site_gps_lat",
+      "site_gps_lon",
+      "site_manual_lat",
+      "site_manual_lon",
+      "site_external_lat",
+      "site_external_lon",
+      "position_quality",
+      "transponder_mode3a",
+      "alert_id",
+      "delivery_state",
+      "details"
+    ],
+    "time_filter_utc": [
+      "2026-10-08T10:15:00.000Z",
+      "2026-10-08T11:45:00.000Z"
+    ]
+  },
+  "known_recorder_drops": 0,
+  "capture_completeness": "complete_for_selected_types_and_targets_only",
+  "generated_bus_messages_all_types": 28847,
+  "exported_sniffer_rows": 28847,
+  "exported_count_by_type": {
+    "RadarScan": 1080,
+    "SensorHealth": 91,
+    "DetectionCandidate": 8405,
+    "FilterConfigApplied": 3,
+    "IFFReply": 180,
+    "PositionReport": 2700,
+    "TrackUpdate": 8180,
+    "UiTrackPublished": 8180,
+    "TrackTerminated": 14,
+    "UiTrackRemoved": 14
+  },
+  "log_line_counts": {
+    "sensor.txt": 94,
+    "tracking_service.txt": 138,
+    "ui_gateway.txt": 96,
+    "external_position_adapter.txt": 91,
+    "notification_service.txt": 91
+  },
+  "diary_row_count": 5,
+  "file_sha256": {
+    "external_position_adapter.txt": "9ce7adaf9a6e676ac437597effd41bb8db8f358f1cf3edeced384941f3904fe1",
+    "notification_service.txt": "6403b32368c1185ff005e52f4ee7446798a2c77f400b88c410d9a38035845b0d",
+    "operator_diary.xlsx": "e9933ce64b5abeb507e2b2fbadd9e2f814892a0edd195b1cd0c88096dfec6563",
+    "sensor.txt": "81cf37aefc3968399bc55b3bce025b014d401112e1936ddb8638352c523709c2",
+    "sniffer.csv": "de6266d231da78084326d76cbf39b6567910c6e251072956d42f3c524b56aa58",
+    "tracking_service.txt": "31a0cb2c7b40048f9fb35a46b9bdeda2850cbe0fff3d5c25fac671dce15bd9a0",
+    "ui_gateway.txt": "8b86288a10a954df495538ec50595eab60910287b66f4ef9546db4afc2e71bc4"
+  },
+  "coordinate_reference": "WGS84 site lat/lon; track x/y in local km, not interchangeable",
+  "rates_are_fictional": "User-editable in config/system.json, not ASTERIX wire format"
+}

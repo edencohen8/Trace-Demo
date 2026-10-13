@@ -1,0 +1,48 @@
+{
+  "case": "position_jump",
+  "investigation_id": "case_002",
+  "hidden_from_TRACE": true,
+  "incident_time_local": "2026-10-08T14:03:00+03:00",
+  "faults": [
+    {
+      "type": "position_offset",
+      "start_offset_s": 0,
+      "end_offset_s": 92,
+      "delta_lat": 0.0107,
+      "delta_lon": -0.0141,
+      "revision_on": "R32",
+      "revision_off": "R31",
+      "warning_offsets_s": [
+        20,
+        45,
+        80
+      ]
+    }
+  ],
+  "special_targets": [],
+  "expected_investigation": "External WGS84 reference displaced briefly; independent GPS/manual remain stable.",
+  "expected_evidence": {
+    "source_message_ids": {},
+    "full_bus_length": 28872
+  },
+  "seed": 251420,
+  "duration_minutes": 90,
+  "benchmark": {
+    "required_findings": [
+      "Calculate the distance between external, GPS and manual reference positions.",
+      "Identify the start and end of the jump.",
+      "Confirm that the data uses a common coordinate frame.",
+      "Conclude that the fault affected the external position reference, not all position sources."
+    ],
+    "forbidden_claims": [
+      "Do not claim that every tracked target physically moved.",
+      "A profile change near the incident is evidence, but not proof of the exact internal software defect."
+    ],
+    "example_sniffer_evidence_ids": [
+      "MSG-00017446",
+      "MSG-00017474",
+      "MSG-00018086"
+    ],
+    "requires_explicit_uncertainty": false
+  }
+}

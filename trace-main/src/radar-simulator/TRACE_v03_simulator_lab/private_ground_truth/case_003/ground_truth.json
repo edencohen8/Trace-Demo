@@ -1,0 +1,65 @@
+{
+  "case": "iff_alert_delay",
+  "investigation_id": "case_003",
+  "hidden_from_TRACE": true,
+  "incident_time_local": "2026-10-08T14:03:00+03:00",
+  "faults": [
+    {
+      "type": "notification_outage",
+      "start_offset_s": -4,
+      "restore_offset_s": 101,
+      "alert_target_id": "T-088",
+      "alert_id": "ALR-00731",
+      "transponder_code": "7500",
+      "rule_offset_s": 1,
+      "request_offset_s": 2,
+      "delivery_offset_s": 104,
+      "retry_offsets_s": [
+        10,
+        36,
+        74
+      ]
+    }
+  ],
+  "special_targets": [
+    {
+      "id": "T-088",
+      "entry_offset_s": -20,
+      "exit_offset_s": 70,
+      "x": -18,
+      "y": 5,
+      "vx": 22,
+      "vy": 18,
+      "iff_code": "7500",
+      "iff_emit_start_offset_s": 0,
+      "iff_emit_end_offset_s": 12
+    }
+  ],
+  "expected_investigation": "IFF 7500 triggers a request at t+2 seconds, delivered at t+104 seconds after transport recovery; 102-second delivery delay.",
+  "expected_evidence": {
+    "source_message_ids": {},
+    "full_bus_length": 28899
+  },
+  "seed": 501421,
+  "duration_minutes": 90,
+  "benchmark": {
+    "required_findings": [
+      "Separate IFF receipt, alert-rule match, request and delivery times.",
+      "Calculate the delay using actual event timestamps.",
+      "Explain why the delay aligns with degraded alert transport.",
+      "State that the track data alone does not prove an alert was delivered."
+    ],
+    "forbidden_claims": [
+      "Do not say the IFF reply was missed.",
+      "Do not conflate message processing time with delivery time."
+    ],
+    "example_sniffer_evidence_ids": [
+      "MSG-00017452",
+      "MSG-00017464",
+      "MSG-00017493",
+      "MSG-00017494",
+      "MSG-00018218"
+    ],
+    "requires_explicit_uncertainty": false
+  }
+}

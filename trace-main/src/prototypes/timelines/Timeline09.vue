@@ -1,0 +1,5 @@
+<script setup>
+import {computed,ref} from 'vue';import {useTimeline} from './useTimeline';import {sources,binsFor,clock} from './data';import TimeAxis from './TimeAxis.vue';
+const {state,filtered,inspect}=useTimeline();const hover=ref(-1);
+const rows=computed(()=>sources.map(s=>{const bins=binsFor(filtered.value.filter(e=>e.source===s.id),state.start,state.end,48);return {...s,bins,max:Math.max(1,...bins.map(b=>b.count))}}));
+</script><template><div class="small-multiples"><div v-for="s in rows" :key="s.id" class="multiple"><div class="multiple-caption"><strong>{{s.label}}</strong><span>{{hover>=0?clock(s.bins[hover].start)+' · '+s.bins[hover].count+' רשומות':'שיא '+s.max+' רשומות לחלון'}}</span></div><div class="multiple-bars" dir="ltr" @mouseleave="hover=-1"><button v-for="(b,i) in s.bins" :key="i" :class="{alert:b.alert,hovered:hover===i}" :style="{height:Math.max(3,b.count/s.max*60)+'px',background:s.color}" :title="clock(b.start)+' · '+b.count+' רשומות · '+b.alert+' חריגות'" @mouseenter="hover=i" @focus="hover=i" @click="inspect(b.start,b.end,{source:s.id})"></button></div></div><TimeAxis :start="state.start" :end="state.end"/></div></template>

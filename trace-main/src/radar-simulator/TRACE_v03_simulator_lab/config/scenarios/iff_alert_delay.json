@@ -1,0 +1,46 @@
+{
+  "schema_version": "0.2",
+  "id": "iff_alert_delay",
+  "seed_offset": 500002,
+  "incident_local": "2026-10-08T14:03:00+03:00",
+  "faults": [
+    {
+      "type": "notification_outage",
+      "start_offset_s": -4,
+      "restore_offset_s": 101,
+      "alert_target_id": "T-088",
+      "alert_id": "ALR-00731",
+      "transponder_code": "7500",
+      "rule_offset_s": 1,
+      "request_offset_s": 2,
+      "delivery_offset_s": 104,
+      "retry_offsets_s": [
+        10,
+        36,
+        74
+      ]
+    }
+  ],
+  "special_targets": [
+    {
+      "id": "T-088",
+      "entry_offset_s": -20,
+      "exit_offset_s": 70,
+      "x": -18,
+      "y": 5,
+      "vx": 22,
+      "vy": 18,
+      "iff_code": "7500",
+      "iff_emit_start_offset_s": 0,
+      "iff_emit_end_offset_s": 12
+    }
+  ],
+  "diary_incident_note": "בערך ב-{incident_time} התקבלה אינדיקציה חריגה של זיהוי משני. אינני בטוח מתי ההתראה הגיעה למסוף.",
+  "export": {
+    "exclude_message_types": [],
+    "omit_columns": [],
+    "target_ids": []
+  },
+  "private_expected": "IFF 7500 triggers a request at t+2 seconds, delivered at t+104 seconds after transport recovery; 102-second delivery delay.",
+  "fixture_id": "case_003"
+}

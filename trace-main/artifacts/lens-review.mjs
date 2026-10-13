@@ -1,0 +1,30 @@
+import {chromium} from '@playwright/test';
+const browser=await chromium.launch({channel:'msedge',headless:true});
+const page=await browser.newPage({viewport:{width:1512,height:1100},deviceScaleFactor:1});
+const errors=[];page.on('pageerror',e=>errors.push(e.message));
+for(let i=1;i<=8;i++){
+ const v='L'+i;await page.goto('http://127.0.0.1:5173/?variant='+v,{waitUntil:'networkidle'});
+ await page.locator('.data-point[data-id="EV-107"]').waitFor();
+ await page.screenshot({path:'artifacts/lens-'+v+'.png',fullPage:true});
+ await page.locator('.data-point[data-id="EV-107"]').click();
+ console.log(v,'metadata fields',await page.locator('.metadata dt').count(),'raw',await page.locator('.raw-content pre').textContent(),'width',await page.evaluate(()=>document.documentElement.scrollWidth));
+ await page.locator('.attach-point').click();
+ console.log(v,'tag count',await page.locator('.draft-tags>span').count());
+}
+await page.locator('#lens-draft').fill('בדוק את הקשר בין הראיות');
+await page.locator('.data-point[data-id="EV-106"]').click({modifiers:['Shift']});
+await page.getByRole('button',{name:'שליחת הודעה',exact:true}).click();
+console.log('User attachments',await page.locator('.lens-message.user .message-citations button').count());
+await page.locator('.lens-message.assistant .message-citations button').first().click();
+await page.getByRole('button',{name:'תיוג ראיה',exact:true}).click();
+await page.getByRole('textbox',{name:'חיפוש ראיה לתיוג'}).fill('EV-110');
+await page.locator('.mention-picker>button').first().click();
+console.log('Mention tag',await page.locator('.draft-tags').textContent());
+await page.locator('.draft-tags>span>button').last().click();
+console.log('Removed tag count',await page.locator('.draft-tags>span').count());
+await page.getByRole('button',{name:'Next lens design',exact:true}).click();
+console.log('Wrap',page.url());
+await page.setViewportSize({width:1100,height:800});
+await page.screenshot({path:'artifacts/lens-laptop.png',fullPage:true});
+console.log('Laptop',await page.evaluate(()=>({width:innerWidth,content:document.documentElement.scrollWidth})));
+console.log('Errors',JSON.stringify(errors));await browser.close();

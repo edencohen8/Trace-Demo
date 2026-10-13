@@ -1,0 +1,164 @@
+{
+  "catalog_version": "0.1",
+  "designation": "Fictional multi-source radar demonstration system (not ASTERIX on-wire data)",
+  "components": [
+    {
+      "name": "radar-psr-01",
+      "function": "synthetic rotating sensor, unassociated plots and accepted detection candidates"
+    },
+    {
+      "name": "track-core",
+      "function": "sensor plot association, configurable quality gating, track lifecycle"
+    },
+    {
+      "name": "iff-receiver",
+      "function": "simulated secondary-surveillance identification receiver"
+    },
+    {
+      "name": "position-bridge",
+      "function": "site reference comparison across manual/GPS/external position sources"
+    },
+    {
+      "name": "alert-router",
+      "function": "alert match, queued notification delivery and retry"
+    },
+    {
+      "name": "ui-gateway",
+      "function": "publish and remove visible operator display tracks"
+    }
+  ],
+  "message_types": {
+    "RadarScan": {
+      "emitter": "radar-psr-01",
+      "required": [
+        "sensor_id",
+        "details"
+      ],
+      "typical_interval": "5 seconds global"
+    },
+    "SensorHealth": {
+      "emitter": "radar-psr-01",
+      "required": [
+        "sensor_id",
+        "details"
+      ],
+      "typical_interval": "60 seconds"
+    },
+    "DetectionCandidate": {
+      "emitter": "radar-psr-01",
+      "required": [
+        "confidence",
+        "range_km",
+        "bearing_deg"
+      ],
+      "units": {
+        "range_km": "km",
+        "bearing_deg": "degrees clockwise from north",
+        "confidence": "fictional unitless quality 0..1"
+      },
+      "comment": "candidate/plot need not produce a track; target_id may be blank for unassociated clutter"
+    },
+    "FilterConfigApplied": {
+      "emitter": "track-core",
+      "required": [
+        "filter_revision",
+        "threshold"
+      ],
+      "comment": "threshold applies only to modeled PSR small-return quality filtering"
+    },
+    "TrackUpdate": {
+      "emitter": "track-core",
+      "required": [
+        "target_id",
+        "track_id",
+        "x_km",
+        "y_km",
+        "track_state"
+      ],
+      "comment": "track is confirmed after 2 consecutive accepted sensor reports"
+    },
+    "TrackTerminated": {
+      "emitter": "track-core",
+      "required": [
+        "target_id",
+        "track_id",
+        "track_state"
+      ]
+    },
+    "UiTrackPublished": {
+      "emitter": "ui-gateway",
+      "required": [
+        "target_id",
+        "track_id",
+        "track_state"
+      ]
+    },
+    "UiTrackRemoved": {
+      "emitter": "ui-gateway",
+      "required": [
+        "target_id",
+        "track_id"
+      ]
+    },
+    "PositionReport": {
+      "emitter": "position-bridge",
+      "required": [
+        "site_gps_lat",
+        "site_gps_lon",
+        "site_manual_lat",
+        "site_manual_lon",
+        "site_external_lat",
+        "site_external_lon"
+      ],
+      "units": {
+        "all_position_lat_lon": "WGS84 decimal degrees"
+      },
+      "comment": "site/platform reference, not target aircraft position"
+    },
+    "IFFReply": {
+      "emitter": "iff-receiver",
+      "required": [
+        "target_id",
+        "transponder_mode3a"
+      ],
+      "comment": "4-digit octal code, simulated Mode 3/A reply; no actual raw IFF waveform"
+    },
+    "AlertRuleMatch": {
+      "emitter": "alert-router",
+      "required": [
+        "target_id",
+        "alert_id",
+        "transponder_mode3a"
+      ]
+    },
+    "NotificationRequest": {
+      "emitter": "alert-router",
+      "required": [
+        "alert_id",
+        "delivery_state"
+      ]
+    },
+    "NotificationDelivered": {
+      "emitter": "alert-router",
+      "required": [
+        "alert_id",
+        "delivery_state"
+      ]
+    },
+    "DispatcherState": {
+      "emitter": "alert-router",
+      "required": [
+        "delivery_state"
+      ]
+    }
+  },
+  "constraints": {
+    "scan_to_candidate": "Candidates generally emitted shortly after their radar scan; false plots are routine.",
+    "candidate_to_track": "A low-quality candidate can be gated and generate no TrackUpdate; 2 accepted hits required to confirm a new track.",
+    "track_to_display": "Confirmed tracks produce UiTrackPublished events; track termination removes display tracks.",
+    "missing_message_rule": "Absence may be interpreted only if the selected type and relevant source/time interval were captured completely.",
+    "coordinate_systems": "Track x/y are synthetic km relative to fictional site. PositionReport lat/lon in WGS84. Cannot directly compare without a transform.",
+    "clock_semantics": "Use capture_time_utc for sniffer chronology; producer_time_utc may be offset by source clock error.",
+    "safety": "All names, locations, thresholds and schemas are invented demo conventions; never use as real equipment specifications."
+  }
+}

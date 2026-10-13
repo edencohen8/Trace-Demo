@@ -1,0 +1,38 @@
+{
+  "schema_version": "0.2",
+  "id": "missed_detection",
+  "seed_offset": 0,
+  "incident_local": "2026-10-08T14:03:00+03:00",
+  "faults": [
+    {
+      "type": "filter_override",
+      "start_offset_s": -30,
+      "end_offset_s": 130,
+      "revision": "R32",
+      "threshold": 0.8,
+      "deployment_batch": 622
+    }
+  ],
+  "special_targets": [
+    {
+      "id": "T-017",
+      "entry_offset_s": 10,
+      "exit_offset_s": 100,
+      "x": 2,
+      "y": 3,
+      "vx": 5,
+      "vy": -4,
+      "confidence_mean": 0.733,
+      "confidence_stddev": 0.013,
+      "immune_to_random_dips": true
+    }
+  ],
+  "diary_incident_note": "בסביבות {incident_time} ציפינו לראות סימון של מטרה קטנה, אבל לא הבחנתי במסלול על התצוגה. אולי זה היה רגעי.",
+  "export": {
+    "exclude_message_types": [],
+    "omit_columns": [],
+    "target_ids": []
+  },
+  "private_expected": "A short series of candidates for T-017 was rejected during raised R32 filter threshold; no confirmed track/UI publication.",
+  "fixture_id": "case_001"
+}

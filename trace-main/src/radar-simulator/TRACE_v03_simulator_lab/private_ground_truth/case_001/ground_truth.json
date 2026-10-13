@@ -1,0 +1,54 @@
+{
+  "case": "missed_detection",
+  "investigation_id": "case_001",
+  "hidden_from_TRACE": true,
+  "incident_time_local": "2026-10-08T14:03:00+03:00",
+  "faults": [
+    {
+      "type": "filter_override",
+      "start_offset_s": -30,
+      "end_offset_s": 130,
+      "revision": "R32",
+      "threshold": 0.8,
+      "deployment_batch": 622
+    }
+  ],
+  "special_targets": [
+    {
+      "id": "T-017",
+      "entry_offset_s": 10,
+      "exit_offset_s": 100,
+      "x": 2,
+      "y": 3,
+      "vx": 5,
+      "vy": -4,
+      "confidence_mean": 0.733,
+      "confidence_stddev": 0.013,
+      "immune_to_random_dips": true
+    }
+  ],
+  "expected_investigation": "A short series of candidates for T-017 was rejected during raised R32 filter threshold; no confirmed track/UI publication.",
+  "expected_evidence": {
+    "source_message_ids": {},
+    "full_bus_length": 28847
+  },
+  "seed": 1419,
+  "duration_minutes": 90,
+  "benchmark": {
+    "required_findings": [
+      "Find the active threshold and the target confidence values.",
+      "Confirm that the target has detections but no corresponding confirmed track.",
+      "Relate the missing downstream records to the short configuration interval.",
+      "Distinguish this from a radar power failure or a UI-only outage."
+    ],
+    "forbidden_claims": [
+      "Do not say the radar never saw the target.",
+      "Do not infer a hardware malfunction without evidence."
+    ],
+    "example_sniffer_evidence_ids": [
+      "MSG-00017234",
+      "MSG-00017521"
+    ],
+    "requires_explicit_uncertainty": false
+  }
+}
