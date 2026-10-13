@@ -1,0 +1,109 @@
+/* The chosen Graphite direction: neutral surfaces with semantic accents. */
+.studio.log-lab.slate {
+  --base: #15181c;
+  --panel: #1c2229;
+  --line: #303b46;
+  --grid: #232d36;
+  --accent: #98bdd8;
+  --accent-soft: #293c4b;
+  --marker: #78919f;
+  --danger: #e29b8d;
+  --warning: #d7b780;
+  --hover: #25323d;
+}
+.slate .histogram button span { background: #6b91a7; opacity: .82; border-radius: 2px 2px 0 0; }
+.slate .histogram button.warning span { background: var(--warning); opacity: 1; }
+.slate .histogram button.critical span { background: var(--danger); opacity: 1; }
+.slate .histogram button.in-window span { background: #acd5ed; opacity: 1; }
+.slate .histogram button.in-window.critical span { background: var(--danger); }
+.slate .system-row[data-system=iff] { --source-accent: #83abc9; }
+.slate .system-row[data-system=sensor] { --source-accent: #80aaa3; }
+.slate .system-row[data-system=operator] { --source-accent: #afa0c8; }
+.slate .system-row[data-system=services] { --source-accent: #9aaed1; }
+.slate .system-row[data-system=radio] { --source-accent: #bda580; }
+.slate .system-label svg { color: var(--source-accent); }
+.slate .system-label { border-right: 2px solid color-mix(in srgb, var(--source-accent) 65%, transparent); padding-right: 10px; }
+.slate .event-dot { background: var(--source-accent); opacity: .68; }
+.slate .event.warning .event-dot { background: var(--warning); opacity: 1; }
+.slate .event.critical .event-dot { background: var(--danger); opacity: 1; }
+.slate .event.selected .event-dot { opacity: 1; }
+.slate .duration-line { background: var(--source-accent); opacity: .55; }
+.slate .critical .duration-line { background: var(--danger); }
+.slate .record-severity.warning { color: var(--warning); }
+
+/* Compact chrome gives the space back to the five timeline lanes. */
+@media (min-width: 701px) {
+  .studio.log-lab.view-dock { grid-template-rows: 52px minmax(0, 1fr); }
+  .view-dock .view-switcher label > span { display: none; }
+  .view-dock .overview { flex-basis: 115px; padding: 10px 0 8px; }
+  .view-dock .overview-heading { height: 22px; }
+  .view-dock .overview-plot { height: 54px; margin-top: 5px; }
+  .view-dock .overview-axis { margin-top: 5px; }
+  .view-dock .selection-label { display: none; }
+  .view-dock .workbench { padding-top: 10px; }
+  .view-dock .workspace { padding-bottom: 12px; }
+  .view-dock .timeline-heading { flex-basis: 32px; margin-bottom: 8px; flex-wrap: nowrap; }
+  .view-dock .timeline-heading > div:first-child { flex-direction: row; align-items: center; gap: 14px; width: auto; }
+  .view-dock .timeline-heading .subtle { font-size: 10px; }
+  .view-dock .timeline-heading .divider-dot { margin: 0 4px; }
+  .view-dock .timeline-heading h2 { font-size: 14px; }
+  .view-dock .timeline-heading .tools { margin: 0; }
+  .view-dock .axis-row { flex-basis: 23px; }
+  .view-dock .system-row { border-top-color: #ffffff09; }
+
+  /* One bar combines event context, source tabs, navigation and actions. */
+  .viewer-dock { position: relative; flex-basis: 150px; margin-top: 10px; border-radius: 7px; }
+  .viewer-dock .log-heading { flex-basis: 39px; padding: 0 13px 0 250px; }
+  .viewer-dock .log-heading > div { gap: 9px; max-width: 44%; }
+  .viewer-dock .log-heading > div > svg { display: none; }
+  .viewer-dock .log-heading > .icon-button { display: none; }
+  .dock-event-title { font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .viewer-dock .log-heading bdi { font-size: 10px; flex-shrink: 0; }
+  .viewer-dock .log-heading time { font-size: 10px; color: var(--muted); flex-shrink: 0; }
+  .viewer-dock .reader-body { padding: 9px 14px; }
+  .viewer-dock .record-content { display: flex; gap: 0; }
+  .viewer-dock .record-title { display: none; }
+  .viewer-dock .record-tabs { position: absolute; top: 4px; left: 43%; height: 31px; border: 0; gap: 15px; }
+  .viewer-dock .record-tabs button { font-size: 11px; padding: 3px 0 6px; }
+  .viewer-dock .record-pane { padding: 0; }
+  .viewer-dock .record-summary { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 28px; }
+  .viewer-dock .record-summary p { font-size: 13px; line-height: 1.8; }
+  .viewer-dock .source-locator { font-size: 10px; }
+  .viewer-dock .content-pager { flex-basis: 20px; margin-top: 4px; }
+  .viewer-dock .content-pager > span { display: none; }
+  .viewer-dock .content-pager > div { margin-left: auto; }
+  .viewer-dock .content-pager.single-page { display: none; }
+  .viewer-dock .record-fields { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+  .viewer-dock .record-fields > div { flex-direction: column; justify-content: flex-start; gap: 8px; padding: 5px 0; border: 0; font-size: 11px; }
+  .viewer-dock .record-fields dd { text-align: left; max-width: 100%; }
+  .viewer-dock .record-raw { font-size: 11px; line-height: 1.45; }
+  .viewer-dock .log-footer { position: absolute; top: 1px; left: 7px; height: 36px; width: 233px; border: 0; padding: 0; gap: 4px; flex-direction: row-reverse; }
+  .viewer-dock .log-footer .attach-button { font-size: 10px; padding: 5px 7px; }
+  .viewer-dock .log-footer .event-pager { gap: 2px; font-size: 9px; }
+  .viewer-dock .log-footer .dock-close { width: 24px; height: 25px; flex-shrink: 0; }
+}
+@media (min-width: 701px) and (max-width: 1150px) {
+  .view-dock .timeline-heading h2 { display: none; }
+  .viewer-dock .log-heading time { display: none; }
+  .viewer-dock .log-heading { padding-left: 225px; }
+  .viewer-dock .log-heading > div { max-width: 47%; }
+  .viewer-dock .record-tabs { left: 38%; gap: 10px; }
+  .viewer-dock .log-footer { width: 214px; }
+  .viewer-dock .log-footer .attach-button span { display: none; }
+  .viewer-dock .log-footer .attach-button { width: 28px; }
+  .viewer-dock .record-summary { gap: 16px; }
+  .viewer-dock .record-summary p { font-size: 12px; }
+}
+@media (max-width: 700px) {
+  .view-dock .overview { flex-basis: 130px; }
+  .view-dock .overview-plot { height: 43px; margin-top: 18px; }
+  .log-lab .viewer-dock .log-heading > .icon-button { display: none; }
+  .log-lab .viewer-dock .log-heading { padding: 0 12px; }
+  .dock-event-title { font-weight: 500; font-size: 12px; }
+  .log-lab .viewer-dock .log-heading time { display: none; }
+  .log-lab .viewer-dock .record-title { display: none; }
+  .log-lab .viewer-dock .record-content { display: flex; }
+  .log-lab .viewer-dock .record-tabs { position: static; }
+  .log-lab .viewer-dock .log-footer { position: static; gap: 5px; }
+  .log-lab .viewer-dock .content-pager.single-page { visibility: hidden; }
+}

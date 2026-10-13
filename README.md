@@ -1,5 +1,36 @@
 # TRACE Demo
 
+A local, database-free investigation demo is now available in `trace-main/`.
+It connects the Vue interface to the Pi agent harness and immutable evidence files.
+
+```bash
+cd trace-main
+npm ci
+cp .env.example .env   # Only if .env does not exist yet.
+# Add ANTHROPIC_API_KEY to .env.
+npm run dev
+```
+
+Open **http://127.0.0.1:5180**. Evidence browsing works without a key.
+Live AI requires a configured Claude, Gemini or LiteLLM key. Switch providers using
+`.env`; no code change is needed. See [setup and demo steps](trace-main/README.md).
+
+The local adapter uses memory for event queries and JSON for sessions and approved
+answers. It does not need a database or a LiteLLM server when using native Claude
+or Gemini. It is scoped to the four bundled fictional evidence packages.
+
+Run `npm run typecheck`, `npm test`, and `npm run build` from `trace-main/`.
+Run `npm run check:ai` after setting a key to verify a live provider response.
+
+See [the local demo contract](trace-main/docs/contracts/06-local-demo.md) for API
+behavior, evidence rules, and limits. The full platform architecture remains in
+`TRACE_ARCHITECTURE.md`. The no-database adapter is a deliberate demo exception.
+
+## Imported snapshot reference
+
+The text below describes the original import, before the live demo was added.
+
+
 TRACE stands for **Timeline Reconstruction, Analysis, Correlation & Explanation**.
 This repository imports the supplied lane-3 agent-harness snapshot for continued
 development in cloud workspaces and with Codex locally.

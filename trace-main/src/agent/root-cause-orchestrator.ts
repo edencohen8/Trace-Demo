@@ -9,7 +9,7 @@
  */
 
 import { Model, Type, Static } from "@earendil-works/pi-ai";
-import { AgentTool, StreamFn } from "@earendil-works/pi-agent-core";
+import { AgentTool, StreamFn, type AgentEvent } from "@earendil-works/pi-agent-core";
 import { Finding, FindingSchema } from "./types.js";
 import { createInvestigationAgent } from "./harness.js";
 import { InvestigationBlackboard, InvestigationBlackboardState, HypothesisStatus } from "./blackboard.js";
@@ -27,6 +27,10 @@ export interface CaseOverview {
 }
 
 export interface RootCauseOrchestratorOptions {
+  responseInstructions?: string;
+  signal?: AbortSignal;
+  onEvent?: (event: AgentEvent) => void;
+  validateFindings?: (findings: Finding[]) => Promise<void>;
   investigationId: string;
   goal: string;
   model: Model<any>;
@@ -105,6 +109,7 @@ const UpdateBlackboardParamsSchema = Type.Object({
 type UpdateBlackboardParams = Static<typeof UpdateBlackboardParamsSchema>;
 
 const SubmitFindingsParamsSchema = Type.Object({
+  answer: Type.Optional(Type.String({ description: 'Concise user-facing answer in the requested language, with source citations and uncertainty. Keep detailed reasoning in findings.' })),
   findings: Type.Array(FindingSchema),
   rationale: Type.String(),
 });
@@ -115,6 +120,7 @@ type SubmitFindingsParams = Static<typeof SubmitFindingsParamsSchema>;
 // =========================================================================
 
 export class RootCauseOrchestrator {
+  private options: RootCauseOrchestratorOptions;
   private readonly investigationId: string;
   private readonly goal: string;
   private readonly model: Model<any>;
@@ -126,9 +132,11 @@ export class RootCauseOrchestrator {
   private readonly maxTurns: number;
 
   private finalFindings: Finding[] = [];
+  private finalAnswer?: string;
   private isConcluded = false;
 
   constructor(options: RootCauseOrchestratorOptions) {
+    this.options = options;
     this.investigationId = options.investigationId;
     this.goal = options.goal;
     this.model = options.model;
@@ -158,6 +166,7 @@ export class RootCauseOrchestrator {
   public async run(): Promise<{
     blackboardState: InvestigationBlackboardState;
     findings: Finding[];
+    answer?: string;
     concluded: boolean;
   }> {
     // 1. Load the root-cause-investigation skill playbook
@@ -173,12 +182,16 @@ export class RootCauseOrchestrator {
 
     // 3. Instantiate Main Investigator Pi Agent
     const agent = createInvestigationAgent({
+      signal: this.options.signal,
+      maxTurns: this.maxTurns,
+      onEvent: this.options.onEvent,
       sessionId: `orchestrator-${this.investigationId}-${Date.now()}`,
       model: this.model,
       streamFn: this.streamFn,
       systemPrompt: this.buildOrchestratorPrompt(skillContext.instructions),
       tools,
       beforeToolCall: async () => {
+        this.options.signal?.throwIfAborted();
         this.blackboard.incrementIteration();
         return undefined;
       },
@@ -200,6 +213,7 @@ Operational Protocol:
     return {
       blackboardState: this.blackboard.getState(),
       findings: this.finalFindings,
+      answer: this.finalAnswer,
       concluded: this.isConcluded,
     };
   }
@@ -211,6 +225,7 @@ Operational Protocol:
       description: "Returns case orientation metadata: available data feeds, capture window, drop counters, and anomaly hints.",
       parameters: GetCaseOverviewParamsSchema,
       execute: async (_callId: string, params: GetCaseOverviewParams) => {
+        if (params.case_id !== this.investigationId) throw new Error('Cross-case access denied');
         const overview = await this.caseOverviewProvider(params.case_id);
         const result = {
           case_id: overview.caseId,
@@ -243,7 +258,9 @@ Operational Protocol:
           hypothesis: params.hypothesis,
           time_window: params.time_window,
           allowed_tools: params.allowed_tools,
-          budget: params.budget ?? { max_tool_calls: 8, max_rows: 50, max_tokens: 4000 },
+          budget: { max_tool_calls: Math.min(8, Math.max(1, params.budget?.max_tool_calls ?? 6)),
+            max_rows: Math.min(50, Math.max(1, params.budget?.max_rows ?? 30)),
+            max_tokens: Math.min(4000, Math.max(1, params.budget?.max_tokens ?? 3000)) },
         });
 
         const details = {
@@ -330,7 +347,10 @@ Operational Protocol:
       description: "Concludes the investigation and submits final structured findings (CTR-04). Call this when root cause is corroborated or archive coverage is exhausted.",
       parameters: SubmitFindingsParamsSchema,
       execute: async (_callId: string, params: SubmitFindingsParams) => {
+        if (params.findings.some((finding) => finding.investigation_id !== this.investigationId)) throw new Error('Finding case mismatch');
+        await this.options.validateFindings?.(params.findings);
         this.finalFindings = params.findings;
+        this.finalAnswer = params.answer;
         this.isConcluded = true;
         const details = {
           concluded: true,
@@ -349,6 +369,10 @@ Operational Protocol:
     return `You are the TRACE Main Forensic Investigator & Orchestrator for incident investigation.
 
 ${skillPlaybook}
+
+${this.options.responseInstructions ?? ''}
+When calling submit_findings, put the concise final reply in answer. Cite source badges in that reply.
+Keep supporting detail in findings. Do not repeat all findings and their rationales in answer.
 
 === YOUR WORKING MEMORY (INVESTIGATION BLACKBOARD) ===
 ${this.blackboard.getSummaryForPrompt()}

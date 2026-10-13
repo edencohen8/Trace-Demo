@@ -1,0 +1,76 @@
+/* Final prototype direction: Jade with a scrollable source panel. */
+.studio.log-lab.teal {
+  --accent: #70c6b2;
+  --accent-soft: #263e38;
+  --warning: #d6b27c;
+  --danger: #e49c8e;
+}
+.teal .histogram button span { background: #659b90; opacity: .8; border-radius: 2px 2px 0 0; }
+.teal .histogram button.warning span { background: var(--warning); opacity: 1; }
+.teal .histogram button.critical span { background: var(--danger); opacity: 1; }
+.teal .histogram button.in-window span { background: #9bdecb; opacity: 1; }
+.teal .histogram button.in-window.critical span { background: var(--danger); }
+.teal .event.warning .event-dot { background: var(--warning); }
+.teal .record-severity.warning { color: var(--warning); }
+
+/* Only record content scrolls. The panel header and timeline stay fixed. */
+.studio .viewer-dock .record-pane {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--inset);
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+  padding: 3px 10px 4px 3px;
+}
+.studio .viewer-dock .record-pane::-webkit-scrollbar { display: block; width: 7px; }
+.studio .viewer-dock .record-pane::-webkit-scrollbar-track { background: var(--inset); border-radius: 5px; }
+.studio .viewer-dock .record-pane::-webkit-scrollbar-thumb { background: var(--accent); border: 1px solid var(--panel); border-radius: 5px; }
+.studio .viewer-dock .record-pane:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
+.dock-details { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.dock-description { min-width: 0; }
+.dock-description > p { font-size: 13px; line-height: 1.85; margin: 0; }
+.dock-source { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 16px; font-size: 10px; color: var(--muted); }
+.dock-source > span[dir=ltr] { font-family: 'SFMono-Regular', Consolas, monospace; overflow-wrap: anywhere; }
+.dock-source > span:last-child { margin-inline-start: 4px; color: var(--muted); font-size: 9px; }
+.dock-facts { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 17px 24px; border-inline-start: 1px solid var(--line); padding-inline-start: 22px; }
+.dock-facts > div { min-width: 0; }
+.dock-facts dt { margin-bottom: 5px; color: var(--muted); font-size: 10px; }
+.dock-facts dd { margin: 0; color: var(--text); font-size: 12px; line-height: 1.5; text-align: start; }
+.dock-facts dd[dir=ltr] { direction: ltr; text-align: right; font-family: 'SFMono-Regular', Consolas, monospace; }
+.dock-facts dd.warning { color: var(--warning, var(--accent)); }
+.dock-facts dd.critical { color: var(--danger); }
+.viewer-dock .record-raw { font-size: 12px; line-height: 1.7; padding-bottom: 8px; }
+.viewer-dock .record-raw i { user-select: none; }
+.viewer-dock .record-raw code { color: var(--text); }
+
+@media (min-width: 701px) {
+  .log-lab .viewer-dock { flex-basis: 220px; }
+  .log-lab .viewer-dock .reader-body { padding: 12px 12px 9px; }
+  .log-lab .viewer-dock .record-fields { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 17px 24px; }
+  .log-lab .viewer-dock .record-fields > div { padding: 1px 0; gap: 5px; font-size: 12px; }
+  .log-lab .viewer-dock .record-fields dt { font-size: 10px; }
+  .log-lab .viewer-dock .record-raw { font-size: 12px; line-height: 1.7; }
+}
+@media (min-width: 701px) and (max-height: 760px) {
+  .log-lab .viewer-dock { flex-basis: 210px; }
+}
+@media (min-width: 701px) and (max-width: 1050px) {
+  .dock-details { grid-template-columns: minmax(0, 1fr) minmax(0, .9fr); gap: 18px; }
+  .dock-description > p { font-size: 12px; line-height: 1.75; }
+  .dock-facts { padding-inline-start: 15px; gap: 13px 14px; }
+  .dock-facts dd { font-size: 11px; }
+  .log-lab .viewer-dock .record-fields { gap: 17px 14px; }
+  .log-lab .viewer-dock .record-fields > div { font-size: 11px; }
+}
+@media (max-width: 700px) {
+  .log-lab .viewer-dock { height: min(430px, calc(100dvh - 205px)); }
+  .dock-details { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .dock-facts { padding: 14px 0 0; border-inline-start: 0; border-top: 1px solid var(--line); gap: 14px; }
+  .dock-description > p { font-size: 13px; }
+  .dock-source { margin-top: 12px; }
+  .log-lab .viewer-dock .record-fields { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .log-lab .viewer-dock .record-fields > div { flex-direction: column; justify-content: flex-start; gap: 5px; padding-bottom: 9px; }
+  .log-lab .viewer-dock .record-fields dd { text-align: left; max-width: 100%; }
+  .log-lab .viewer-dock .record-raw { font-size: 11px; line-height: 1.8; }
+}

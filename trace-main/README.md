@@ -1,3 +1,76 @@
+# TRACE local demo
+
+The default page now uses the live backend. Run from this folder:
+
+```bash
+npm ci
+cp .env.example .env   # Only if .env does not exist yet.
+# Edit .env and set ANTHROPIC_API_KEY.
+npm run dev
+```
+
+Open http://127.0.0.1:5180. Use `PORT=5181 npm run dev` if that port is occupied.
+Keys stay on the server. The timeline and evidence inspector work without a key.
+AI chat requires a valid provider key. There is no prepared-answer fallback.
+
+The server reads `.env` on each AI request. After adding a key, click the connection
+refresh button. You do not need to restart the server for key or model changes.
+
+## Select an AI provider
+
+| Provider | Settings in `.env` |
+| --- | --- |
+| Claude | `TRACE_AI_PROVIDER=anthropic`, `ANTHROPIC_API_KEY=…` |
+| Gemini | `TRACE_AI_PROVIDER=gemini`, `GEMINI_API_KEY=…` |
+| LiteLLM | `TRACE_AI_PROVIDER=litellm`, `LITELLM_URL=…/v1`, `LITELLM_MASTER_KEY=…`, `TRACE_MODEL_ID=<gateway alias>` |
+
+Leave `TRACE_MODEL_ID` empty for the native provider default: `claude-haiku-5-5`
+or `gemini-2.5-flash`. Clear an old provider's model ID when switching providers.
+Shell variables take precedence over `.env`. Never prefix a secret with `VITE_`.
+
+Run `npm run check:ai` to test a real model call with a source citation. This uses
+your provider account. The automated test suite uses a scripted provider and does
+not need a key.
+
+Run `npm run test:quality` for the answer-quality regression checks. For opt-in
+live QA, run `node --import tsx scripts/qa-agent-live.ts numeric /tmp/trace-qa.json`.
+Replace `numeric` with `sensor`, `coverage`, `cause`, `gaps`, or `followup` to test
+another path. The follow-up scenario runs three turns with isolated history.
+The live check uses the configured provider and fictional public fixtures. It
+records timings, tool requests, answers, and source citations without changing
+saved chat sessions. A completed run still needs review of its factual claims.
+
+## Try the demo
+
+1. Open `case_001` and read the operator note near 14:03.
+2. Click an overview interval to change the window. Filter by source or target.
+3. Open a record to inspect its exact source row, clock metadata and hash.
+4. Attach a record to chat. Ask for a timeline summary or system health.
+5. Ask why the reported event occurred to start the delegated investigation flow.
+6. Click an answer citation to open the source. Approve an answer to save a lesson.
+7. Switch to `case_004` to inspect an export with missing message types.
+8. Export the session as JSON. Reload to check that completed chat and lessons persist.
+
+Data is fictional. The fixed evidence files are checked against their manifests.
+Queries run in memory. State is stored in ignored `.state/*.json` files.
+See [the local demo contract](docs/contracts/06-local-demo.md) for scope and limits.
+
+## Checks and stable presentation mode
+
+```bash
+npm run typecheck
+npm test
+npm run build
+# Stop the development server before using the same port.
+npm start
+```
+
+`npm start` serves the built UI and the same backend. Restart it after server-code
+changes. The old design studies remain available at `?variant=L1`, `?variant=T7`,
+and the other URLs documented below. Those old studies still use prepared data.
+
+---
+
 # TRACE UI prototype
 
 Interactive Vue 3 prototype for the fictional investigation in Architecture.md.

@@ -1,0 +1,8 @@
+{
+  "name": "trace-selected-designs",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "vite --host 127.0.0.1 --port 5188 --strictPort", "build": "tsc --noEmit && vite build", "typecheck": "tsc --noEmit" },
+  "dependencies": { "vue": "^3.5.0", "lucide-vue-next": "^0.468.0" },
+  "devDependencies": { "typescript": "~5.9.3", "vite": "^6.1.0" }
+}

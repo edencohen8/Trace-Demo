@@ -21,6 +21,8 @@ import {
 import type { Model } from "@earendil-works/pi-ai";
 
 export interface InvestigationAgentOptions {
+  signal?: AbortSignal;
+  maxTurns?: number;
   systemPrompt?: string;
   tools?: AgentTool<any>[];
   model: Model<any>;
@@ -81,6 +83,7 @@ export function createInvestigationAgent(
   }
 
   const events: RecordedAgentEvent[] = [];
+  let turns = 0;
 
   const agent = new Agent({
     initialState: {
@@ -98,6 +101,10 @@ export function createInvestigationAgent(
 
   // Track all lifecycle events
   agent.subscribe(async (event: AgentEvent) => {
+    if (event.type === 'turn_start' && ++turns > (options.maxTurns ?? 16)) {
+      agent.abort();
+      throw new Error('Agent turn budget reached');
+    }
     events.push({
       timestamp: Date.now(),
       type: event.type,
@@ -113,7 +120,14 @@ export function createInvestigationAgent(
     sessionId,
 
     async prompt(input: string | AgentMessage | AgentMessage[]): Promise<void> {
-      await agent.prompt(input as any);
+      options.signal?.throwIfAborted();
+      const abort = () => agent.abort();
+      options.signal?.addEventListener('abort', abort, { once: true });
+      try {
+        await agent.prompt(input as any);
+        options.signal?.throwIfAborted();
+        if (agent.state.errorMessage) throw new Error(agent.state.errorMessage);
+      } finally { options.signal?.removeEventListener('abort', abort); }
     },
 
     async continue(): Promise<void> {

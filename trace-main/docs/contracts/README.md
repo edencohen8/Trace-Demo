@@ -26,6 +26,12 @@ Authoritative repository of inter-lane contracts, schemas, API specifications, a
 
 ---
 
+## Local demo adapter
+
+The standalone GitHub demo uses [the local demo contract](06-local-demo.md).
+This is the user-requested no-database path. It does not change the historical
+GitLab lane contracts or require messages to those lanes.
+
 ## Contract Lifecycle & Statuses
 
 - **`PROPOSED`**: Contract is under active grilling or planning; open to feedback from consuming lanes.

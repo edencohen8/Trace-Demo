@@ -4,19 +4,30 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
+    "dev": "node --import tsx scripts/serve.ts",
     "build": "vite build",
-    "test:agent": "tsx scripts/verify-subtask-3-1.ts",
-    "test:skills": "tsx scripts/verify-subtask-3-2.ts",
-    "test:router": "tsx scripts/verify-subtask-3-3.ts",
-    "test:validator": "tsx scripts/verify-subtask-3-4.ts",
-    "test:investigator": "tsx scripts/verify-subtask-3-5.ts",
-    "agent:cli": "tsx scripts/interactive-agent.ts"
+    "test:agent": "node --import tsx scripts/verify-subtask-3-1.ts",
+    "test:skills": "node --import tsx scripts/verify-subtask-3-2.ts",
+    "test:router": "node --import tsx scripts/verify-subtask-3-3.ts",
+    "test:validator": "node --import tsx scripts/verify-subtask-3-4.ts",
+    "test:investigator": "node --import tsx scripts/verify-subtask-3-5.ts",
+    "agent:cli": "node --import tsx scripts/interactive-agent.ts",
+    "start": "node --import tsx scripts/serve.ts --production",
+    "typecheck": "tsc --noEmit && vue-tsc --noEmit -p tsconfig.demo.json",
+    "test:demo": "node --import tsx --test scripts/verify-demo.ts",
+    "test:quality": "node --import tsx --test scripts/verify-agent-quality.ts",
+    "test": "npm run test:agent && npm run test:skills && npm run test:router && npm run test:validator && npm run test:investigator && npm run test:demo && npm run test:quality && npm run test:progress && npm run test:timeline",
+    "check:ai": "node --import tsx scripts/check-ai.ts",
+    "test:progress": "node --import tsx --test scripts/verify-progress-order.ts",
+    "test:timeline": "node --import tsx --test scripts/verify-timeline-points.ts"
   },
   "dependencies": {
     "@earendil-works/pi-agent-core": "^1.2.0",
     "@earendil-works/pi-ai": "^1.2.0",
+    "csv-parse": "^7.0.3",
     "lucide-vue-next": "^0.468.0",
+    "marked": "^18.1.1",
+    "read-excel-file": "^9.3.12",
     "vue": "^3.5.0"
   },
   "devDependencies": {
@@ -24,7 +35,11 @@
     "@types/node": "^26.6.5",
     "@vitejs/plugin-vue": "^5.2.0",
     "tsx": "^4.23.15",
-    "typescript": "^7.0.2",
-    "vite": "^6.1.0"
+    "typescript": "~5.9.3",
+    "vite": "^6.1.0",
+    "vue-tsc": "^3.3.13"
+  },
+  "engines": {
+    "node": ">=22.19.0"
   }
 }

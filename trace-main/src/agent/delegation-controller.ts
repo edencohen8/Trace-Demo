@@ -7,12 +7,14 @@
  */
 
 import { Model } from "@earendil-works/pi-ai";
-import { AgentTool, StreamFn } from "@earendil-works/pi-agent-core";
+import { AgentTool, StreamFn, type AgentEvent } from "@earendil-works/pi-agent-core";
 import { DelegatedInvestigationTask, SubAgentResult, Finding } from "./types.js";
 import { createInvestigationAgent, InvestigationAgentController } from "./harness.js";
 import { EvidenceResolver } from "./evidence-resolver.js";
 
 export interface DelegationControllerOptions {
+  signal?: AbortSignal;
+  onEvent?: (event: AgentEvent) => void;
   model: Model<any>;
   streamFn: StreamFn;
   availableWorkerTools: AgentTool<any>[];
@@ -21,6 +23,7 @@ export interface DelegationControllerOptions {
 }
 
 export class DelegationController {
+  private options: DelegationControllerOptions;
   private readonly model: Model<any>;
   private readonly streamFn: StreamFn;
   private readonly availableWorkerTools: Map<string, AgentTool<any>> = new Map();
@@ -37,6 +40,7 @@ export class DelegationController {
   ]);
 
   constructor(options: DelegationControllerOptions) {
+    this.options = options;
     this.model = options.model;
     this.streamFn = options.streamFn;
     this.evidenceResolver = options.evidenceResolver;
@@ -97,8 +101,8 @@ export class DelegationController {
     // 3. Track metrics during execution
     let toolCallsCount = 0;
     let rowsInspected = 0;
-    const maxToolCalls = task.budget?.max_tool_calls || 8;
-    const maxRows = task.budget?.max_rows || 50;
+    const maxToolCalls = Math.min(8, Math.max(1, task.budget?.max_tool_calls || 8));
+    const maxRows = Math.min(50, Math.max(1, task.budget?.max_rows || 50));
 
     // Wrap worker tools to enforce row limits and count calls
     const instrumentedTools: AgentTool<any>[] = workerTools.map((t) => ({
@@ -107,12 +111,15 @@ export class DelegationController {
       description: t.description,
       parameters: t.parameters,
       execute: async (toolCallId, params, signal, onUpdate) => {
+        this.options.signal?.throwIfAborted();
         if (toolCallsCount >= maxToolCalls) {
           throw new Error(`Worker tool call limit reached (${maxToolCalls})`);
         }
         toolCallsCount += 1;
 
-        const rawResult = await t.execute(toolCallId, params, signal, onUpdate);
+        const values = params as Record<string, unknown>;
+        const boundedParams = { ...values, limit: Math.min(maxRows, typeof values.limit === 'number' ? values.limit : maxRows) };
+        const rawResult = await t.execute(toolCallId, boundedParams, signal, onUpdate);
 
         // Track rows if returned in structured output
         if (
@@ -134,6 +141,9 @@ export class DelegationController {
 
     // 4. Create isolated worker agent instance
     const workerAgent = createInvestigationAgent({
+      signal: this.options.signal,
+      maxTurns: maxToolCalls + 2,
+      onEvent: this.options.onEvent,
       sessionId: `worker-${task.task_id}-${Date.now()}`,
       model: this.model,
       streamFn: this.streamFn,

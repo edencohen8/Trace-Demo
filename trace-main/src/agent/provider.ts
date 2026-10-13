@@ -14,6 +14,8 @@ import {
   type SimpleStreamOptions,
 } from "@earendil-works/pi-ai";
 import { openAICompletionsApi } from "@earendil-works/pi-ai/api/openai-completions.lazy";
+import { anthropicProvider } from "@earendil-works/pi-ai/providers/anthropic";
+import { googleProvider } from "@earendil-works/pi-ai/providers/google";
 import type { StreamFn } from "@earendil-works/pi-agent-core";
 
 export const DEFAULT_LITELLM_URL = process.env.LITELLM_URL || "http://localhost:4000/v1";
@@ -34,6 +36,9 @@ export interface FauxProviderOptions {
 }
 
 export interface ModelRegistryOptions {
+  provider?: 'anthropic' | 'gemini' | 'litellm';
+  apiKey?: string;
+  modelId?: string;
   useFaux?: boolean;
   litellmOptions?: LiteLLMProviderOptions;
   fauxOptions?: FauxProviderOptions;
@@ -104,12 +109,21 @@ export function createFauxModelProvider(options: FauxProviderOptions = {}) {
  * Initializes models registry with requested or default providers.
  */
 export function initModelRegistry(options: ModelRegistryOptions = {}): ModelRegistry {
-  const models = createModels();
+  const models = createModels(options.apiKey ? { authContext: {
+    env: async (name) => ['ANTHROPIC_API_KEY', 'GEMINI_API_KEY'].includes(name) ? options.apiKey : undefined,
+    fileExists: async () => false,
+  } } : {});
+  const providerId = options.provider === 'gemini' ? 'google' : options.provider ?? 'litellm';
+  const selectedModel = options.modelId ?? options.litellmOptions?.modelId ?? DEFAULT_MODEL_ID;
   let fauxInstance: ReturnType<typeof fauxProvider> | null = null;
 
   if (options.useFaux) {
     fauxInstance = createFauxModelProvider(options.fauxOptions);
     models.setProvider(fauxInstance.provider);
+  } else if (providerId === 'anthropic') {
+    models.setProvider(anthropicProvider());
+  } else if (providerId === 'google') {
+    models.setProvider(googleProvider());
   } else {
     const litellm = createLiteLLMProvider(options.litellmOptions);
     models.setProvider(litellm);
@@ -123,7 +137,7 @@ export function initModelRegistry(options: ModelRegistryOptions = {}): ModelRegi
       if (options.useFaux && fauxInstance) {
         return fauxInstance.getModel();
       }
-      return models.getModel(providerName || "litellm", modelId || DEFAULT_MODEL_ID);
+      return models.getModel(providerName || providerId, modelId || selectedModel);
     },
   };
 }

@@ -1,0 +1,48 @@
+.message-text.markdown-message{white-space:normal;line-height:1.8;text-align:start;unicode-bidi:isolate}
+.markdown-message p{margin:0 0 .8em;white-space:pre-wrap}
+.markdown-message p:last-child{margin-bottom:0}
+.markdown-message strong{font-weight:700;color:#f0f4f8}
+.markdown-message h4{font-size:1em;line-height:1.6;margin:1em 0 .4em;font-weight:700}
+.markdown-message h4:first-child{margin-top:0}
+.markdown-message ul,.markdown-message ol{padding-inline-start:1.35em;margin:.55em 0 .9em}
+.markdown-message li{margin:.4em 0;padding-inline-start:.15em}
+.markdown-message li>p{margin-bottom:.35em}
+.markdown-message code{unicode-bidi:isolate;direction:ltr;display:inline-block}
+.citation.citation-link{display:inline-flex;align-items:baseline;gap:2px;direction:rtl;unicode-bidi:isolate;font-size:10px;line-height:1.45;font-weight:400;padding:0 3px;margin:0 2px;border:0;border-bottom:1px solid #7a9ab347;border-radius:2px;background:transparent;color:#a7bbce;vertical-align:baseline;white-space:nowrap}
+.citation.citation-link:hover{background:#32435460;border-color:#a6c6e3;color:#e1effb}
+.markdown-message code{font-size:.88em;background:#27323d;padding:0 .3em;border-radius:3px}
+.markdown-message pre{max-width:100%;overflow:auto;padding:10px;border:1px solid var(--line);border-radius:5px;white-space:pre-wrap;text-align:left}
+.markdown-message pre code{background:none;padding:0;display:block}
+.markdown-message blockquote{margin:.7em 0;padding-inline-start:12px;border-inline-start:2px solid #70849c;color:#c0cbd8}
+.markdown-message hr{border:0;border-top:1px solid var(--line);margin:1em 0}
+.message-table{overflow:auto;max-width:100%;margin:.7em 0}
+.message-table th{position:static;font-weight:600}
+.message-table td,.message-table th{width:auto!important;font-size:12px!important;padding:7px}
+.answer-details{margin-top:14px;padding-top:10px;border-top:1px solid var(--line);font-size:12px;color:#b7c2cf}
+.answer-details>summary{font-size:11px;color:var(--blue)}
+.answer-details section{margin-top:14px}
+.answer-details h4{margin:0 0 7px;font-size:12px;color:#dfe7f0}
+.detail-citations{margin-top:7px;display:flex;flex-wrap:wrap;gap:3px}
+.activity-history{margin:0 0 12px;color:var(--muted);font-size:11px}
+.activity-history>summary{padding:5px 0;color:#aabaca}
+.investigation-progress{padding:14px 0;font-size:12px;color:#c8d4df}
+.activity-history .investigation-progress{padding:9px 0 2px}
+.activity-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11px;margin-bottom:14px;color:var(--muted)}
+.activity-heading .activity-time{font-variant-numeric:tabular-nums;font-size:10px;color:#97a6b6}
+.activity-steps{list-style:none;padding:0;margin:0}
+.activity-steps>li{display:flex;gap:10px;position:relative;padding:0 0 16px;min-height:30px}
+.activity-steps>li:not(:last-child)::after{content:'';position:absolute;inset-inline-start:6px;top:18px;bottom:2px;width:1px;background:#37424e}
+.activity-symbol{display:flex;align-items:flex-start;justify-content:center;width:13px;flex-shrink:0;padding-top:3px;color:#81958b}
+.activity-copy{min-width:0;flex:1}
+.activity-title{line-height:1.6;font-size:12px;font-weight:500;margin:0;color:#c7d1dc}
+.activity-detail{font-size:11px;line-height:1.65;color:#9fabba;margin:3px 0 0;overflow-wrap:anywhere;white-space:pre-wrap}
+.activity-steps .running .activity-title,.activity-steps .running .activity-symbol{color:#c4ddf3}
+.activity-steps .error .activity-symbol,.activity-steps .error .activity-detail{color:#d4b083}
+.activity-evidence{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.activity-footer{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:10px;color:var(--muted)}
+.activity-footer>button{font-size:10px;border:0;padding:3px 0;color:#adc4d8}
+.activity-spinner{animation:activity-spin 1.4s linear infinite}
+.activity-enter-active{transition:opacity .18s ease,transform .18s ease}
+.activity-enter-from{opacity:0;transform:translateY(5px)}
+@keyframes activity-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.activity-spinner{animation:none}.activity-enter-active{transition:none}}

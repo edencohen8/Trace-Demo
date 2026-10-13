@@ -104,9 +104,8 @@ User Inquiry:
 "${trimmed}"
 
 Respond ONLY with a valid JSON object matching this schema:
+Do not repeat the user's question or case context. The server retains the original question and case ID.
 {
-  "originalQuestion": "${trimmed}",
-  "investigationId": "${session.caseId}",
   "requestedTime": { "start": "string", "end": "string" } | null,
   "requestedEntities": ["string"],
   "entityScope": "single" | "specified" | "all_available",
@@ -138,8 +137,8 @@ Respond ONLY with a valid JSON object matching this schema:
 
       // Clean up nulls to match optional fields
       const result: RequestedAnswer = {
-        originalQuestion: parsed.originalQuestion || trimmed,
-        investigationId: parsed.investigationId || session.caseId,
+        originalQuestion: userQuery,
+        investigationId: session.caseId,
         entityScope: parsed.entityScope || "single",
         answerKind: parsed.answerKind || "health",
         mustCover: Array.isArray(parsed.mustCover) ? parsed.mustCover : [],
