@@ -4,10 +4,11 @@ import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { parse } from 'csv-parse/sync';
 import readXlsxFile from 'read-excel-file/node';
-import type { CaseSummary, EvidenceEvent, EventFilter, EventPage, ResolvedSource, TimelineBin, TimelinePoints } from '../demo/types.ts';
+import type { CaseSummary, EvidenceEvent, EventFilter, EventPage, ResolvedSource, TimelineBin, TimelinePoints, TimelineFocus, TimelineGroupDetail } from '../demo/types.ts';
 import { getTimelineSystem } from '../demo/systems.ts';
 import { decimalDifference } from './decimal.ts';
 import { buildTimelinePoints } from './timeline-points.ts';
+import { buildTimelineFocus, describeTimelineGroup, findTimelineStateChanges } from './timeline-focus.ts';
 
 // This is the only data root. No simulator directory or arbitrary upload path is read.
 export const EVIDENCE_ROOT = fileURLToPath(new URL('../radar-simulator/TRACE_v03_investigator_data/', import.meta.url));
@@ -35,6 +36,7 @@ interface LoadedCase {
   events: EvidenceEvent[];
   byBadge: Map<string, EvidenceEvent>;
   originals: Map<string, string[]>;
+  stateChanges: Set<string>;
 }
 
 function iso(value: string): string {
@@ -182,7 +184,7 @@ export class EvidenceStore {
     summary.sources = [...new Set(events.map((event) => event.source))].sort();
     summary.targets = [...new Set(events.flatMap((event) => event.target ? [event.target] : []))].sort();
     summary.diary = events.filter((event) => event.family === 'operator_diary');
-    return { summary, manifest, events, originals, byBadge: new Map(events.map((event) => [event.badge, event])) };
+    return { summary, manifest, events, originals, byBadge: new Map(events.map((event) => [event.badge, event])), stateChanges: findTimelineStateChanges(events) };
   }
 
   async summaries(): Promise<CaseSummary[]> { return Promise.all(CASE_IDS.map((id) => this.summary(id))); }
@@ -219,6 +221,20 @@ export class EvidenceStore {
 
   async timelinePoints(id: string, filter: EventFilter = {}): Promise<TimelinePoints> {
     return buildTimelinePoints(await this.filtered(id, filter));
+  }
+
+  private async focusIndex(id: string, filter: EventFilter) {
+    const loaded = await this.load(id);
+    const start = iso(filter.start ?? loaded.summary.start); const end = iso(filter.end ?? loaded.summary.end);
+    return buildTimelineFocus(await this.filtered(id, { ...filter, start, end }), start, end, loaded.stateChanges);
+  }
+
+  async timelineFocus(id: string, filter: EventFilter = {}): Promise<TimelineFocus> {
+    return (await this.focusIndex(id, filter)).result;
+  }
+
+  async timelineGroup(id: string, group: string, filter: EventFilter = {}, series?: string): Promise<TimelineGroupDetail> {
+    return describeTimelineGroup(await this.focusIndex(id, filter), group, filter.offset, filter.limit, series);
   }
 
   async timeline(id: string, filter: EventFilter = {}): Promise<TimelineBin[]> {

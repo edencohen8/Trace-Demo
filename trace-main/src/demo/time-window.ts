@@ -1,5 +1,16 @@
 export interface TimeWindow { start: number; end: number }
 
+/** Drag the content with the pointer: rightward movement reveals earlier time. */
+export function panTimeWindow(current: TimeWindow, recording: TimeWindow, deltaPixels: number, trackWidth: number): TimeWindow {
+  const duration = current.end - current.start;
+  const total = recording.end - recording.start;
+  if (![current.start, current.end, recording.start, recording.end, deltaPixels, trackWidth].every(Number.isFinite)
+    || duration <= 0 || total <= 0 || trackWidth <= 0) return current;
+  const width = Math.min(duration, total);
+  const start = Math.round(Math.max(recording.start, Math.min(recording.end - width, current.start - deltaPixels / trackWidth * width)));
+  return { start, end: start + width };
+}
+
 /** Keep the time under the pointer fixed unless the recording boundary is reached. */
 export function zoomTimeWindow(current: TimeWindow, recording: TimeWindow, factor: number, fraction = .5): TimeWindow {
   const duration = current.end - current.start;

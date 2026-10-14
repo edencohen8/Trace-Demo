@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
 async function start(){
  const variant=new URLSearchParams(location.search).get('variant');
- if(!variant || variant==='demo'){
+ if(!variant || variant==='demo' || /^G(?:[1-9]|10)$/i.test(variant)){
   const [{default:App}]=await Promise.all([import('./demo/DemoApp.vue'),import('./demo/demo.css')]);
   createApp(App).mount('#app');
  }else if(variant==='original'){

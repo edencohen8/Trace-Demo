@@ -38,6 +38,8 @@ an `error` field. Each case endpoint rejects unknown case IDs.
 | GET | `/api/cases/:id/events` | Bounded rows, total, offset and nextOffset |
 | GET | `/api/cases/:id/timeline` | 90 time bins, with counts and warnings per source |
 | GET | `/api/cases/:id/timeline-points` | Bounded source-time markers, total point/record counts and truncation flag |
+| GET | `/api/cases/:id/timeline-focus` | Display groups covering every filtered record, total record count and time resolution |
+| GET | `/api/cases/:id/timeline-group?group=…&series=…` | Group metadata, source/type/target series, numeric ranges with exact references and a paged list of original records |
 | GET | `/api/cases/:id/evidence?badge=…` | Exact original lines, source metadata and hash |
 | GET | `/api/cases/:id/session` | Saved chat and approved answers |
 | GET | `/api/cases/:id/export` | Download the same state as JSON |
@@ -106,11 +108,53 @@ up zooms in, down zooms out. It stops at 15 seconds or the full recording extent
 The axis updates immediately; event queries wait for a 90ms pause in the gesture.
 Pending older responses cannot replace the new window. Chat and source-panel
 scrolling, horizontal gestures, and Ctrl/Command browser zoom remain separate.
+Dragging the system plot or time axis moves the content with the pointer: right
+reveals earlier time, left reveals later time. It preserves the window duration
+and clamps at the recording boundaries. A five-pixel horizontal threshold keeps
+ordinary record clicks separate from drags. Pointer capture keeps an active drag
+working outside the plot; its release click cannot select a record. The axis and
+existing markers move during the gesture; fresh records load when it ends.
+Vertical touch scrolling and the chat/source panels retain their normal behavior.
 Record navigation crosses page boundaries within the current filtered result or
 selected same-time group. A source opened outside that result does not claim a
 position in it.
 On mobile, timeline and chat have separate views; attaching evidence opens chat,
 and following a citation opens the source panel over the timeline.
+
+### Focused timeline trial
+
+The default `focused` display replaces sampled dots with time-bounded activity
+groups. The `records` display keeps the previous source-time markers and its
+explicit sampling notice. Neither mode changes evidence or the agent's queries.
+
+Focused mode accounts for every filtered row exactly once. Known periodic types
+from the public catalog (RadarScan, DetectionCandidate, SensorHealth, TrackUpdate,
+UiTrackPublished, IFFReply, PositionReport) share a quiet activity band per system
+and time bucket. Buckets use UTC-aligned, rounded durations targeting ten buckets
+per viewport. Their rendered endpoints are the first and last actual records,
+not claims of continuous activity or healthy operation. Windows of 30 seconds or
+less show individual periodic records. Activity bands are a display container;
+their drill-down separates source, family, type, target, track/sensor identity,
+severity and non-measurement content. Transport timestamps, message sequence/ID,
+the scan counter, and the explicitly listed continuous numeric fields do not
+split series. Each numeric range stays within one series and cites its extrema.
+No global numeric anomaly score or relevance pruning is applied.
+
+Diary notes, unknown/non-periodic messages, component reports and warnings stay
+separate from activity bands. Exact repeated content can share a counted marker
+within a time bucket. Changes to track state, filter revision, position quality,
+delivery state, Mode 3/A code or reported sensor status get separate markers even
+at INFO severity. State comparisons use the same source/type/target/track/sensor
+stream across the full case, so zoom and text filters do not invent transitions.
+The first observation has no assumed prior state. A change is not a causal claim.
+
+Group IDs are deterministic hashes of kind and membership boundaries/count.
+Group reads rebuild within the original case and filter scope; unknown groups or
+series fail. Pagination is capped at 500 rows, with 80 rows in the UI. Clicking a
+group opens the bottom panel, where source/type/target series, measurement ranges
+and all original rows are available. Selecting a series or paging this panel does
+not alter the timeline filters/window. Exact-source inspection retains a return
+to the group and the existing chat attachment action.
 
 ## Answer presentation
 

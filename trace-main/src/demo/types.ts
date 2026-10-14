@@ -81,6 +81,38 @@ export interface TimelinePoints {
   truncated: boolean;
 }
 
+export interface TimelineGroup extends TimelinePoint {
+  id: string;
+  end: string;
+  kind: 'activity' | 'event' | 'change' | 'alert' | 'diary' | 'record';
+  label: string;
+  seriesCount: number;
+}
+
+export interface TimelineFocus {
+  groups: TimelineGroup[];
+  totalRecords: number;
+  bucketMs: number;
+}
+
+export interface TimelineSeries {
+  id: string;
+  source: string;
+  type: string;
+  target?: string;
+  count: number;
+  start: string;
+  end: string;
+  ranges: { field: string; min: number; max: number; minBadge: string; maxBadge: string }[];
+}
+
+export interface TimelineGroupDetail {
+  group: TimelineGroup;
+  series: TimelineSeries[];
+  page: EventPage;
+  seriesId?: string;
+}
+
 export interface ResolvedSource {
   badge: string;
   sourceFile: string;

@@ -1,4 +1,4 @@
-import type { TimelinePoint } from './types.ts';
+import type { TimelineGroup, TimelinePoint } from './types.ts';
 
 export interface PositionedPoint extends TimelinePoint {
   left: number;
@@ -29,5 +29,18 @@ export function layoutTimelinePoints(points: readonly TimelinePoint[], start: st
     // A small, stable offset within each row avoids drawing an artificial grid.
     const offset = ((hash >>> 8) % 101) / 100 * 8 - 4;
     return { ...point, left, top: 20 + row * 15 + offset };
+  });
+}
+
+export function layoutTimelineGroups(groups: readonly TimelineGroup[], start: string, end: string, trackWidth: number) {
+  const duration = Date.parse(end) - Date.parse(start);
+  if (!Number.isFinite(duration) || duration <= 0) return [];
+  const signals = layoutTimelinePoints(groups.filter(group => group.kind !== 'activity'), start, end, trackWidth);
+  const positions = new Map(signals.map(point => [point.badge, point]));
+  return groups.filter(group => group.end >= start && group.time <= end).map(group => {
+    const left = Math.max(0, (Date.parse(group.time) - Date.parse(start)) / duration * 100);
+    const right = Math.min(100, (Date.parse(group.end) - Date.parse(start)) / duration * 100);
+    return { ...group, left, width: Math.max(0, right - left),
+      top: group.kind === 'activity' ? 82 : (positions.get(group.badge)?.top ?? 50) * .62 };
   });
 }

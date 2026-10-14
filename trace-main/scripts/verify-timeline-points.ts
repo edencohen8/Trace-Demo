@@ -4,7 +4,7 @@ import { buildTimelinePoints } from '../src/server/timeline-points.ts';
 import { EvidenceStore } from '../src/server/evidence-store.ts';
 import type { EvidenceEvent } from '../src/demo/types.ts';
 import { layoutTimelinePoints } from '../src/demo/point-layout.ts';
-import { wheelZoomFactor, zoomTimeWindow } from '../src/demo/time-window.ts';
+import { panTimeWindow, wheelZoomFactor, zoomTimeWindow } from '../src/demo/time-window.ts';
 
 function event(index: number, ms: number, extra: Partial<EvidenceEvent> = {}): EvidenceEvent {
   return { id: `record-${index}`, badge: `[sensor.txt:L${index + 1}]`, caseId: 'case_001',
@@ -65,6 +65,26 @@ test('wheel zoom keeps the time under the cursor fixed in both directions', () =
     assert.ok(Math.abs(next.start + (next.end - next.start) * fraction - anchor) <= 1);
     assert.equal(next.end - next.start < current.end - current.start, delta < 0);
   }
+});
+
+test('drag panning follows the pointer in both directions without changing zoom', () => {
+  const recording = { start: 0, end: 5_400_000 };
+  const current = { start: 1_000_000, end: 1_300_000 };
+  assert.deepEqual(panTimeWindow(current, recording, 100, 1000), { start: 970_000, end: 1_270_000 });
+  assert.deepEqual(panTimeWindow(current, recording, -100, 1000), { start: 1_030_000, end: 1_330_000 });
+  assert.deepEqual(panTimeWindow(current, recording, 50, 500), panTimeWindow(current, recording, 100, 1000));
+  assert.deepEqual(panTimeWindow(current, recording, 0, 1000), current);
+});
+
+test('dragging clamps at recording edges and returns smoothly from them', () => {
+  const recording = { start: 0, end: 5_400_000 };
+  const current = { start: 1_000_000, end: 1_300_000 };
+  assert.deepEqual(panTimeWindow(current, recording, 10_000, 1000), { start: 0, end: 300_000 });
+  assert.deepEqual(panTimeWindow(current, recording, -100_000, 1000), { start: 5_100_000, end: 5_400_000 });
+  assert.deepEqual(panTimeWindow(current, recording, 100, 1000), { start: 970_000, end: 1_270_000 });
+  assert.deepEqual(panTimeWindow(recording, recording, 300, 1000), recording);
+  assert.deepEqual(panTimeWindow(current, recording, 100, 0), current);
+  assert.deepEqual(panTimeWindow(current, recording, NaN, 1000), current);
 });
 
 test('wheel zoom respects recording boundaries and the minimum time window', () => {

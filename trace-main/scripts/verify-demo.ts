@@ -352,6 +352,14 @@ test('HTTP API serves data, handles SSE, rejects cross-origin writes and persist
     assert.equal(points.totalRecords, 2);
     assert.ok(points.points.every((point: { system: string; badge: string }) => point.system === 'iff' && point.badge.startsWith('[sniffer.csv:')));
     assert.equal((await fetch(`${base}/cases/not-a-case/timeline-points`)).status, 400);
+    const scope = 'start=2026-10-08T11:00:00Z&end=2026-10-08T11:05:00Z';
+    const focus = await (await fetch(`${base}/cases/case_001/timeline-focus?${scope}`)).json();
+    const group = focus.groups.find((group: { count: number }) => group.count > 1);
+    assert.ok(group);
+    const grouped = await (await fetch(`${base}/cases/case_001/timeline-group?${scope}&group=${group.id}&limit=2`)).json();
+    assert.equal(grouped.page.total, group.count); assert.equal(grouped.page.rows.length, 2);
+    assert.equal((await fetch(`${base}/cases/case_001/timeline-group?${scope}&group=unknown`)).status, 400);
+    assert.equal((await fetch(`${base}/cases/not-a-case/timeline-focus`)).status, 400);
     assert.equal((await fetch(`${base}/cases/not-a-case/events`)).status, 400);
     assert.equal((await fetch(`${base}/cases/case_001/session`, { headers: { Origin: 'https://unrelated.example' } })).status, 403);
     const response = await fetch(`${base}/cases/case_001/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: 'Check the sensor', evidence: [] }) });

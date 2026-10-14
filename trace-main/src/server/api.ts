@@ -49,7 +49,7 @@ export function createApi(options: { store?: EvidenceStore; sessions?: SessionSt
       if (url.pathname === '/api/cases' && request.method === 'GET') {
         json(response, 200, await store.summaries()); return true;
       }
-      const match = url.pathname.match(/^\/api\/cases\/([^/]+)\/(events|timeline|timeline-points|evidence|session|export|chat|approve)$/);
+      const match = url.pathname.match(/^\/api\/cases\/([^/]+)\/(events|timeline|timeline-points|timeline-focus|timeline-group|evidence|session|export|chat|approve)$/);
       if (!match) { json(response, 404, { error: 'API route not found' }); return true; }
       const [, caseId, action] = match as [string, string, string];
       store.assertCase(caseId);
@@ -58,6 +58,8 @@ export function createApi(options: { store?: EvidenceStore; sessions?: SessionSt
           case 'events': json(response, 200, await store.query(caseId, parseFilter(url.searchParams))); break;
           case 'timeline': json(response, 200, await store.timeline(caseId, parseFilter(url.searchParams))); break;
           case 'timeline-points': json(response, 200, await store.timelinePoints(caseId, parseFilter(url.searchParams))); break;
+          case 'timeline-focus': json(response, 200, await store.timelineFocus(caseId, parseFilter(url.searchParams))); break;
+          case 'timeline-group': json(response, 200, await store.timelineGroup(caseId, url.searchParams.get('group') ?? '', parseFilter(url.searchParams), url.searchParams.get('series') || undefined)); break;
           case 'evidence': json(response, 200, await store.resolve(caseId, url.searchParams.get('badge') ?? '')); break;
           case 'session': json(response, 200, await sessions.read(caseId)); break;
           case 'export': response.setHeader('Content-Disposition', `attachment; filename="trace-${caseId}.json"`); json(response, 200, await sessions.read(caseId)); break;

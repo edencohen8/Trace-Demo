@@ -4,8 +4,8 @@ import { ChevronLeft, ChevronRight, FileText, Link2, X } from 'lucide-vue-next';
 import type { ResolvedSource } from './types.ts';
 import { TIMELINE_SYSTEMS } from './systems.ts';
 
-const props = defineProps<{ evidence: ResolvedSource; position: string; previous: boolean; next: boolean; loading: boolean }>();
-const emit = defineEmits<{ attach: [badge: string]; close: []; navigate: [direction: number] }>();
+const props = defineProps<{ evidence: ResolvedSource; position: string; previous: boolean; next: boolean; loading: boolean; grouped?: boolean }>();
+const emit = defineEmits<{ attach: [badge: string]; close: []; navigate: [direction: number]; group: [] }>();
 const tab = ref<'summary' | 'fields' | 'source'>('summary');
 const tabs = [{ id: 'summary', label: 'תקציר' }, { id: 'fields', label: 'שדות' }, { id: 'source', label: 'מקור' }] as const;
 const pane = ref<HTMLElement>();
@@ -24,7 +24,7 @@ function tabKey(event: KeyboardEvent, index: number) {
 <template>
   <section class="source-inspector bottom-dock" aria-label="מציג רשומות מקור">
     <header class="dock-header">
-      <div class="dock-identity"><bdi :title="evidence.badge">{{ evidence.sourceFile }}:{{ evidence.line }}</bdi><strong>{{ evidence.event?.type || 'קובץ מקור' }}</strong><time>{{ localTime }}</time></div>
+      <div class="dock-identity"><button v-if="grouped" class="back-to-group" @click="emit('group')">חזרה לקבוצה</button><bdi :title="evidence.badge">{{ evidence.sourceFile }}:{{ evidence.line }}</bdi><strong>{{ evidence.event?.type || 'קובץ מקור' }}</strong><time>{{ localTime }}</time></div>
       <div class="record-tabs" role="tablist" aria-label="תוכן הרשומה"><button v-for="(item, index) in tabs" :id="`record-tab-${item.id}`" :key="item.id" role="tab" :aria-selected="tab === item.id" :aria-controls="`record-pane-${item.id}`" :tabindex="tab === item.id ? 0 : -1" @click="tab = item.id" @keydown="tabKey($event, index)">{{ item.label }}</button></div>
       <div class="dock-actions"><div v-if="position" class="evidence-pager" dir="ltr"><button :disabled="!previous || loading" aria-label="רשומה קודמת" @click="emit('navigate', -1)"><ChevronLeft :size="14"/></button><span>{{ position }}</span><button :disabled="!next || loading" aria-label="רשומה הבאה" @click="emit('navigate', 1)"><ChevronRight :size="14"/></button></div><button class="attach-button" aria-label="שאלו על הרשומה" @click="emit('attach', evidence.badge)"><Link2 :size="13"/><span>שאלו על הרשומה</span></button><button class="icon-button" aria-label="סגירת מציג הלוגים" @click="emit('close')"><X :size="16"/></button></div>
     </header>
