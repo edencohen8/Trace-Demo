@@ -113,14 +113,13 @@ summary { cursor: pointer; }
 .focus-legend .activity-key { width: 16px; border-radius: 2px; background: #70c6b233; border: 1px solid #70c6b24d; }
 .focus-legend .alert-key { background: var(--warning); }
 .lane-track .focus-marker { width: 15px; height: 15px; }
-.lane-track .focus-marker span { display: block; width: 5px; height: 5px; opacity: 1; background: var(--accent); }
-.lane-track .focus-marker.record span { background: var(--marker); width: 4px; height: 4px; opacity: .65; }
-.lane-track .focus-marker.event span, .lane-track .focus-marker.change span { border-radius: 1px; transform: rotate(45deg); width: 6px; height: 6px; }
+.lane-track .focus-marker span { display: block; width: 4.5px; height: 4.5px; border-radius: 50%; opacity: 1; background: var(--accent); }
+.lane-track .focus-marker.record span { background: var(--marker); width: 3.5px; height: 3.5px; opacity: .65; }
+.lane-track .focus-marker.event span, .lane-track .focus-marker.change span { width: 5px; height: 5px; }
 .lane-track .focus-marker.change span { background: #c7e9de; }
 .lane-track .focus-marker.diary span { outline: 1px solid var(--accent); outline-offset: 3px; }
 .lane-track .focus-marker.alert span { background: var(--warning); }
 .lane-track .focus-marker.critical span { background: var(--danger); }
-.lane-track .focus-marker small { position: absolute; left: 11px; top: -4px; font-size: 8px; color: var(--muted); }
 .lane-track .focus-marker.activity { transform: translateY(-50%); min-width: 5px; height: 15px; background: #70c6b212; border: 1px solid #70c6b22b; border-radius: 3px; }
 .lane-track .focus-marker.activity span { display: none; }
 .lane-track .focus-marker.activity b { color: #b0d0c5; font-size: 9px; font-weight: 400; overflow: hidden; }

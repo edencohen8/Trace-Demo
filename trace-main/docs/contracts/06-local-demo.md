@@ -101,7 +101,8 @@ Each system returns at most 300 points. Wider windows use a deterministic sample
 prioritizing warnings/errors and diary entries. The timeline note shows the number
 of represented logs, using each point's record count. Sampled views show that count
 out of the filtered total. Extra citation pins count once if their same-time group
-is absent from the sample. Focused mode shows its full filtered record count.
+is absent from the sample. Focused mode labels its full filtered record count as
+records in the time window, including routine records whose bands are hidden.
 Loading or moving the camera hides the old count until the new view is ready.
 Zooming in exposes more detail. Sampling never moves a timestamp.
 Points use five stable vertical bands within each system to separate nearby
@@ -161,9 +162,10 @@ and following a citation opens the source panel over the timeline.
 
 ### Focused timeline trial
 
-The default `focused` display replaces sampled dots with time-bounded activity
-groups. The `records` display keeps the previous source-time markers and its
-explicit sampling notice. Neither mode changes evidence or the agent's queries.
+The default `focused` display shows event, change, alert and diary markers while
+hiding periodic activity bands. The `records` display keeps the previous
+source-time markers and its explicit sampling notice. Neither mode changes
+evidence or the agent's queries.
 
 Focused mode accounts for every filtered row exactly once. Known periodic types
 from the public catalog (RadarScan, DetectionCandidate, SensorHealth, TrackUpdate,
@@ -177,6 +179,14 @@ severity and non-measurement content. Transport timestamps, message sequence/ID,
 the scan counter, and the explicitly listed continuous numeric fields do not
 split series. Each numeric range stays within one series and cites its extrema.
 No global numeric anomaly score or relevance pruning is applied.
+
+The frontend omits `activity` groups from focused lanes and their legend only.
+The API still returns all groups and the full filtered record count. Individual
+records at close zoom, the records panel, full display, overview and chat queries
+remain available. Chat citation previews and focused evidence pins are rendered
+independently, including references to periodic records in hidden bands.
+Focused markers are small circles without inline counts. Counts remain in their
+tooltips, accessible labels and group inspector; click targets retain their size.
 
 Diary notes, unknown/non-periodic messages, component reports and warnings stay
 separate from activity bands. Exact repeated content can share a counted marker
