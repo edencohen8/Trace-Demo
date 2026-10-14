@@ -14,6 +14,7 @@ import {
   type SimpleStreamOptions,
 } from "@earendil-works/pi-ai";
 import { openAICompletionsApi } from "@earendil-works/pi-ai/api/openai-completions.lazy";
+import { openAIResponsesApi } from "@earendil-works/pi-ai/api/openai-responses.lazy";
 import { anthropicProvider } from "@earendil-works/pi-ai/providers/anthropic";
 import { googleProvider } from "@earendil-works/pi-ai/providers/google";
 import type { StreamFn } from "@earendil-works/pi-agent-core";
@@ -36,7 +37,7 @@ export interface FauxProviderOptions {
 }
 
 export interface ModelRegistryOptions {
-  provider?: 'anthropic' | 'gemini' | 'litellm';
+  provider?: 'openai' | 'anthropic' | 'gemini' | 'litellm';
   apiKey?: string;
   modelId?: string;
   useFaux?: boolean;
@@ -96,6 +97,24 @@ export function createLiteLLMProvider(options: LiteLLMProviderOptions = {}): Pro
   });
 }
 
+/** Direct OpenAI Responses API; accepts account-specific model IDs. */
+export function createOpenAIProvider(apiKey: string, modelId = 'gpt-6-luna'): Provider {
+  return createProvider({
+    id: 'openai',
+    name: 'OpenAI',
+    baseUrl: 'https://api.openai.com/v1',
+    auth: { apiKey: { name: 'OpenAI API key', resolve: async () => ({ auth: { apiKey } }) } },
+    models: [{
+      id: modelId, name: modelId, api: 'openai-responses', provider: 'openai',
+      baseUrl: 'https://api.openai.com/v1', reasoning: true, input: ['text'],
+      // Conservative local budgets; account/model limits are enforced by OpenAI.
+      contextWindow: 128000, maxTokens: 8192,
+      cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+    }],
+    api: openAIResponsesApi(),
+  });
+}
+
 /**
  * Creates an in-memory Faux Provider for hermetic testing.
  */
@@ -114,12 +133,14 @@ export function initModelRegistry(options: ModelRegistryOptions = {}): ModelRegi
     fileExists: async () => false,
   } } : {});
   const providerId = options.provider === 'gemini' ? 'google' : options.provider ?? 'litellm';
-  const selectedModel = options.modelId ?? options.litellmOptions?.modelId ?? DEFAULT_MODEL_ID;
+  const selectedModel = options.modelId ?? (providerId === 'openai' ? 'gpt-6-luna' : options.litellmOptions?.modelId ?? DEFAULT_MODEL_ID);
   let fauxInstance: ReturnType<typeof fauxProvider> | null = null;
 
   if (options.useFaux) {
     fauxInstance = createFauxModelProvider(options.fauxOptions);
     models.setProvider(fauxInstance.provider);
+  } else if (providerId === 'openai') {
+    models.setProvider(createOpenAIProvider(options.apiKey || process.env.OPENAI_API_KEY || '', options.modelId || 'gpt-6-luna'));
   } else if (providerId === 'anthropic') {
     models.setProvider(anthropicProvider());
   } else if (providerId === 'google') {

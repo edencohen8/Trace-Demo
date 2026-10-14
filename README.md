@@ -7,12 +7,12 @@ It connects the Vue interface to the Pi agent harness and immutable evidence fil
 cd trace-main
 npm ci
 cp .env.example .env   # Only if .env does not exist yet.
-# Add ANTHROPIC_API_KEY to .env.
+# Add OPENAI_API_KEY to .env.
 npm run dev
 ```
 
 Open **http://127.0.0.1:5180**. Evidence browsing works without a key.
-Live AI requires a configured Claude, Gemini or LiteLLM key. Switch providers using
+Live AI requires a configured OpenAI, Claude, Gemini or LiteLLM key. Switch providers using
 `.env`; no code change is needed. See [setup and demo steps](trace-main/README.md).
 
 The local adapter uses memory for event queries and JSON for sessions and approved

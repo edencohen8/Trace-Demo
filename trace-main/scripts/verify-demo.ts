@@ -12,7 +12,7 @@ import { createInvestigationAgent } from '../src/agent/harness.ts';
 import { createApi } from '../src/server/api.ts';
 import { runChat } from '../src/server/chat.ts';
 import { createDataTools } from '../src/server/tools.ts';
-import { createRuntime, providerStatus, safeError, type AIConfig } from '../src/server/config.ts';
+import { createRuntime, readConfig, providerStatus, safeError, type AIConfig } from '../src/server/config.ts';
 import type { CaseSession, ChatMessage, ProgressEvent } from '../src/demo/types.ts';
 import { TIMELINE_SYSTEMS, countSystemRecords } from '../src/demo/systems.ts';
 import { createSSRApp, h } from 'vue';
@@ -131,14 +131,56 @@ test('data tools enforce case access and row bounds', async () => {
   assert.equal((result.details as { rows: unknown[] }).rows.length, 50);
 });
 
-test('Claude, Gemini and LiteLLM select independent models without exposing keys', () => {
-  for (const [provider, modelId] of [['anthropic', 'claude-sonnet-4-6'], ['gemini', 'gemini-2.5-flash'], ['litellm', 'tomorrow-model-alias']] as const) {
+test('OpenAI, Claude, Gemini and LiteLLM select independent models without exposing keys', () => {
+  for (const [provider, modelId] of [['openai', 'gpt-6-luna'], ['anthropic', 'claude-sonnet-4-6'], ['gemini', 'gemini-2.5-flash'], ['litellm', 'tomorrow-model-alias']] as const) {
     const registry = initModelRegistry({ provider, modelId, apiKey: 'test-only-secret', litellmOptions: { modelId, apiKey: 'test-only-secret' } });
     assert.equal(registry.getModel()!.id, modelId);
   }
   assert.ok(!JSON.stringify(providerStatus(config)).includes(config.apiKey));
   assert.equal(safeError(new Error(`failed ${config.apiKey}`), config), 'failed [redacted]');
   assert.equal(providerStatus({ ...config, apiKey: '' }).configured, false);
+});
+
+test('OpenAI defaults, key handling and configurable model use the Responses API', async () => {
+  const settings = await readConfig({ OPENAI_API_KEY: 'test-only-openai-key' });
+  assert.equal(settings.provider, 'openai');
+  assert.equal(settings.model, 'gpt-6-luna');
+  assert.equal(settings.apiKey, 'test-only-openai-key');
+  assert.equal(settings.baseUrl, 'https://api.openai.com/v1');
+  assert.equal(providerStatus(settings).configured, true);
+  assert.ok(!JSON.stringify(providerStatus(settings)).includes(settings.apiKey));
+  assert.match(providerStatus({ ...settings, apiKey: '' }).problem!, /OPENAI_API_KEY/);
+  const custom = await readConfig({ TRACE_AI_PROVIDER: 'openai', TRACE_MODEL_ID: 'account-model', OPENAI_API_KEY: settings.apiKey });
+  const registry = initModelRegistry({ provider: custom.provider, modelId: custom.model, apiKey: custom.apiKey });
+  assert.equal(registry.getModel()!.id, 'account-model');
+  assert.equal(registry.getModel()!.api, 'openai-responses');
+  assert.equal(registry.getModel()!.baseUrl, 'https://api.openai.com/v1');
+});
+
+test('OpenAI sends the selected model and server key to Responses and consumes the answer', async () => {
+  const registry = initModelRegistry({ provider: 'openai', modelId: 'gpt-6-luna', apiKey: 'test-only-openai-key' });
+  let called = false;
+  const answer = await registry.models.completeSimple(registry.getModel()!, {
+    messages: [{ role: 'user', content: 'Summarize the evidence', timestamp: Date.now() }],
+  }, { fetch: async (input, init) => {
+    const request = new Request(input, init);
+    assert.equal(request.url, 'https://api.openai.com/v1/responses');
+    assert.equal(request.headers.get('authorization'), 'Bearer test-only-openai-key');
+    const body = await request.json() as { model: string; stream: boolean };
+    assert.equal(body.model, 'gpt-6-luna');
+    assert.equal(body.stream, true);
+    called = true;
+    const event = { type: 'response.completed', response: {
+      id: 'resp_test', status: 'completed', output: [{ type: 'message', id: 'msg_test', role: 'assistant', status: 'completed',
+        content: [{ type: 'output_text', text: 'Evidence answer', annotations: [] }] }],
+      usage: { input_tokens: 10, output_tokens: 2, total_tokens: 12 },
+    } };
+    const events = [{ type: 'response.output_item.added', output_index: 0, item: { type: 'message', id: 'msg_test', role: 'assistant', content: [] } }, { type: 'response.output_text.delta', output_index: 0, delta: 'Evidence answer' }, event];
+    return new Response(events.map(value => `data: ${JSON.stringify(value)}\n\n`).join('') + 'data: [DONE]\n\n', { headers: { 'content-type': 'text/event-stream' } });
+  } });
+  assert.equal(called, true);
+  assert.equal(answer.stopReason, 'stop');
+  assert.ok(answer.content.some(block => block.type === 'text' && block.text === 'Evidence answer'));
 });
 
 test('native Claude truncation is rejected before incomplete text reaches the router', async () => {

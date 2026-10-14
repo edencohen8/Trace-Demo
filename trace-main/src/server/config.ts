@@ -7,7 +7,7 @@ import type { StreamFn } from '@earendil-works/pi-agent-core';
 
 export const APP_ROOT = fileURLToPath(new URL('../../', import.meta.url));
 export interface AIConfig {
-  provider: 'anthropic' | 'gemini' | 'litellm';
+  provider: 'openai' | 'anthropic' | 'gemini' | 'litellm';
   model: string;
   apiKey: string;
   baseUrl: string;
@@ -18,19 +18,19 @@ export async function readConfig(environment: NodeJS.ProcessEnv = process.env): 
   try { file = parseEnv(await readFile(new URL('../../.env', import.meta.url), 'utf8')); }
   catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
   const env = { ...file, ...Object.fromEntries(Object.entries(environment).filter(([, value]) => value !== undefined)) };
-  const provider = env.TRACE_AI_PROVIDER || 'anthropic';
-  if (!['anthropic', 'gemini', 'litellm'].includes(provider)) throw new Error('TRACE_AI_PROVIDER must be anthropic, gemini, or litellm');
-  const defaults = { anthropic: 'claude-haiku-5-5', gemini: 'gemini-2.5-flash', litellm: 'gemini-2.5-flash' };
+  const provider = env.TRACE_AI_PROVIDER || 'openai';
+  if (!['openai', 'anthropic', 'gemini', 'litellm'].includes(provider)) throw new Error('TRACE_AI_PROVIDER must be openai, anthropic, gemini, or litellm');
+  const defaults = { openai: 'gpt-6-luna', anthropic: 'claude-haiku-5-5', gemini: 'gemini-2.5-flash', litellm: 'gemini-2.5-flash' };
   const kind = provider as AIConfig['provider'];
   return {
     provider: kind, model: env.TRACE_MODEL_ID || defaults[kind],
-    apiKey: (kind === 'anthropic' ? env.ANTHROPIC_API_KEY : kind === 'gemini' ? env.GEMINI_API_KEY : env.LITELLM_MASTER_KEY) || '',
-    baseUrl: env.LITELLM_URL || 'http://localhost:4000/v1',
+    apiKey: (kind === 'openai' ? env.OPENAI_API_KEY : kind === 'anthropic' ? env.ANTHROPIC_API_KEY : kind === 'gemini' ? env.GEMINI_API_KEY : env.LITELLM_MASTER_KEY) || '',
+    baseUrl: kind === 'openai' ? 'https://api.openai.com/v1' : env.LITELLM_URL || 'http://localhost:4000/v1',
   };
 }
 
 export function providerStatus(config: AIConfig): ProviderStatus {
-  const keyName = { anthropic: 'ANTHROPIC_API_KEY', gemini: 'GEMINI_API_KEY', litellm: 'LITELLM_MASTER_KEY' }[config.provider];
+  const keyName = { openai: 'OPENAI_API_KEY', anthropic: 'ANTHROPIC_API_KEY', gemini: 'GEMINI_API_KEY', litellm: 'LITELLM_MASTER_KEY' }[config.provider];
   return { provider: config.provider, model: config.model, configured: Boolean(config.apiKey.trim()),
     ...(!config.apiKey.trim() ? { problem: `Set ${keyName} in trace-main/.env, then retry.` } : {}) };
 }

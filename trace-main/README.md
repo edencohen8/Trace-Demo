@@ -5,7 +5,7 @@ The default page now uses the live backend. Run from this folder:
 ```bash
 npm ci
 cp .env.example .env   # Only if .env does not exist yet.
-# Edit .env and set ANTHROPIC_API_KEY.
+# Edit .env and set OPENAI_API_KEY.
 npm run dev
 ```
 
@@ -20,12 +20,16 @@ refresh button. You do not need to restart the server for key or model changes.
 
 | Provider | Settings in `.env` |
 | --- | --- |
+| OpenAI (default) | `TRACE_AI_PROVIDER=openai`, `OPENAI_API_KEY=…`, `TRACE_MODEL_ID=gpt-6-luna` |
 | Claude | `TRACE_AI_PROVIDER=anthropic`, `ANTHROPIC_API_KEY=…` |
 | Gemini | `TRACE_AI_PROVIDER=gemini`, `GEMINI_API_KEY=…` |
 | LiteLLM | `TRACE_AI_PROVIDER=litellm`, `LITELLM_URL=…/v1`, `LITELLM_MASTER_KEY=…`, `TRACE_MODEL_ID=<gateway alias>` |
 
-Leave `TRACE_MODEL_ID` empty for the native provider default: `claude-haiku-5-5`
-or `gemini-2.5-flash`. Clear an old provider's model ID when switching providers.
+Leave `TRACE_MODEL_ID` empty for the provider default: `gpt-6-luna` (OpenAI),
+`claude-haiku-5-5` (Claude), or `gemini-2.5-flash` (Gemini).
+The requested `gpt-6-luna` API ID is not in the installed SDK catalog and has not
+been verified against OpenAI. If your account rejects it, set `TRACE_MODEL_ID` to
+an API model ID available to your account; no code change is needed. Clear an old provider's model ID when switching providers.
 Shell variables take precedence over `.env`. Never prefix a secret with `VITE_`.
 
 Run `npm run check:ai` to test a real model call with a source citation. This uses
