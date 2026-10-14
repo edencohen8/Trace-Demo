@@ -27,8 +27,6 @@
 .lane-track .evidence-marker.is-preview { z-index: 5; border-color: #c7e9de; box-shadow: 0 0 0 4px #70c6b225, 0 0 20px #70c6b22b; }
 .lane-track .evidence-marker:hover { background: #315448; border-color: var(--accent); }
 .lane-track .evidence-marker:focus-visible { outline-offset: 5px; }
-.lane-name { position: relative; }
-.lane-reference-count { position: absolute; right: 8px; top: -7px; display: inline-flex; justify-content: center; align-items: center; min-width: 15px; height: 14px; border: 1px solid #70c6b24a; border-radius: 4px; background: #18352c; color: var(--accent); font-size: 9px; font-variant-numeric: tabular-nums; }
 .is-selecting-range .lane-track, .is-selecting-range .lane-track button, .is-selecting-range .lane-no-data, .is-selecting-range .timeline-axis > div { cursor: crosshair; touch-action: none; }
 .range-brush { position: absolute; inset-block: 0; z-index: 2; pointer-events: none; border-inline: 1px solid #70c6b2b3; background: #70c6b216; min-width: 1px; }
 .range-brush::before, .range-brush::after { content: ''; position: absolute; top: 50%; width: 3px; height: 13px; border-radius: 2px; background: var(--accent); transform: translateY(-50%); }
@@ -58,7 +56,6 @@
   .timeline-contextbar { padding-inline: 4px; gap: 4px; }
   .context-status { gap: 5px; font-size: 10px; }
   .context-actions button { padding: 5px; font-size: 9px; }
-  .lane-reference-count { min-width: 14px; height: 14px; font-size: 8px; }
 }
 @media (max-width: 700px) {
   .timeline-contextbar { min-height: 36px; flex-basis: auto; flex-wrap: wrap; }
@@ -66,8 +63,6 @@
   .context-actions { margin-inline-start: auto; }
   .context-status .context-caption { font-size: 9px; }
   .lane-track .evidence-marker { width: 22px; height: 22px; }
-  .lane-name { gap: 4px; }
-  .lane-reference-count { flex-shrink: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .timeline-contextbar, .lane-track > button, .jade .citation.citation-link, .answer-evidence-action > button { transition: none; }

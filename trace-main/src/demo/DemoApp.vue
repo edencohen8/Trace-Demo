@@ -118,7 +118,6 @@ const systemLanes = computed(() => baseLanes.value.map(lane => ({ ...lane,
     left: Math.max(0, percentAt(group.time)), width: Math.max(0, Math.min(100, percentAt(group.end)) - Math.max(0, percentAt(group.time))) })),
   evidencePoints: [...focusPoints.value, ...previewPoints.value].filter(point => point.system === lane.id && point.time >= start.value && point.time <= end.value)
     .map(point => ({ ...point, left: percentAt(point.time) })),
-  referenceCount: linkedEvents.value.filter(event => lane.sources.includes(event.source)).length,
 })));
 const rangeStyle = computed(() => {
   if (!selectedRange.value) return undefined;
@@ -575,7 +574,7 @@ onUnmounted(() => { window.removeEventListener('keydown', handleEscape); finishR
                     @pointerenter="timelineTooltip?.show($event, point)" @pointerleave="timelineTooltip?.leave()" @focus="timelineTooltip?.show($event, point)" @blur="timelineTooltip?.hide()" @click="timelineTooltip?.hide(); openEvidence(point.badge)"><span></span><i aria-hidden="true"></i></button>
                 </div>
                 <div v-else class="lane-no-data">{{ loading ? 'טוען…' : 'לא סופקו נתונים' }}</div>
-                <button class="lane-name" :aria-pressed="system === lane.id" :title="lane.sources.join(', ') || 'לא סופקו נתונים'" @click="clearFocus(); system = system === lane.id ? '' : lane.id"><span v-if="lane.referenceCount" class="lane-reference-count" :aria-label="lane.referenceCount + ' מקורות בשיחה'">{{ lane.referenceCount }}</span><span dir="ltr">{{ lane.name }}</span><component :is="laneIcons[lane.id as keyof typeof laneIcons]" :size="16"/></button>
+                <button class="lane-name" :aria-pressed="system === lane.id" :title="lane.sources.join(', ') || 'לא סופקו נתונים'" @click="clearFocus(); system = system === lane.id ? '' : lane.id"><span dir="ltr">{{ lane.name }}</span><component :is="laneIcons[lane.id as keyof typeof laneIcons]" :size="16"/></button>
               </div>
               <div v-if="!systemLanes.length" class="empty-records">אין מערכות התואמות למסננים. <button @click="resetFilters">ניקוי מסננים</button></div>
             </div>
