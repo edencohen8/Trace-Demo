@@ -170,6 +170,16 @@ test('JSON sessions persist and concurrent saves do not lose messages', async ()
   await reopened.approve('case_001', 'answer'); await reopened.approve('case_001', 'answer');
   assert.equal((await reopened.read('case_001')).lessons.length, 1);
   await assert.rejects(reopened.approve('case_001', 'not-a-message'));
+  await reopened.append('case_002', [answer]);
+  const lessons = (await reopened.read('case_001')).lessons;
+  await reopened.clearChat('case_001');
+  const cleared = await new SessionStore(temporary).read('case_001');
+  assert.deepEqual(cleared.messages, []);
+  assert.deepEqual(cleared.lessons, lessons);
+  assert.equal((await reopened.read('case_002')).messages.length, 1);
+  assert.deepEqual(await reopened.clearChat('case_001'), cleared);
+  await reopened.append('case_001', [{ ...answer, id: 'after-clear' }]);
+  assert.deepEqual((await reopened.read('case_001')).messages.map(message => message.id), ['after-clear']);
 });
 
 function fakeRuntime(text: string, readEvidence = true, route: Record<string, unknown> = {}) {
@@ -366,5 +376,44 @@ test('HTTP API serves data, handles SSE, rejects cross-origin writes and persist
     assert.equal(response.status, 200); assert.match(response.headers.get('content-type')!, /event-stream/);
     const events = await response.text(); assert.match(events, /"type":"tool_call"/); assert.match(events, /"type":"done"/);
     assert.equal((await sessions.read('case_001')).messages.length, 2);
+    assert.equal((await fetch(`${base}/cases/case_001/chat`, { method: 'DELETE', headers: { Origin: 'https://unrelated.example' } })).status, 403);
+    assert.equal((await sessions.read('case_001')).messages.length, 2);
+    assert.equal((await fetch(`${base}/cases/not-a-case/chat`, { method: 'DELETE' })).status, 400);
+    const cleared = await fetch(`${base}/cases/case_001/chat`, { method: 'DELETE' });
+    assert.equal(cleared.status, 200);
+    assert.deepEqual((await cleared.json()).messages, []);
+    assert.deepEqual((await (await fetch(`${base}/cases/case_001/session`)).json()).messages, []);
   } finally { await new Promise<void>((resolve) => server.close(() => resolve())); }
+});
+
+test('clearing chat waits for the active turn and the next turn has no old history', async () => {
+  const sessions = new SessionStore(join(temporary, 'clear-chat-busy'));
+  const entered = Promise.withResolvers<void>();
+  const release = Promise.withResolvers<void>();
+  const histories: number[] = [];
+  const handler = createApi({ store, sessions, getConfig: async () => config, chat: async (_input, session) => {
+    histories.push(session.messages.length);
+    entered.resolve();
+    await release.promise;
+    return { id: `answer-${histories.length}`, role: 'assistant', text: 'Test answer', citations: [], createdAt: new Date().toISOString() };
+  } });
+  const server = createServer((request, response) => { void handler(request, response); });
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const address = server.address(); assert.ok(address && typeof address === 'object');
+  const url = `http://127.0.0.1:${address.port}/api/cases/case_001/chat`;
+  const send = () => fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: 'Test question' }) }).then(response => response.text());
+  const first = send();
+  try {
+    await entered.promise;
+    assert.equal((await fetch(url, { method: 'DELETE' })).status, 409);
+    release.resolve();
+    assert.match(await first, /"type":"done"/);
+    assert.equal((await fetch(url, { method: 'DELETE' })).status, 200);
+    assert.match(await send(), /"type":"done"/);
+    assert.deepEqual(histories, [0, 0]);
+    assert.equal((await sessions.read('case_001')).messages.length, 2);
+  } finally {
+    release.resolve(); await first;
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+  }
 });

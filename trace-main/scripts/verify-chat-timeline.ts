@@ -140,7 +140,7 @@ test('a failed source can be retried and metadata sources never get fake timelin
     assert.equal(fetchMock.mock.callCount(), 2);
     assert.equal(view.focus.sources.value.length, 1);
     assert.equal(view.focus.events.value.length, 0);
-    assert.match(view.focus.notice.value, /ללא זמן אירוע/);
+    assert.equal(view.focus.notice.value, '');
   } finally { view.unmount(); fetchMock.mock.restore(); }
 });
 

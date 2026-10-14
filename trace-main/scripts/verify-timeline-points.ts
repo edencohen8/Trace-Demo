@@ -5,6 +5,7 @@ import { EvidenceStore } from '../src/server/evidence-store.ts';
 import type { EvidenceEvent } from '../src/demo/types.ts';
 import { layoutTimelinePoints } from '../src/demo/point-layout.ts';
 import { panTimeWindow, wheelZoomFactor, zoomTimeWindow } from '../src/demo/time-window.ts';
+import { countTimelineRecords } from '../src/demo/timeline-record-count.ts';
 
 function event(index: number, ms: number, extra: Partial<EvidenceEvent> = {}): EvidenceEvent {
   return { id: `record-${index}`, badge: `[sensor.txt:L${index + 1}]`, caseId: 'case_001',
@@ -20,6 +21,18 @@ test('timeline markers preserve irregular source timestamps instead of uniform b
   assert.deepEqual(result.points.map(point => point.badge), records.map(row => row.badge));
   assert.equal(result.totalRecords, 3);
   assert.equal(result.truncated, false);
+});
+
+test('visible log counts include grouped records and count extra citation pins only once', () => {
+  const records = [event(0, 85), event(1, 85), event(2, 1250), event(3, 17331)];
+  const result = buildTimelinePoints(records);
+  assert.equal(result.points.length, 3);
+  assert.equal(countTimelineRecords(result.points, []), 4);
+  const sample = result.points.slice(0, 1);
+  const pins = buildTimelinePoints([records[1]!, records[2]!, records[3]!]).points;
+  assert.equal(countTimelineRecords(sample, []), 2);
+  assert.equal(countTimelineRecords(sample, [...pins, ...pins]), 4);
+  assert.equal(countTimelineRecords([], []), 0);
 });
 
 test('only records from the same system and exact instant share a marker', () => {

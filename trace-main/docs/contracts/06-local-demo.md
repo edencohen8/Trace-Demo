@@ -44,6 +44,7 @@ an `error` field. Each case endpoint rejects unknown case IDs.
 | GET | `/api/cases/:id/session` | Saved chat and approved answers |
 | GET | `/api/cases/:id/export` | Download the same state as JSON |
 | POST | `/api/cases/:id/chat` | `{text, evidence: string[], timeRange?: {start, end}}` → SSE progress and final answer |
+| DELETE | `/api/cases/:id/chat` | Clear saved messages for this case and return its session; keep approved lessons |
 | POST | `/api/cases/:id/approve` | `{messageId}` → save a validated answer as an approved lesson |
 
 Event/timeline filters: `start`, `end` (ISO timestamps with offsets), `system`, `source`,
@@ -51,6 +52,10 @@ Event/timeline filters: `start`, `end` (ISO timestamps with offsets), `system`, 
 and `offset`. The UI shows 80 rows per page. Agent tools return at most 50 rows.
 Timestamp filters without an explicit timezone are rejected. The server's local
 timezone must not change the selected evidence.
+Clearing chat uses the same serialized, atomic session writes. It rejects an
+active turn with HTTP 409. A new turn cannot start while clearing is in progress.
+The client clears its draft, attachments, progress and citation highlights after
+the server confirms the clear. The button remains available on mobile.
 Gap calculations return `count` for source records and `interval_count` for the
 measured gaps between consecutive records. N records produce max(0, N−1) gaps.
 Field differences use scaled decimal integers before conversion to the numeric
@@ -91,8 +96,12 @@ the same system at exactly the same timestamp share a point. Its representative
 prefers errors, warnings, then diary entries. The point opens the exact source;
 the card's pager can inspect other records in that same-time group.
 Each system returns at most 300 points. Wider windows use a deterministic sample,
-prioritizing warnings/errors and diary entries, and disclose the shown/total
-point counts. Zooming in exposes more detail. Sampling never moves a timestamp.
+prioritizing warnings/errors and diary entries. The timeline note shows the number
+of represented logs, using each point's record count. Sampled views show that count
+out of the filtered total. Extra citation pins count once if their same-time group
+is absent from the sample. Focused mode shows its full filtered record count.
+Loading or moving the camera hides the old count until the new view is ready.
+Zooming in exposes more detail. Sampling never moves a timestamp.
 Points use five stable vertical bands within each system to separate nearby
 records, with a small stable offset inside each band. The layout prefers a band
 per evidence reference and avoids nearby points in it when space permits.
@@ -119,14 +128,14 @@ The 560ms camera transition uses bounded interpolation with no endpoint overshoo
 Manual navigation cancels it. A turn never takes back the camera if the user
 navigated while waiting. No camera changes occur during streamed tool progress.
 Reduced-motion preferences skip the animation. Changing cases cancels pending
-source focus and clears selections. Evidence resolution runs at most six reads
-concurrently and reports unavailable or untimed sources.
+source focus. Evidence resolution runs at most six reads concurrently and reports
+failed reads. Untimed sources remain available through chat citations.
+The focus status has no source count. An idle timeline has no connection message.
 
-The range-selection control or Shift-drag selects an interval. The selected range
-appears in the composer before sending and can be removed. The current window can
-also be attached without dragging. Individual evidence attachments retain the
-eight-reference limit. Ctrl/Command-click attaches an individual timeline record.
-The optional chat `timeRange` uses explicit timezone timestamps, is validated
+The UI has no time-range selection button or Shift-drag selection. Dragging pans
+the timeline. Individual evidence attachments retain the eight-reference limit.
+Ctrl/Command-click attaches an individual timeline record.
+The optional API `timeRange` uses explicit timezone timestamps, is validated
 against the active recording, and has positive duration. It is saved on the user
 message and supplied to routing, investigation and answer validation as explicit
 question scope. It contains no raw row dump. Existing messages remain compatible.

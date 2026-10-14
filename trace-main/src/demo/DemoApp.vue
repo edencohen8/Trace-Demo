@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
-import { Activity, ArrowLeft, ArrowRight, Check, ChevronDown, Download, FileText, Link2, Search, Send, Square, X, ZoomIn, ZoomOut, Radio, Radar, Monitor, Server, AudioLines, List, BookOpen, ShieldCheck, Focus, Undo2, ScanLine, MessageSquare, Clock3, LoaderCircle } from 'lucide-vue-next';
+import { Activity, ArrowLeft, ArrowRight, Check, ChevronDown, Download, FileText, Link2, Search, Send, Square, X, ZoomIn, ZoomOut, Radio, Radar, Monitor, Server, AudioLines, List, BookOpen, ShieldCheck, Focus, Undo2, Clock3, LoaderCircle, Trash2 } from 'lucide-vue-next';
 import { api, streamChat } from './client.ts';
 import MessageBody from './MessageBody.ts';
 import CitationLink from './CitationLink.ts';
@@ -10,14 +10,15 @@ import EvidenceDock from './EvidenceDock.vue';
 import TimelineGroupDock from './TimelineGroupDock.vue';
 import TimelineTooltip from './TimelineTooltip.vue';
 import { layoutTimelineGroups, layoutTimelinePoints } from './point-layout.ts';
+import { countTimelineRecords } from './timeline-record-count.ts';
 import { panTimeWindow, wheelZoomFactor, zoomTimeWindow, type TimeWindow } from './time-window.ts';
-import { evidencePoint, evidenceWindow, messageReferences, timeAtPointer } from './evidence-focus.ts';
+import { evidencePoint, evidenceWindow, messageReferences } from './evidence-focus.ts';
 import { useEvidenceFocus } from './use-evidence-focus.ts';
 import { useTimelineCamera } from './use-timeline-camera.ts';
 import './messages.css';
 import './evidence-focus.css';
 import { TIMELINE_SYSTEMS, getTimelineSystem } from './systems.ts';
-import type { CaseSession, CaseSummary, ChatMessage, EventPage, EvidenceEvent, InvestigationStep, ProviderStatus, ResolvedSource, TimelineBin, TimelinePoint, TimelinePoints, TimelineFocus, TimelineGroup, TimelineGroupDetail, ChatTimeRange } from './types.ts';
+import type { CaseSession, CaseSummary, ChatMessage, EventPage, EvidenceEvent, InvestigationStep, ProviderStatus, ResolvedSource, TimelineBin, TimelinePoint, TimelinePoints, TimelineFocus, TimelineGroup, TimelineGroupDetail } from './types.ts';
 
 const cases = ref<CaseSummary[]>([]);
 const caseId = ref(new URLSearchParams(location.search).get('case') || 'case_001');
@@ -50,6 +51,8 @@ const system = ref('');
 const source = ref(''); const target = ref(''); const query = ref(''); const alertsOnly = ref(false); const offset = ref(0);
 const loading = ref(true); const error = ref(''); const chatError = ref('');
 const draft = ref(''); const tags = ref<string[]>([]); const busy = ref(false);
+const clearingChat = ref(false);
+let chatRevision = 0;
 const progress = ref<InvestigationStep[]>([]); const messagesEl = ref<HTMLElement>(); const draftEl = ref<HTMLTextAreaElement>();
 let abort: AbortController | undefined; let queryTimer: ReturnType<typeof setTimeout> | undefined; let requestNumber = 0; let caseRequest = 0; let evidenceRequest = 0;
 let wheelTimer: ReturnType<typeof setTimeout> | undefined;
@@ -66,11 +69,6 @@ const camera = useTimelineCamera({ read: readWindow, recording: recordingWindow,
 const { moving: cameraMoving } = camera;
 interface ViewSnapshot { window: TimeWindow; system: string; source: string; target: string; query: string; alertsOnly: boolean }
 const previousView = ref<ViewSnapshot>();
-const selectionMode = ref(false);
-const selectedRange = ref<ChatTimeRange>();
-const draftRange = ref<ChatTimeRange>();
-let rangeDrag: { pointerId: number; anchor: number; x: number; left: number; width: number; window: TimeWindow; element: HTMLElement; moved: boolean } | undefined;
-const selectingRange = ref(false);
 let navigationRevision = 0;
 let lastNavigation = 0;
 let focusAction = 0;
@@ -119,10 +117,14 @@ const systemLanes = computed(() => baseLanes.value.map(lane => ({ ...lane,
   evidencePoints: [...focusPoints.value, ...previewPoints.value].filter(point => point.system === lane.id && point.time >= start.value && point.time <= end.value)
     .map(point => ({ ...point, left: percentAt(point.time) })),
 })));
-const rangeStyle = computed(() => {
-  if (!selectedRange.value) return undefined;
-  const left = Math.max(0, percentAt(selectedRange.value.start)); const right = Math.min(100, percentAt(selectedRange.value.end));
-  return right >= left ? { left: `${left}%`, width: `${right - left}%` } : undefined;
+const timelineRecordLabel = computed(() => {
+  if (loading.value || cameraMoving.value) return 'טוען לוגים…';
+  if (error.value) return 'מספר הלוגים אינו זמין';
+  if (displayMode.value === 'focused') return `${count(focus.value.totalRecords)} לוגים בתצוגה`;
+  const visible = countTimelineRecords(systemLanes.value.flatMap(lane => lane.points), systemLanes.value.flatMap(lane => lane.evidencePoints));
+  return detail.value.truncated
+    ? `${count(visible)} מתוך ${count(detail.value.totalRecords)} לוגים בתצוגה`
+    : `${count(visible)} לוגים בתצוגה`;
 });
 const previewOutside = computed(() => {
   const event = linked.previewEvents.value[0];
@@ -147,7 +149,7 @@ function moveCamera(window: TimeWindow) {
 }
 async function focusReferences(badges: string[], messageId = '', automatic = false, turnNavigation = navigationRevision) {
   if (!badges.length || !selectedCase.value) return;
-  if (automatic && (turnNavigation !== navigationRevision || timelineDrag || rangeDrag || performance.now() - lastNavigation < 1200)) return;
+  if (automatic && (turnNavigation !== navigationRevision || timelineDrag || performance.now() - lastNavigation < 1200)) return;
   const action = ++focusAction;
   const interrupted = cameraMoving.value;
   camera.cancel();
@@ -156,7 +158,7 @@ async function focusReferences(badges: string[], messageId = '', automatic = fal
   if (!events || action !== focusAction) return;
   const window = evidenceWindow(events, recordingWindow());
   if (!window) return;
-  saveView(); resetFilters(); selectedRange.value = undefined; selectionMode.value = false;
+  saveView(); resetFilters();
   timelineTooltip.value?.hide();
   if (matchMedia('(max-width: 700px)').matches) dockView.value = null;
   if (!automatic) mobileView.value = 'timeline';
@@ -177,48 +179,12 @@ function showReferences(message: ChatMessage) { navigationRevision++; void focus
 function clearFocus() { manualNavigation(); linked.clear(); }
 function restoreView() {
   const previous = previousView.value; if (!previous) return;
-  manualNavigation(); linked.clear(); selectedRange.value = undefined; selectionMode.value = false; previousView.value = undefined;
+  manualNavigation(); linked.clear(); previousView.value = undefined;
   system.value = previous.system; source.value = previous.source; target.value = previous.target; query.value = previous.query; alertsOnly.value = previous.alertsOnly;
   void nextTick(() => moveCamera(previous.window));
 }
-function askRange(range = selectedRange.value ?? { start: start.value, end: end.value }) {
-  draftRange.value = { ...range }; selectionMode.value = false;
-  if (!draft.value.trim()) draft.value = 'מה קרה בטווח הזמן שנבחר?';
-  mobileView.value = 'chat'; void nextTick(() => draftEl.value?.focus());
-}
-function toggleRangeSelection() {
-  manualNavigation(); linked.clear(); selectionMode.value = !selectionMode.value; selectedRange.value = undefined;
-  timelineTooltip.value?.hide();
-}
-function beginRangeSelection(event: PointerEvent, rect: DOMRect) {
-  if (!(event.currentTarget instanceof HTMLElement)) return;
-  manualNavigation(); linked.clear();
-  const window = readWindow();
-  const anchor = timeAtPointer(window, event.clientX, rect.left, rect.width);
-  rangeDrag = { pointerId: event.pointerId, anchor, x: event.clientX, left: rect.left, width: rect.width, window, element: event.currentTarget, moved: false };
-  selectingRange.value = true; timelineTooltip.value?.hide();
-  selectedRange.value = { start: new Date(anchor).toISOString(), end: new Date(anchor).toISOString() };
-  rangeDrag.element.setPointerCapture(event.pointerId); event.preventDefault();
-}
-function moveRangeSelection(event: PointerEvent) {
-  if (!rangeDrag || event.pointerId !== rangeDrag.pointerId) return;
-  event.preventDefault();
-  if (Math.abs(event.clientX - rangeDrag.x) >= 5) rangeDrag.moved = true;
-  const time = timeAtPointer(rangeDrag.window, event.clientX, rangeDrag.left, rangeDrag.width);
-  selectedRange.value = { start: new Date(Math.min(rangeDrag.anchor, time)).toISOString(), end: new Date(Math.max(rangeDrag.anchor, time)).toISOString() };
-}
-function finishRangeSelection(canceled = false) {
-  const drag = rangeDrag; if (!drag) return;
-  rangeDrag = undefined; selectingRange.value = false; suppressDragClick = true;
-  if (drag.element.hasPointerCapture(drag.pointerId)) drag.element.releasePointerCapture(drag.pointerId);
-  if (canceled || !drag.moved) selectedRange.value = undefined;
-  else selectionMode.value = false;
-}
 function handleEscape(event: KeyboardEvent) {
   if (event.key !== 'Escape') return;
-  if (rangeDrag || selectionMode.value || selectedRange.value) {
-    finishRangeSelection(true); selectionMode.value = false; selectedRange.value = undefined; return;
-  }
   if (linked.sources.value.length || focusPending.value) clearFocus();
 }
 function pickPoint(point: TimelinePoint, event: MouseEvent) {
@@ -277,14 +243,12 @@ function startTimelineDrag(event: PointerEvent) {
   const current = selectedCase.value;
   if (!rect?.width || !current || !start.value || !(event.currentTarget instanceof HTMLElement)
     || event.clientX < rect.left || event.clientX > rect.right) return;
-  if (selectionMode.value || event.shiftKey) { beginRangeSelection(event, rect); return; }
   manualNavigation();
   timelineDrag = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, width: rect.width,
     window: { start: Date.parse(start.value), end: Date.parse(end.value) },
     recording: { start: Date.parse(current.start), end: Date.parse(current.end) }, element: event.currentTarget };
 }
 function moveTimelineDrag(event: PointerEvent) {
-  if (rangeDrag) { moveRangeSelection(event); return; }
   const drag = timelineDrag;
   if (!drag || event.pointerId !== drag.pointerId) return;
   const dx = event.clientX - drag.x; const dy = event.clientY - drag.y;
@@ -310,10 +274,6 @@ function finishTimelineDrag(reload = true) {
   if (moved && reload) void loadWindow();
 }
 function endTimelineDrag(event: PointerEvent) {
-  if (rangeDrag && event.pointerId === rangeDrag.pointerId) {
-    if (event.type === 'pointerup') moveRangeSelection(event);
-    finishRangeSelection(event.type !== 'pointerup'); return;
-  }
   if (event.pointerId !== timelineDrag?.pointerId) return;
   if (event.type === 'pointerup' && draggingTimeline.value) moveTimelineDrag(event);
   finishTimelineDrag();
@@ -325,7 +285,7 @@ function preventDragClick(event: MouseEvent) {
 }
 function onTimelineWheel(event: WheelEvent) {
   if (event.ctrlKey || event.metaKey || !event.deltaY || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
-  if (timelineDrag || rangeDrag) { event.preventDefault(); return; }
+  if (timelineDrag) { event.preventDefault(); return; }
   if (!(event.target instanceof Element) || !event.target.closest('.source-lanes, .timeline-axis')) return;
   const track = lanesEl.value?.querySelector('.lane-track, .lane-no-data');
   const rect = track?.getBoundingClientRect();
@@ -433,7 +393,7 @@ async function moveEvidence(direction: number) {
 }
 function toggleDock(view: Exclude<typeof dockView.value, null>) { dockView.value = dockView.value === view ? null : view; }
 async function selectCase() {
-  manualNavigation(); linked.clear(); finishRangeSelection(true); previousView.value = undefined; selectedRange.value = undefined; draftRange.value = undefined; selectionMode.value = false;
+  manualNavigation(); linked.clear(); previousView.value = undefined;
   finishTimelineDrag(false);
   clearTimeout(wheelTimer);
   const ticket = ++caseRequest;
@@ -456,7 +416,7 @@ async function selectCase() {
   } catch (failure) { error.value = String(failure); loading.value = false; }
 }
 async function send(text = draft.value) {
-  if (!text.trim() || busy.value) return;
+  if (!text.trim() || busy.value || clearingChat.value) return;
   busy.value = true;
   const activeCase = caseId.value;
   await refreshProvider();
@@ -464,8 +424,8 @@ async function send(text = draft.value) {
   if (!provider.value?.configured) { busy.value = false; chatError.value = provider.value?.problem ?? 'AI is not configured'; return; }
   const controller = new AbortController(); abort = controller;
   const turnNavigation = navigationRevision;
-  const user: ChatMessage = { id: crypto.randomUUID(), role: 'user', text: text.trim(), citations: [...tags.value], timeRange: draftRange.value ? { ...draftRange.value } : undefined, createdAt: new Date().toISOString() };
-  session.value.messages.push(user); draft.value = ''; tags.value = []; draftRange.value = undefined; busy.value = true; chatError.value = ''; progress.value = [];
+  const user: ChatMessage = { id: crypto.randomUUID(), role: 'user', text: text.trim(), citations: [...tags.value], createdAt: new Date().toISOString() };
+  session.value.messages.push(user); draft.value = ''; tags.value = []; busy.value = true; chatError.value = ''; progress.value = [];
   await nextTick(); messagesEl.value?.scrollTo({ top: messagesEl.value.scrollHeight });
   try {
     const answer = await streamChat(activeCase, user.text, user.citations, controller.signal, (event) => {
@@ -482,7 +442,7 @@ async function send(text = draft.value) {
   } catch (failure) {
     if (caseId.value === activeCase) {
       chatError.value = controller.signal.aborted ? 'הבדיקה נעצרה. אפשר לנסות שוב.' : (failure instanceof Error ? failure.message : String(failure));
-      draft.value = user.text; tags.value = user.citations; draftRange.value = user.timeRange;
+      draft.value = user.text; tags.value = user.citations;
       session.value.messages = session.value.messages.filter((message) => message.id !== user.id);
     }
   } finally {
@@ -490,9 +450,27 @@ async function send(text = draft.value) {
     await nextTick(); messagesEl.value?.scrollTo({ top: messagesEl.value.scrollHeight });
   }
 }
+async function clearChat() {
+  if (busy.value || clearingChat.value || !session.value.messages.length) return;
+  const ticket = caseRequest;
+  clearingChat.value = true; chatError.value = ''; chatRevision++;
+  try {
+    const cleared = await api<CaseSession>(`/cases/${caseId.value}/chat`, { method: 'DELETE' });
+    if (ticket !== caseRequest) return;
+    session.value = cleared; progress.value = []; draft.value = ''; tags.value = [];
+    clearFocus(); timelineTooltip.value?.hide();
+    await nextTick(); draftEl.value?.focus();
+  } catch (failure) {
+    if (ticket === caseRequest) chatError.value = failure instanceof Error ? failure.message : String(failure);
+  } finally { clearingChat.value = false; }
+}
 async function approve(messageId: string) {
-  try { session.value = await api<CaseSession>(`/cases/${caseId.value}/approve`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messageId }) }); }
-  catch (failure) { chatError.value = String(failure); }
+  if (clearingChat.value) return;
+  const ticket = caseRequest; const revision = chatRevision;
+  try {
+    const saved = await api<CaseSession>(`/cases/${caseId.value}/approve`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messageId }) });
+    if (ticket === caseRequest && revision === chatRevision) session.value = saved;
+  } catch (failure) { if (ticket === caseRequest && revision === chatRevision) chatError.value = String(failure); }
 }
 const approved = (id: string) => session.value.lessons.some((lesson) => lesson.messageId === id);
 function selected(event: EvidenceEvent) { return evidence.value?.badge === event.badge; }
@@ -517,7 +495,7 @@ onMounted(async () => {
     if (lanesEl.value) laneObserver.observe(lanesEl.value);
   } catch (failure) { error.value = String(failure); loading.value = false; }
 });
-onUnmounted(() => { window.removeEventListener('keydown', handleEscape); finishRangeSelection(true); finishTimelineDrag(false); abort?.abort(); clearTimeout(queryTimer); clearTimeout(wheelTimer); laneObserver?.disconnect(); });
+onUnmounted(() => { window.removeEventListener('keydown', handleEscape); finishTimelineDrag(false); abort?.abort(); clearTimeout(queryTimer); clearTimeout(wheelTimer); laneObserver?.disconnect(); });
 </script>
 
 <template>
@@ -539,25 +517,19 @@ onUnmounted(() => { window.removeEventListener('keydown', handleEscape); finishR
             <div class="overview-chart" dir="ltr"><button v-for="bin in overview" :key="bin.start" :title="`${clock(bin.start)} · ${count(bin.count)} רשומות`" :aria-label="`התמקדות בשעה ${clock(bin.start)}`" :class="{ active: bin.end >= start && bin.start <= end, alert: bin.alerts > 0 }" @click="focusTime(bin.start)"><span :style="{ height: `${Math.max(3, bin.count / maxBin * 100)}%` }"></span></button></div>
             <div class="time-edges" dir="ltr"><span v-for="(tick, index) in overviewTicks" :key="index">{{ tick }}</span></div>
           </section>
-          <section class="timeline-section" :data-window-start="start" :data-window-end="end" :class="{ 'focused-mode': displayMode === 'focused', 'is-dragging': draggingTimeline, 'is-focusing': cameraMoving, 'has-evidence-focus': linkedEvents.length > 0, 'is-selecting-range': selectionMode || selectingRange, 'has-citation-preview': hoveredBadge }" aria-label="חלון הזמן הנבחר" @wheel="onTimelineWheel" @pointerdown="startTimelineDrag" @pointermove="moveTimelineDrag" @pointerup="endTimelineDrag" @pointercancel="endTimelineDrag" @lostpointercapture="endTimelineDrag" @pointerleave="timelinePointerLeave" @click.capture="preventDragClick">
+          <section class="timeline-section" :data-window-start="start" :data-window-end="end" :class="{ 'focused-mode': displayMode === 'focused', 'is-dragging': draggingTimeline, 'is-focusing': cameraMoving, 'has-evidence-focus': linkedEvents.length > 0, 'has-citation-preview': hoveredBadge }" aria-label="חלון הזמן הנבחר" @wheel="onTimelineWheel" @pointerdown="startTimelineDrag" @pointermove="moveTimelineDrag" @pointerup="endTimelineDrag" @pointercancel="endTimelineDrag" @lostpointercapture="endTimelineDrag" @pointerleave="timelinePointerLeave" @click.capture="preventDragClick">
             <div class="section-line timeline-heading"><div class="timeline-title"><h2>רצף האירועים</h2><span class="window-label" dir="ltr">{{ windowLabel }}</span><span class="record-count">{{ count(page.total) }} רשומות</span></div><div class="timeline-controls" dir="ltr"><button @click="pan(-1)" title="מוקדם יותר" aria-label="מוקדם יותר"><ArrowLeft :size="16"/></button><button @click="zoom(.5)" title="הגדלה" aria-label="הגדלה"><ZoomIn :size="16"/></button><button @click="zoom(2)" title="הקטנה" aria-label="הקטנה"><ZoomOut :size="16"/></button><button @click="pan(1)" title="מאוחר יותר" aria-label="מאוחר יותר"><ArrowRight :size="16"/></button><select aria-label="משך חלון הזמן" :value="durationValue" @change="changeDuration"><option :value="30000">30 שניות</option><option :value="60000">דקה</option><option :value="300000">5 דקות</option><option :value="900000">15 דקות</option><option :value="0">כל ההקלטה</option><option v-if="durationValue === -1" :value="-1" disabled>חלון מותאם</option></select><button @click="fullWindow" title="כל ההקלטה" aria-label="כל ההקלטה">הכול</button><button :aria-expanded="filtersOpen" aria-controls="timeline-filters" :class="{ toggled: activeFilters }" @click="filtersOpen = !filtersOpen" title="חיפוש וסינון" aria-label="חיפוש וסינון"><Search :size="16"/><small v-if="activeFilters">{{ activeFilters }}</small></button></div></div>
             <div v-if="filtersOpen" id="timeline-filters" class="filters"><label class="search-field"><Search :size="14"/><input v-model="query" aria-label="חיפוש ברשומות" @input="clearFocus" placeholder="מזהה, הודעה או שדה…"/><button v-if="query" @click="query = ''" aria-label="ניקוי חיפוש"><X :size="13"/></button></label><select v-model="system" aria-label="סינון מערכת" @change="clearFocus"><option value="">כל המערכות</option><option v-for="item in TIMELINE_SYSTEMS" :key="item.id" :value="item.id">{{ item.name }}</option></select><select v-model="source" aria-label="סינון מקור" @change="clearFocus"><option value="">כל המקורות</option><option v-for="item in availableSources" :key="item">{{ item }}</option></select><select v-model="target" aria-label="סינון מטרה" @change="clearFocus"><option value="">כל המטרות</option><option v-for="item in selectedCase?.targets" :key="item">{{ item }}</option></select><button :class="{ toggled: alertsOnly }" :aria-pressed="alertsOnly" @click="clearFocus(); alertsOnly = !alertsOnly">אזהרות ושגיאות</button><button v-if="activeFilters" @click="resetFilters">ניקוי</button></div>
             <div class="timeline-display"><div class="display-options" role="group" aria-label="רמת פירוט בציר הזמן"><button :aria-pressed="displayMode === 'focused'" @click="manualNavigation(); displayMode = 'focused'">ממוקד</button><button :aria-pressed="displayMode === 'records'" @click="manualNavigation(); displayMode = 'records'">תצוגה מלאה</button></div><div v-if="displayMode === 'focused'" class="focus-legend"><span><i class="activity-key"></i>עדכונים מחזוריים</span><span><i class="event-key"></i>אירועים ושינויים</span><span><i class="alert-key"></i>אזהרות</span></div><span v-else class="subtle">נקודות לפי זמן המקור</span></div>
-            <div class="timeline-contextbar" :class="{ active: linkedEvents.length || selectedRange || selectionMode }">
+            <div v-if="focusPending || previewOutside || linkedEvents.length || previousView" class="timeline-contextbar" :class="{ active: linkedEvents.length }">
               <div class="context-status" aria-live="polite">
                 <template v-if="focusPending"><LoaderCircle :size="14" class="focus-spinner"/><span>מאתר את המקורות בציר הזמן…</span></template>
-                <template v-else-if="selectedRange"><ScanLine :size="14"/><span>טווח נבחר</span><bdi>{{ clock(selectedRange.start) }} — {{ clock(selectedRange.end) }}</bdi></template>
-                <template v-else-if="selectionMode"><ScanLine :size="14"/><span>גררו על הציר לבחירת טווח</span></template>
                 <template v-else-if="previewOutside"><Focus :size="14"/><span>מקור מחוץ לתצוגה</span><bdi>{{ clock(previewOutside.time) }}</bdi><span class="context-caption">לחצו עליו למיקוד</span></template>
-                <template v-else-if="linkedEvents.length"><Focus :size="14"/><span>{{ linkedEvents.length === 1 ? 'מקור אחד במיקוד' : `${count(linkedEvents.length)} מקורות במיקוד` }}</span><span class="context-caption">שאר הרשומות מעומעמות</span></template>
-                <template v-else><Link2 :size="13"/><span class="context-caption">המקורות בשיחה מחוברים לציר הזמן</span></template>
+                <template v-else-if="linkedEvents.length"><Focus :size="14"/><span>מקורות השיחה במיקוד</span><span class="context-caption">שאר הרשומות מעומעמות</span></template>
               </div>
               <div class="context-actions">
-                <button v-if="selectedRange" class="ask-selection" @click="askRange()"><MessageSquare :size="13"/>שאל על הטווח</button>
-                <button v-else-if="selectionMode" @click="askRange()">שאל על החלון הנוכחי</button>
-                <button v-else :aria-pressed="selectionMode" title="אפשר גם לגרור עם Shift" @click="toggleRangeSelection"><ScanLine :size="13"/>בחירת טווח</button>
-                <button v-if="previousView && !selectedRange && !selectionMode" class="restore-view" title="שחזור חלון הזמן והמסננים הקודמים" @click="restoreView"><Undo2 :size="13"/>חזרה לתצוגה</button>
-                <button v-if="linkedEvents.length || focusPending || selectedRange || selectionMode" class="clear-focus" :aria-label="selectedRange || selectionMode ? 'ניקוי בחירת טווח' : 'ניקוי מיקוד'" @click="selectedRange || selectionMode ? (selectedRange = undefined, selectionMode = false) : clearFocus()"><X :size="14"/></button>
+                <button v-if="previousView" class="restore-view" title="שחזור חלון הזמן והמסננים הקודמים" @click="restoreView"><Undo2 :size="13"/>חזרה לתצוגה</button>
+                <button v-if="linkedEvents.length || focusPending" class="clear-focus" aria-label="ניקוי מיקוד" @click="clearFocus"><X :size="14"/></button>
               </div>
             </div>
             <p v-if="focusNotice" class="focus-notice" role="status">{{ focusNotice }}</p>
@@ -569,7 +541,6 @@ onUnmounted(() => { window.removeEventListener('keydown', handleEscape); finishR
                     @pointerenter="timelineTooltip?.show($event, group)" @pointerleave="timelineTooltip?.leave()" @focus="timelineTooltip?.show($event, group)" @blur="timelineTooltip?.hide()" @pointerdown="timelineTooltip?.hide()" @click="timelineTooltip?.hide(); pickGroup(group, $event)"><span></span><b v-if="group.kind === 'activity' && group.width > 3">{{ count(group.count) }}</b><small v-else-if="group.count > 1">{{ count(group.count) }}</small></button></template>
                   <template v-else><button v-for="point in lane.points" :key="point.badge" :data-badge="point.badge" :disabled="loading && !cameraMoving" :aria-label="`פתיחת ${point.badge} בשעה ${clock(point.time)}`" :style="{ left: `${point.left}%`, top: `${point.top}%` }" :class="{ populated: true, 'is-evidence-duplicate': point.count === 1 && linkedBadges.has(point.badge), alert: point.severity === 'WARN', critical: point.severity === 'ERROR', diary: point.diary, selected: evidence?.event && lane.sources.includes(evidence.event.source) && evidence.event.time === point.time }"
                     @pointerenter="timelineTooltip?.show($event, point)" @pointerleave="timelineTooltip?.leave()" @focus="timelineTooltip?.show($event, point)" @blur="timelineTooltip?.hide()" @pointerdown="timelineTooltip?.hide()" @click="timelineTooltip?.hide(); pickPoint(point, $event)"><span></span></button></template>
-                  <div v-if="rangeStyle" class="range-brush" :style="rangeStyle" aria-hidden="true"></div>
                   <button v-for="point in lane.evidencePoints" :key="point.badge + ':' + focusRevision" class="evidence-marker" :class="{ 'is-preview': hoveredBadge === point.badge, 'is-linked': linkedBadges.has(point.badge), 'is-approximate': point.diary }" :data-evidence-point="point.badge" :data-time="point.time" :style="{ left: point.left + '%', top: point.top + '%' }" :aria-label="'מקור בשיחה: ' + describeCitation(point.badge).description + ', ' + clock(point.time)" :title="point.diary ? 'זמן דיווח משוער · הדיוק מופיע ברשומה' : undefined"
                     @pointerenter="timelineTooltip?.show($event, point)" @pointerleave="timelineTooltip?.leave()" @focus="timelineTooltip?.show($event, point)" @blur="timelineTooltip?.hide()" @click="timelineTooltip?.hide(); openEvidence(point.badge)"><span></span><i aria-hidden="true"></i></button>
                 </div>
@@ -578,9 +549,9 @@ onUnmounted(() => { window.removeEventListener('keydown', handleEscape); finishR
               </div>
               <div v-if="!systemLanes.length" class="empty-records">אין מערכות התואמות למסננים. <button @click="resetFilters">ניקוי מסננים</button></div>
             </div>
-            <div class="workspace-tools"><div class="source-tools"><button :aria-pressed="dockView === 'records'" @click="toggleDock('records')"><List :size="13"/>רשומות <span>{{ count(page.total) }}</span></button><button :aria-pressed="dockView === 'diary'" @click="toggleDock('diary')"><BookOpen :size="13"/>יומן המפעיל</button><button :aria-pressed="dockView === 'coverage'" :class="{ 'coverage-warning': coverageLimited }" @click="toggleDock('coverage')"><ShieldCheck :size="13"/>{{ coverageLimited ? 'כיסוי חלקי' : 'כיסוי הקליטה' }}</button><button v-if="evidence && dockView !== 'evidence'" @click="dockView = 'evidence'"><FileText :size="13"/>הרשומה שנבחרה</button></div><span class="timeline-note" :class="{ limited: displayMode === 'focused' || detail.truncated }">{{ loading ? 'טוען רשומות…' : displayMode === 'focused' ? `${count(focus.groups.length)} סימונים מייצגים ${count(focus.totalRecords)} רשומות · התקרבו לפירוט` : detail.truncated ? `מוצגות ${count(detail.points.length)} מתוך ${count(detail.totalPoints)} נקודות זמן · התקרבו לפירוט` : 'הזמן בציר האופקי · הגובה מפריד בין רשומות' }}</span></div>
+            <div class="workspace-tools"><div class="source-tools"><button :aria-pressed="dockView === 'records'" @click="toggleDock('records')"><List :size="13"/>רשומות <span>{{ count(page.total) }}</span></button><button :aria-pressed="dockView === 'diary'" @click="toggleDock('diary')"><BookOpen :size="13"/>יומן המפעיל</button><button :aria-pressed="dockView === 'coverage'" :class="{ 'coverage-warning': coverageLimited }" @click="toggleDock('coverage')"><ShieldCheck :size="13"/>{{ coverageLimited ? 'כיסוי חלקי' : 'כיסוי הקליטה' }}</button><button v-if="evidence && dockView !== 'evidence'" @click="dockView = 'evidence'"><FileText :size="13"/>הרשומה שנבחרה</button></div><span class="timeline-note" role="status">{{ timelineRecordLabel }}</span></div>
           </section>
-          <TimelineTooltip ref="timelineTooltip" :disabled="loading || draggingTimeline || cameraMoving || selectionMode || selectingRange"/>
+          <TimelineTooltip ref="timelineTooltip" :disabled="loading || draggingTimeline || cameraMoving"/>
           <TimelineGroupDock v-if="dockView === 'group' && groupSelection" :detail="groupSelection.detail" :loading="groupLoading" @close="dockView = null" @open="openGroupEvidence" @page="loadGroupPage($event)" @series="loadGroupPage(0, $event || '')"/>
           <EvidenceDock v-else-if="dockView === 'evidence' && evidence" :evidence="evidence" :position="evidencePosition" :previous="canPrevious" :next="canNext" :loading="loading" :grouped="pointSelection?.endpoint === 'timeline-group'" @group="dockView = 'group'" @attach="attach" @close="dockView = null" @navigate="moveEvidence"/>
           <section v-else-if="dockView && dockView !== 'evidence' && dockView !== 'group'" class="bottom-dock data-dock" :aria-label="dockView === 'records' ? 'רשומות המקור' : dockView === 'diary' ? 'יומן המפעיל' : 'כיסוי הקליטה'">
@@ -593,13 +564,13 @@ onUnmounted(() => { window.removeEventListener('keydown', handleEscape); finishR
           </section>
         </main>
         <!-- Existing live chat, evidence links, progress and saved conclusions. -->
-        <aside class="chat-panel" aria-label="עוזר התחקור"><div class="chat-header"><div><Activity :size="18"/><h2>עוזר התחקיר</h2></div><span dir="ltr">{{ caseId }}</span></div>
+        <aside class="chat-panel" aria-label="עוזר התחקור"><div class="chat-header"><div><Activity :size="18"/><h2>עוזר התחקיר</h2></div><button class="clear-chat" :disabled="busy || clearingChat || !session.messages.length" :aria-busy="clearingChat" title="ניקוי ההודעות בשיחה. המסקנות השמורות יישארו." @click="clearChat"><Trash2 :size="13"/><span>{{ clearingChat ? 'מנקה…' : 'ניקוי שיחה' }}</span></button></div>
         <div v-if="provider && !provider.configured" class="setup-notice"><b>חיבור AI עדיין לא הוגדר</b><p>הוסף מפתח ל־<code dir="ltr">trace-main/.env</code>. אפשר לעיין בנתונים כבר עכשיו.</p><button @click="refreshProvider">בדוק חיבור מחדש</button></div>
-        <div ref="messagesEl" class="chat-messages" aria-live="polite"><div v-if="!session.messages.length" class="chat-welcome"><div class="trace-orbit"><Activity :size="26"/></div><h3>מאיפה מתחילים?</h3><p>בחר רשומה, צרף אותה לשיחה, או בקש לבדוק מה קרה סביב דיווח המפעיל.</p><button v-for="suggestion in suggestions" :key="suggestion" :disabled="busy || !provider?.configured" @click="send(suggestion)">{{ suggestion }}<ArrowLeft :size="15"/></button></div>
-          <article v-for="message in session.messages" :key="message.id" class="chat-message" :class="[message.role, { 'has-linked-evidence': linkedMessageId === message.id && linkedEvents.length }]" :data-message-id="message.id"><div class="message-role">{{ message.role === 'user' ? 'אתה' : 'TRACE' }}<small v-if="message.role === 'assistant'">{{ modeNames[message.mode || ''] || '' }}</small></div><details v-if="message.activity?.length" class="activity-history"><summary>מהלך הבדיקה · {{ message.activity.filter(step => step.id.startsWith('tool:')).length }} בדיקות</summary><InvestigationProgress :steps="message.activity" :running="false" @citation="focusCitation"/></details><div v-if="message.timeRange" class="message-time-range"><Clock3 :size="12"/><span>טווח השאלה</span><bdi>{{ clock(message.timeRange.start) }} — {{ clock(message.timeRange.end) }}</bdi></div><MessageBody :text="message.text" @citation="focusCitation"/><details v-if="message.details?.length" class="answer-details"><summary>פירוט הבדיקות והמקורות</summary><section v-for="(finding, index) in message.details" :key="index"><h4>{{ finding.title }}</h4><MessageBody :text="finding.explanation" @citation="focusCitation"/><div class="detail-citations"><CitationLink v-for="badge in finding.citations" :key="badge" :badge="badge" @open="focusCitation"/></div></section></details><div v-if="message.role === 'user' && message.citations.length" class="message-attachments"><CitationLink v-for="badge in message.citations" :key="badge" :badge="badge" @open="focusCitation"/></div><div v-if="message.role === 'assistant' && messageReferences(message).length" class="answer-evidence-action"><button :aria-pressed="linkedMessageId === message.id && linkedEvents.length > 0" @click="showReferences(message)"><Focus :size="14"/><span>הצג את כל המקורות</span><b>{{ messageReferences(message).length }}</b></button><span v-if="linkedMessageId === message.id && linkedEvents.length" class="answer-focus-status">מוצגים בציר</span></div><div v-if="message.role === 'assistant' && message.validation === 'satisfied'" class="message-actions"><span><Check :size="12"/>אסמכתאות מקור אומתו</span><button :disabled="approved(message.id)" @click="approve(message.id)">{{ approved(message.id) ? 'נשמר במסקנות' : 'אשר ושמור מסקנה' }}</button></div></article>
+        <div ref="messagesEl" class="chat-messages" aria-live="polite"><div v-if="!session.messages.length" class="chat-welcome"><div class="trace-orbit"><Activity :size="26"/></div><h3>מאיפה מתחילים?</h3><p>בחר רשומה, צרף אותה לשיחה, או בקש לבדוק מה קרה סביב דיווח המפעיל.</p><button v-for="suggestion in suggestions" :key="suggestion" :disabled="busy || clearingChat || !provider?.configured" @click="send(suggestion)">{{ suggestion }}<ArrowLeft :size="15"/></button></div>
+          <article v-for="message in session.messages" :key="message.id" class="chat-message" :class="[message.role, { 'has-linked-evidence': linkedMessageId === message.id && linkedEvents.length }]" :data-message-id="message.id"><div class="message-role">{{ message.role === 'user' ? 'אתה' : 'TRACE' }}<small v-if="message.role === 'assistant'">{{ modeNames[message.mode || ''] || '' }}</small></div><details v-if="message.activity?.length" class="activity-history"><summary>מהלך הבדיקה · {{ message.activity.filter(step => step.id.startsWith('tool:')).length }} בדיקות</summary><InvestigationProgress :steps="message.activity" :running="false" @citation="focusCitation"/></details><div v-if="message.timeRange" class="message-time-range"><Clock3 :size="12"/><span>טווח השאלה</span><bdi>{{ clock(message.timeRange.start) }} — {{ clock(message.timeRange.end) }}</bdi></div><MessageBody :text="message.text" @citation="focusCitation"/><details v-if="message.details?.length" class="answer-details"><summary>פירוט הבדיקות והמקורות</summary><section v-for="(finding, index) in message.details" :key="index"><h4>{{ finding.title }}</h4><MessageBody :text="finding.explanation" @citation="focusCitation"/><div class="detail-citations"><CitationLink v-for="badge in finding.citations" :key="badge" :badge="badge" @open="focusCitation"/></div></section></details><div v-if="message.role === 'user' && message.citations.length" class="message-attachments"><CitationLink v-for="badge in message.citations" :key="badge" :badge="badge" @open="focusCitation"/></div><div v-if="message.role === 'assistant' && messageReferences(message).length" class="answer-evidence-action"><button :aria-pressed="linkedMessageId === message.id && linkedEvents.length > 0" @click="showReferences(message)"><Focus :size="14"/><span>הצג את כל המקורות</span><b>{{ messageReferences(message).length }}</b></button><span v-if="linkedMessageId === message.id && linkedEvents.length" class="answer-focus-status">מוצגים בציר</span></div><div v-if="message.role === 'assistant' && message.validation === 'satisfied'" class="message-actions"><span><Check :size="12"/>אסמכתאות מקור אומתו</span><button :disabled="clearingChat || approved(message.id)" @click="approve(message.id)">{{ approved(message.id) ? 'נשמר במסקנות' : 'אשר ושמור מסקנה' }}</button></div></article>
           <InvestigationProgress v-if="busy || (chatError && progress.length)" :steps="progress" :running="busy" @citation="focusCitation"/>
         </div>
-        <div class="composer"><div v-if="chatError" class="chat-error" role="alert" dir="auto">{{ chatError }}</div><div v-if="tags.length" class="attachment-chips"><button v-for="badge in tags" :key="badge" @click="tags = tags.filter(value => value !== badge)"><span dir="rtl" :title="badge">{{ describeCitation(badge).label }}</span><X :size="12"/></button></div><div v-if="draftRange" class="composer-range"><ScanLine :size="14"/><div><span>השאלה תתמקד בטווח שנבחר</span><bdi>{{ clock(draftRange.start) }} — {{ clock(draftRange.end) }}</bdi></div><button aria-label="הסרת טווח הזמן מהשאלה" @click="draftRange = undefined"><X :size="13"/></button></div><textarea ref="draftEl" v-model="draft" aria-label="שאלה לחוקר" placeholder="שאל על האירוע, בקש לבדוק השערה…" :disabled="busy" dir="auto" @keydown.ctrl.enter.prevent="send()" @keydown.meta.enter.prevent="send()"></textarea><div class="composer-footer"><span>{{ session.lessons.length ? `${session.lessons.length} מסקנות שמורות` : '⌘ / Ctrl + Enter לשליחה' }}</span><button v-if="busy" class="send-button stop" @click="abort?.abort()"><Square :size="13"/>עצור</button><button v-else class="send-button" :disabled="!draft.trim() || !provider?.configured" @click="send()"><Send :size="15"/>שלח</button></div></div>
+        <div class="composer"><div v-if="chatError" class="chat-error" role="alert" dir="auto">{{ chatError }}</div><div v-if="tags.length" class="attachment-chips"><button v-for="badge in tags" :key="badge" @click="tags = tags.filter(value => value !== badge)"><span dir="rtl" :title="badge">{{ describeCitation(badge).label }}</span><X :size="12"/></button></div><textarea ref="draftEl" v-model="draft" aria-label="שאלה לחוקר" placeholder="שאל על האירוע, בקש לבדוק השערה…" :disabled="busy || clearingChat" dir="auto" @keydown.ctrl.enter.prevent="send()" @keydown.meta.enter.prevent="send()"></textarea><div class="composer-footer"><span>{{ session.lessons.length ? `${session.lessons.length} מסקנות שמורות` : '⌘ / Ctrl + Enter לשליחה' }}</span><button v-if="busy" class="send-button stop" @click="abort?.abort()"><Square :size="13"/>עצור</button><button v-else class="send-button" :disabled="clearingChat || !draft.trim() || !provider?.configured" @click="send()"><Send :size="15"/>שלח</button></div></div>
       </aside>
       </div>
     </div>

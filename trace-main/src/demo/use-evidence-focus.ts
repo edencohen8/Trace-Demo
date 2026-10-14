@@ -64,9 +64,7 @@ export function useEvidenceFocus(caseId: Ref<string>) {
     if (ticket !== request) return;
     pending.value = false;
     sources.value = resolved; messageId.value = id; revision.value++;
-    const untimed = resolved.filter(source => !source.event || !evidencePoint(source.event)).length;
-    notice.value = [failures ? `${failures} מקורות לא נטענו. אפשר לנסות שוב.` : '',
-      untimed ? `${untimed} מקורות ללא זמן אירוע זמינים בשיחה.` : ''].filter(Boolean).join(' ');
+    notice.value = failures ? `${failures} מקורות לא נטענו. אפשר לנסות שוב.` : '';
     return events.value;
   }
   watch(caseId, () => { clear(); cache.clear(); }, { flush: 'sync' });

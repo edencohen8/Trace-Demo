@@ -68,6 +68,13 @@ export function createApi(options: { store?: EvidenceStore; sessions?: SessionSt
         }
         return true;
       }
+      if (request.method === 'DELETE' && action === 'chat') {
+        if (busy.has(caseId)) { json(response, 409, { error: 'הבדיקה עדיין פועלת. יש להמתין לסיום לפני ניקוי השיחה.' }); return true; }
+        busy.add(caseId);
+        try { json(response, 200, await sessions.clearChat(caseId)); }
+        finally { busy.delete(caseId); }
+        return true;
+      }
       if (request.method !== 'POST') { json(response, 405, { error: 'Method not allowed' }); return true; }
       const input = await body(request);
       if (action === 'approve') {

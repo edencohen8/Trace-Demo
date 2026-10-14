@@ -36,6 +36,9 @@ export class SessionStore {
   append(caseId: string, messages: ChatMessage[]): Promise<CaseSession> {
     return this.update(caseId, (session) => { session.messages.push(...messages); });
   }
+  clearChat(caseId: string): Promise<CaseSession> {
+    return this.update(caseId, (session) => { session.messages = []; });
+  }
   approve(caseId: string, messageId: string): Promise<CaseSession> {
     return this.update(caseId, (session) => {
       const message = session.messages.find((entry) => entry.id === messageId && entry.role === 'assistant');
