@@ -33,9 +33,9 @@ const elapsed = computed(() => {
     <TransitionGroup name="activity" tag="ol" class="activity-steps">
       <li v-for="step in visible" :key="step.id" :class="step.state" :data-step-id="step.id">
         <span class="activity-symbol"><LoaderCircle v-if="step.state === 'running' && running" :size="13" class="activity-spinner"/><TriangleAlert v-else-if="step.state === 'error'" :size="13"/><Check v-else-if="step.state === 'complete'" :size="13"/><Circle v-else :size="12"/></span>
-        <div class="activity-copy"><p class="activity-title">{{ step.title }}</p><p v-if="step.detail" class="activity-detail">{{ step.detail }}</p><div v-if="step.citations?.length" class="activity-evidence"><CitationLink v-for="badge in step.citations" :key="badge" :badge="badge" @open="emit('citation', $event)"/></div></div>
+        <div class="activity-copy"><p class="activity-title">{{ step.title }}</p><p v-if="step.detail" class="activity-detail">{{ step.detail }}</p><div v-if="step.citations?.length" class="activity-evidence"><CitationLink v-for="badge in step.citations.slice(0, 3)" :key="badge" :badge="badge" @open="emit('citation', $event)"/><details v-if="step.citations.length > 3"><summary>עוד {{ step.citations.length - 3 }} מקורות</summary><CitationLink v-for="badge in step.citations.slice(3)" :key="badge" :badge="badge" @open="emit('citation', $event)"/></details></div></div>
       </li>
     </TransitionGroup>
-    <div class="activity-footer"><span><span v-if="completed">{{ completed }} בדיקות הושלמו</span><span v-if="running && pendingCount > 1"> · {{ pendingCount }} בתהליך</span></span><button v-if="running && settledCount > 3" @click="expanded = !expanded">{{ expanded ? 'הצג פחות' : 'הצג שלבים קודמים' }}</button></div>
+    <div class="activity-footer"><span><span v-if="completed">{{ completed }} בדיקות הושלמו</span><span v-if="running && pendingCount > 1"> · {{ pendingCount }} בתהליך</span></span><button v-if="settledCount > 3" @click="expanded = !expanded">{{ expanded ? 'הצג פחות' : 'הצג שלבים קודמים' }}</button></div>
   </div>
 </template>

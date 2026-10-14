@@ -10,6 +10,7 @@ import {
   type SkillDefinition,
   type LoadedSkillContext,
 } from "./types.ts";
+import { readFileSync } from 'node:fs';
 
 export const SKILL_VERSION = "1.0.0";
 
@@ -38,14 +39,8 @@ const SIGNAL_ANALYSIS_INSTRUCTIONS = `
 - Evidence: Cite exact source locators for peak deltas, anomalies, or transition timestamps.
 `.trim();
 
-const ROOT_CAUSE_INVESTIGATION_INSTRUCTIONS = `
-# Root-Cause Investigation Skill
-- Method: Execute the diagnostic investigation loop using isolated sub-agent delegation.
-- Hypotheses: Always formulate at least two plausible competing hypotheses (H1 vs H2) to prevent confirmation bias.
-- Temporal Search: Reason backward to pinpoint onset and trigger; reason forward to verify propagation.
-- Abstention Rule: If essential message types or sources are missing from capture (e.g. filtered in manifest), immediately abstain with status ABSTENTION.
-- Evidence: Conclude via submit_findings with structured Finding objects citing primary source locators.
-`.trim();
+// The loaded playbook is the same versioned document that maintainers edit.
+const ROOT_CAUSE_INVESTIGATION_INSTRUCTIONS = readFileSync(new URL('../../skills/root-cause-investigation/SKILL.md', import.meta.url), 'utf8').replace(/^---\n[\s\S]*?\n---\n/, '').trim();
 
 const BUILTIN_SKILLS: Record<SkillId, SkillDefinition> = {
   "health-status": {

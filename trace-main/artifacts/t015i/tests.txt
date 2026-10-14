@@ -1,0 +1,291 @@
+
+> trace-prototype@0.1.0 test
+> npm run test:agent && npm run test:skills && npm run test:router && npm run test:validator && npm run test:investigator && npm run test:demo && npm run test:quality && npm run test:progress && npm run test:timeline && npm run test:radar
+
+
+> trace-prototype@0.1.0 test:agent
+> node --import tsx scripts/verify-subtask-3-1.ts
+
+=== [TRACE Lane 3] Sub-task 3.1 Verification (TypeScript) ===
+
+[Step 1] Verifying LiteLLM Provider Setup...
+✓ LiteLLM provider configuration verified successfully.
+
+[Step 2] Initializing Pi AI Model Registry...
+✓ Model registry initialized with model: faux-1
+
+[Step 3] Defining mock investigation tool...
+
+[Step 4] Creating Investigation Agent instance...
+
+[Step 5] Executing agent prompt loop...
+
+[Step 6] Validating verification assertions...
+✓ Tool execution verified with correct arguments.
+Emitted lifecycle events: agent_start -> turn_start -> message_start -> message_end -> message_start -> message_update -> message_update -> message_update -> message_update -> message_update -> message_update -> message_update -> message_update -> message_end -> tool_execution_start -> tool_execution_end -> message_start -> message_end -> turn_end -> turn_start -> message_start -> message_update -> message_update -> message_update -> message_update -> message_update -> message_update -> message_update -> message_end -> turn_end -> agent_end
+✓ Event lifecycle verified.
+Total messages in transcript: 5
+✓ Final assistant response: "Analysis complete: Detected position jump delta 0.0542 citing sniffer.csv:L1420."
+
+🎉 [SUB-TASK 3.1 VERIFICATION (TYPESCRIPT) PASSED]
+
+> trace-prototype@0.1.0 test:skills
+> node --import tsx scripts/verify-subtask-3-2.ts
+
+=== TRACE Lane 3: Verifying Sub-task 3.2 ===
+
+[1/3] Verifying SkillRegistry...
+  ✓ Loaded skill 'health-status' (v1.0.0, ~131 tokens)
+  ✓ Loaded skill 'timeline-summary' (v1.0.0, ~112 tokens)
+  ✓ Loaded skill 'signal-analysis' (v1.0.0, ~114 tokens)
+  ✓ Loaded skill 'root-cause-investigation' (v1.0.0, ~1741 tokens)
+  ✓ Correctly rejected unknown skill request
+
+[2/3] Verifying ToolProfileManager...
+  ✓ health-status profile permits read-only lookup and blocks delegation
+  ✓ root-cause-investigation permits delegation and blocks direct query tools
+  ✓ filterAllowedTools correctly stripped disallowed tools
+
+[3/3] Verifying EvidenceResolver...
+  ✓ Parsed Sniffer CSV locator badge: [sniffer.csv:L1420]
+  ✓ Parsed component log locator: [external_position_adapter.txt:L88]
+  ✓ Parsed calculation badge: [calc:pos_delta:case_002:81422]
+  ✓ Formatted SourceLocator to CTR-05 badge: [alert_router.txt:L42]
+  ✓ Resolved evidence with provenance verification
+  ✓ Security: Ground Truth Isolation strictly enforced
+
+✅ Sub-task 3.2 verification SUCCEEDED with 0 errors!
+
+> trace-prototype@0.1.0 test:router
+> node --import tsx scripts/verify-subtask-3-3.ts
+
+=== TRACE Lane 3: Verifying Sub-task 3.3 ===
+
+[1/4] Verifying LLM Routing across 4 Skills...
+  ✓ Routed to health-status (single sensor)
+  ✓ Routed to health-status (all_available systems)
+  ✓ Routed to timeline-summary
+  ✓ Routed to signal-analysis
+  ✓ Routed to root-cause-investigation
+
+[2/4] Verifying Ambiguity & Clarification Handling...
+  ✓ Ambiguous query triggered requiresClarification: true
+
+[3/4] Verifying Context Lifecycle & Instruction Eviction...
+  ✓ Mode switch cleanly swapped skill instructions and retained prior citation badge
+
+[4/4] Verifying Threshold-Based Smart Compaction...
+  ✓ Messages under threshold preserved 100% intact
+  ✓ Compaction triggered: tokens shrunk from 845 to 74 while preserving citations
+
+✅ Sub-task 3.3 verification SUCCEEDED with 0 errors!
+
+> trace-prototype@0.1.0 test:validator
+> node --import tsx scripts/verify-subtask-3-4.ts
+
+=== TRACE Lane 3: Verifying Sub-task 3.4 ===
+
+[1/4] Verifying Detection of Under-Scoped Draft...
+  ✓ Under-scoped draft caught; missing entities correctly identified
+
+[2/4] Verifying Automated Repair Loop Recovery...
+  ✓ Agent successfully repaired under-scoped answer on Attempt 2
+
+[3/4] Verifying Bounded Stop at <= 4 Attempts (No Infinite Loop)...
+  ✓ Strictly halted at attempt 4 with partial answer & degraded confidence note
+
+[4/4] Verifying Citation & Ground Truth Isolation Checks...
+  ✓ Invalid evidence badge format correctly caught and rejected
+  ✓ Security: Ground Truth Isolation violation immediately caught
+
+✅ Sub-task 3.4 verification SUCCEEDED with 0 errors!
+
+> trace-prototype@0.1.0 test:investigator
+> node --import tsx scripts/verify-subtask-3-5.ts
+
+=== TRACE Lane 3: Verifying Sub-task 3.5 ===
+
+[1/3] Verifying InvestigationBlackboard Working State...
+  ✓ Blackboard correctly tracks fact gating, living hypotheses, leads, and exhausted sources
+
+[2/3] Verifying DelegationController & Worker Sandboxing...
+  ✓ DelegationController strictly isolates workers, strips coordinator tools, and bounds budgets
+
+[3/3] Verifying Multi-Agent Dynamic Diagnostic on case_002...
+  ✓ Dynamic investigation concluded with corroborated positive cause and refuted negative cause
+  ✓ Dual citations verified: [sniffer.csv:L1420] and [external_position_adapter.txt:L88]
+  ✓ Main investigator executed zero direct SQL queries
+
+✅ Sub-task 3.5 verification SUCCEEDED with 0 errors!
+
+> trace-prototype@0.1.0 test:demo
+> node --import tsx --test scripts/verify-demo.ts
+
+✔ all four cases parse with exact manifest counts and original-file hashes (1004.638166ms)
+✔ source clocks align and diary wall-clock times are not mistaken for UTC (0.228ms)
+✔ citations resolve byte-preserved CSV and TXT lines, with 1-based locations (2.733708ms)
+✔ unknown cases, paths, zero rows, and fabricated references are rejected (0.277167ms)
+✔ filters, pagination and timeline counts describe the same records (0.778833ms)
+✔ filtered capture declares excluded types instead of inventing absence (1.326333ms)
+✔ five system lanes preserve all source counts and mark the radio data as absent (22.749ms)
+✔ system drill-down includes its components and preserves source filters (4.22325ms)
+✔ deterministic analysis returns numeric results with real source evidence (8.570167ms)
+✔ data tools enforce case access and row bounds (0.938833ms)
+✔ Claude, Gemini and LiteLLM select independent models without exposing keys (0.519958ms)
+✔ native Claude truncation is rejected before incomplete text reaches the router (69.791708ms)
+✔ JSON sessions persist and concurrent saves do not lose messages (4.599958ms)
+✔ chat runs the real agent/tool path, validates evidence and emits progress (17.17875ms)
+✔ a real citation that the model never read cannot pass validation (6.852542ms)
+✔ fabricated citations fail even after bounded repair (15.119083ms)
+✔ an all-systems health request still rejects a sensor-only answer (16.486167ms)
+✔ Hebrew component names satisfy coverage without forcing English service IDs into the answer (13.674625ms)
+✔ long answers are shortened using existing citations and still pass evidence validation (71.091834ms)
+✔ chat renders bold text, paragraphs and lists with RTL and isolated clickable citations (20.990625ms)
+✔ compact citation links explain the source and keep the exact evidence reference (0.250417ms)
+✔ a finding with many sources folds its links without losing original references (2.420375ms)
+✔ parallel tool progress updates the matching step with real counts and source links (1.960458ms)
+✔ progress reports a tool failure without marking it complete or exposing raw error content (0.067417ms)
+✔ progress ignores unvalidated model text and only publishes actions and results (0.03975ms)
+✔ progress reports exact numeric summaries without inferred root causes (0.109209ms)
+✔ model-authored HTML, images and unsafe links are not executed by the message renderer (0.689542ms)
+✔ cancellation prevents starting AI work (0.107041ms)
+✔ causal investigation validates coverage without inventing an all-systems health checklist (46.827208ms)
+✔ agent turn limits terminate a model that keeps calling tools (9.265708ms)
+✔ HTTP API serves data, handles SSE, rejects cross-origin writes and persists only completed chat (46.14675ms)
+✔ clearing chat waits for the active turn and the next turn has no old history (6.2585ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1703.56275
+
+> trace-prototype@0.1.0 test:quality
+> node --import tsx --test scripts/verify-agent-quality.ts
+
+✔ a narrow search question cannot treat suppressed detections as missing scan coverage (43.31125ms)
+✔ follow-ups can cite input rows from a saved calculation supplied in their context (6.3255ms)
+✔ a follow-up cannot turn a receipt into application and repairs the unsupported claim (13.238291ms)
+✔ a second bounded follow-up correction can remove a new unsupported duration (17.486209ms)
+✔ JSON component logs retain numeric fields at the end of the decoded message (284.641542ms)
+✔ Mode 3/A identifiers keep their four-character source representation (1.321875ms)
+✔ original lines shown around evidence can be cited without another tool call (255.179708ms)
+✔ chat accepts a displayed context line without a repair (tool) (13.550459ms)
+✔ chat accepts a displayed context line without a repair (attachment) (6.111125ms)
+✔ time-window query results match a full scan including exact boundaries (45.275416ms)
+✔ query and timeline filters reject timestamps without an explicit timezone (0.325417ms)
+✔ diary source inspection labels Excel wall-clock cells with their real timezone (0.055792ms)
+✔ gap calculations distinguish record counts from measured intervals (3.276791ms)
+✔ decimal field differences do not invent precision from binary floating-point tails (283.251916ms)
+✔ coverage follow-ups can inspect the complete manifest in one tool call (195.803667ms)
+✔ grouped citations are formatted without a model repair, while unread groups are rejected (96.739166ms)
+✔ causal submission delivers the reviewed answer without a second composition (68.570125ms)
+✔ Hebrew wording edits are reviewed and cannot replace a supported answer with a false claim (66.993541ms)
+✔ an explicit English request corrects a Hebrew draft without changing evidence (8.564917ms)
+✔ numeric answers preserve requested measurements without an automatic editing call (74.80075ms)
+✔ causal answers retain source links and qualifications without a second rewrite (127.254167ms)
+✔ optional prose editing cannot discard original supporting citations (73.085666ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1918.6315
+
+> trace-prototype@0.1.0 test:progress
+> node --import tsx --test scripts/verify-progress-order.ts
+
+✔ the loading message stays last after parallel checks finish (1.304584ms)
+✔ only the current task has a loading row, even while an outer phase remains active (0.115666ms)
+✔ checks that finish in the same millisecond keep their actual completion order (0.0705ms)
+✔ collapsing older checks does not hide the loader or change the completed order (0.145417ms)
+✔ finished history keeps completion order and interrupted steps remain unfinished (0.107125ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 83.282792
+
+> trace-prototype@0.1.0 test:timeline
+> node --import tsx --test scripts/verify-timeline-points.ts scripts/verify-timeline-focus.ts scripts/verify-chat-timeline.ts
+
+✔ focus fits exact milliseconds, pads the evidence interval, and clamps both recording edges (1.897333ms)
+✔ camera interpolation stays bounded, preserves positive duration, and lands exactly (0.177041ms)
+✔ answer focus includes all displayed findings, deduplicates citations, and excludes tool history (0.243833ms)
+✔ evidence pins resolve original records even when a grouped marker has a different representative (296.957583ms)
+✔ range selection follows LTR time, preserves milliseconds, and clamps off-track pointers (0.119125ms)
+✔ a later citation click wins even when an earlier source resolves last; case changes discard pending focus (4.482041ms)
+✔ source reads are bounded and manual cancellation prevents queued requests and late highlights (0.748875ms)
+✔ a failed source can be retried and metadata sources never get fake timeline pins (0.606208ms)
+✔ chat time scope accepts explicit offsets and rejects ambiguous or invalid intervals (0.275625ms)
+✔ selected interval overrides a router time guess and reaches the actual agent prompt (16.968542ms)
+✔ HTTP chat validates and persists selected scope without changing the displayed question (17.519958ms)
+✔ focused groups cover every original row once with exact first and last timestamps (9.986042ms)
+✔ zoom exposes individual records at 30 seconds without marking them as healthy (0.300333ms)
+✔ INFO lifecycle/config messages, warnings, diary and unfamiliar types stay out of activity groups (0.206417ms)
+✔ state changes are source/target scoped and remain visible at the left viewport edge (0.105916ms)
+✔ series keep targets and categorical state separate and retain numeric extrema with source links (1.354084ms)
+✔ identical warning floods become counted markers without merging different messages or sources (4.944291ms)
+✔ all four real cases preserve counts, evidence and filters in focused mode (1079.2665ms)
+✔ timeline markers preserve irregular source timestamps instead of uniform bins (6.57575ms)
+✔ visible log counts include grouped records and count extra citation pins only once (0.135583ms)
+✔ only records from the same system and exact instant share a marker (0.083792ms)
+✔ nearby markers spread vertically without moving their source times (0.311333ms)
+✔ sparse markers also use different heights and keep their positions on redraw (0.679292ms)
+✔ wheel zoom keeps the time under the cursor fixed in both directions (0.096792ms)
+✔ drag panning follows the pointer in both directions without changing zoom (0.064959ms)
+✔ dragging clamps at recording edges and returns smoothly from them (0.175541ms)
+✔ wheel zoom respects recording boundaries and the minimum time window (0.073708ms)
+✔ wide views stay bounded, disclose omission and retain warning/diary records (3.977916ms)
+✔ even a dense warning-only capture has a bounded response (0.7945ms)
+✔ real-case point counts, source references and same-time drill-down agree (291.828625ms)
+✔ point filters keep case scope and the empty radio lane truthful (193.648666ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1227.043792
+
+> trace-prototype@0.1.0 test:radar
+> node --import tsx --test scripts/verify-radar-demo.ts
+
+✔ operator can open the named case and its exact original sources (1005.651125ms)
+✔ a calculation reference opens its result and inputs without inventing a source line (18.004542ms)
+✔ region tools accept the same unwrapped source locators as evidence opening (7.597916ms)
+✔ region results distinguish records from IDs and verify the continuous state around the report (5.812625ms)
+✔ continuous state does not cross a validity gap outside the report window (5.40725ms)
+✔ generation is reproducible and request outcomes resolve across sources (9.491792ms)
+✔ region analysis uses complete time coverage, effective state and report uncertainty (6.240083ms)
+✔ isolated evidence changes the calculation: missing-state (7.799292ms)
+✔ isolated evidence changes the calculation: partial-detections (8.178ms)
+✔ isolated evidence changes the calculation: outside-sector (8.179666ms)
+✔ isolated evidence changes the calculation: cancel-applied (8.434875ms)
+✔ angular calculations wrap through north and include exact boundaries (0.1075ms)
+✔ state changes at application time; expired snapshots do not become facts (4.777542ms)
+✔ hash and count mismatches fail closed (9.009167ms)
+✔ progress derives semantic findings from calculation outputs and preserves input links (5.812583ms)
+✔ a readable source does not bypass claim support review (4.852167ms)
+✔ claim review retains aggregate counts, metadata context and compact request coverage (5.199083ms)
+✔ claim review resolves references in visible rationales as well as evidence arrays (4.610375ms)
+✔ focused claim review does not require a full incident investigation (4.491708ms)
+✔ calculation clocks reject missing zones and large windows return bounded state summaries (7.246292ms)
+✔ routine detections stay inside the search state effective at their own timestamps (14.528916ms)
+✔ a rejected finding can be corrected without rewriting the accepted claims or their sources (64.626ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1435.037208

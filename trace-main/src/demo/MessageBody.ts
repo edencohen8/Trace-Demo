@@ -15,7 +15,16 @@ function renderTokens(tokens: Token[], open: (badge: string) => void): VNodeChil
     const children = () => renderTokens('tokens' in token ? token.tokens ?? [] : [], open);
     switch (token.type) {
       case 'space': case 'def': return [];
-      case 'paragraph': return [h('p', children())];
+      case 'paragraph': {
+        const paragraph = token as Tokens.Paragraph;
+        const cluster = paragraph.text.match(/(?:\[[a-zA-Z0-9_]+\.(?:csv|txt|xlsx|json):L[1-9]\d*\][\s,;]*){4,}$/);
+        if (!cluster) return [h('p', children())];
+        const references = [...new Set(splitCitations(cluster[0]).filter((part) => part.citation).map((part) => part.text))];
+        return [h('div', { class: 'finding-paragraph' }, [
+          ...renderTokens(marked.lexer(paragraph.text.slice(0, cluster.index).trim(), { gfm: true, breaks: true }), open),
+          h('details', { class: 'finding-sources' }, [h('summary', `מקורות לממצא · ${references.length}`), h('div', references.map((badge) => h(CitationLink, { badge, onOpen: open })))]),
+        ])];
+      }
       case 'heading': return [h('h4', children())];
       case 'strong': return [h('strong', children())];
       case 'em': return [h('em', children())];

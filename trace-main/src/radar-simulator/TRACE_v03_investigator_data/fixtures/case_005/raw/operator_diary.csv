@@ -1,0 +1,7 @@
+"timestamp","source","type","severity","message","fields"
+"2026-10-14T12:00:20.000Z","operator","OperatorNote","INFO","הוגדרה חסימה זמנית לגזרה 35°–50° לצורך הכנת התרגיל.","{""sector_id"":""SEC-7"",""request_id"":""req-101""}"
+"2026-10-14T12:01:55.000Z","operator","OperatorNote","INFO","הנחיית חיפוש: עבור לסריקה 30°–65°, תבנית SEARCH_WIDE, טווח עד 80 ק״מ. בוצעה פקודת הכיוון.","{""request_id"":""req-202""}"
+"2026-10-14T12:03:00.000Z","operator","OperatorNote","INFO","לחצתי על ביטול המגזר. סימון החסימה נעלם מהמסך.","{""request_id"":""req-303"",""sector_id"":""SEC-7""}"
+"2026-10-14T12:04:35.000Z","operator","OperatorNote","INFO","לא ראיתי גילוי במעבר שעליו דיווח מתאם התרגיל. האזור מוצג פתוח.","{""target_id"":""T015I"",""report_ref"":""case_report.txt""}"
+"2026-10-14T12:07:15.000Z","operator","OperatorNote","INFO","בוצעה פעולת ביטול נוספת לפי נוהל תחזוקה.","{""request_id"":""req-505"",""sector_id"":""SEC-7""}"
+"2026-10-14T12:08:20.000Z","operator","RepeatPassReport","INFO","מתאם התרגיל דיווח על מעבר נוסף של T015I באותו אזור ובגובה ובמהירות דומים. נצפה גילוי במסך.","{""azimuth_deg"":42,""azimuth_uncertainty_deg"":1,""range_km"":26,""range_uncertainty_km"":0.5,""target_id"":""T015I"",""window_start"":""2026-10-14T12:08:00.000Z"",""window_end"":""2026-10-14T12:08:10.000Z"",""observation_basis"":""exercise_coordinator_report"",""conditions"":""same exercise aircraft; altitude 2km ±0.1; speed 150m/s ±10""}"

@@ -40,11 +40,11 @@ export type SourceLocator = Static<typeof SourceLocatorSchema>;
  * TypeBox Schema for Evidence Citation (CTR-04 & CTR-05)
  */
 export const EvidenceCitationSchema = Type.Object({
-  badge: Type.String(),
-  source_file: Type.String(),
+  badge: Type.String({ description: 'One exact returned source or calculation badge. No ranges, grouped locators or invented row numbers.' }),
+  source_file: Type.Optional(Type.String()),
   row: Type.Optional(Type.Integer()),
   line: Type.Optional(Type.Integer()),
-  kind: Type.Optional(Type.Union([Type.Literal("source_locator"), Type.Literal("manifest")])),
+  kind: Type.Optional(Type.Union([Type.Literal("source_locator"), Type.Literal("manifest"), Type.Literal("calculation")])),
 });
 
 export type EvidenceCitation = Static<typeof EvidenceCitationSchema>;

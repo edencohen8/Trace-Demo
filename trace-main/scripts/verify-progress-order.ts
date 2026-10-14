@@ -60,5 +60,6 @@ test('finished history keeps completion order and interrupted steps remain unfin
   assert.equal(interrupted.at(-1)!.state, 'running');
   const finished = visibleInvestigationSteps(reporter.finish(), false, false);
   assert.ok(finished.every((step) => step.state === 'complete'));
-  assert.deepEqual(finished.map((step) => step.id), ['phase:1', 'tool:b', 'tool:a', 'phase:2']);
+  assert.deepEqual(finished.map((step) => step.id), ['tool:b', 'tool:a', 'phase:2']);
+  assert.deepEqual(visibleInvestigationSteps(reporter.finish(), false, true).map((step) => step.id), ['phase:1', 'tool:b', 'tool:a', 'phase:2']);
 });

@@ -16,6 +16,21 @@ AI chat requires a valid provider key. There is no prepared-answer fallback.
 The server reads `.env` on each AI request. After adding a key, click the connection
 refresh button. You do not need to restart the server for key or model changes.
 
+## T015I radar demo
+
+Open `http://127.0.0.1:5180/?case=case_005` and select
+**כשל בזיהוי מטרה T015I**. Ask: **למה מטרה T015I לא התגלתה באזור שציינתי?**
+The final character in the target ID is the Latin letter I.
+
+The package is synthetic. Rebuild it with `npm run generate:radar` (fixed seed
+15015). Restart the server after rebuilding evidence. Run `npm run test:radar`
+for data, geometry, state, coverage and source-reference checks.
+Run `npm run qa:radar -- all /tmp/trace-radar-qa` for the real-provider matrix.
+It uses empty test sessions and does not change saved operator conversations.
+`TRACE_QA_CONCURRENCY=2` allows two independent runs at once. This can affect latency.
+
+See [demo steps](docs/T015I-DEMO.md). Final acceptance results are recorded separately.
+
 ## Select an AI provider
 
 | Provider | Settings in `.env` |

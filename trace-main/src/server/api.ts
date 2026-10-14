@@ -92,7 +92,7 @@ export function createApi(options: { store?: EvidenceStore; sessions?: SessionSt
       if (busy.has(caseId)) { json(response, 409, { error: 'An investigation is already running for this case' }); return true; }
       busy.add(caseId);
       const abort = new AbortController();
-      const timeout = setTimeout(() => abort.abort(new Error('Investigation timed out after 3 minutes. Try a narrower question.')), 180_000);
+      const timeout = setTimeout(() => abort.abort(new Error('החקירה לא הושלמה בתוך שמונה דקות. אפשר לנסות שאלה ממוקדת יותר.')), 480_000);
       const disconnected = () => { if (!response.writableEnded) abort.abort(new Error('Client disconnected')); };
       response.on('close', disconnected);
       response.writeHead(200, { 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-cache', Connection: 'keep-alive', 'X-Accel-Buffering': 'no' });

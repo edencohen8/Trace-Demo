@@ -46,14 +46,16 @@ export function createRuntime(config: AIConfig, signal: AbortSignal) {
   const streamFn: StreamFn = (selectedModel, context, options) => {
     signal.throwIfAborted();
     if (++calls > 36) throw new Error('Model request budget reached. Ask a narrower question.');
-    return registry.streamFn(selectedModel, context, { ...options, reasoning: 'low', maxTokens: 8192,
+    return registry.streamFn(selectedModel, context, { ...options, reasoning: 'medium', maxTokens: 8192,
       signal: options?.signal ? AbortSignal.any([signal, options.signal]) : signal });
   };
-  const complete = async (prompt: string): Promise<string> => {
+  const complete = async (prompt: string, reasoning: 'low' | 'medium' = 'low'): Promise<string> => {
     if (++calls > 36) throw new Error('Model request budget reached.');
     const response = await registry.models.completeSimple(model, {
       messages: [{ role: 'user', content: prompt, timestamp: Date.now() }],
-    }, { signal, reasoning: 'low', maxTokens: 4096 });
+    // Adaptive thinking shares the output ceiling with the verdict. A routing
+    // cap can truncate a cross-source review before it returns any JSON.
+    }, { signal, reasoning, maxTokens: reasoning === 'medium' ? 16_384 : 4096 });
     if (response.stopReason === 'error' || response.stopReason === 'aborted') throw new Error(response.errorMessage || 'AI request failed');
     if (response.stopReason === 'length') throw new Error('The AI response reached its output limit. Please retry with a narrower question.');
     const text = response.content.filter((block) => block.type === 'text').map((block) => block.text).join('\n');

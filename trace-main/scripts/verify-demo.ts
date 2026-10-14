@@ -29,7 +29,7 @@ const config: AIConfig = { provider: 'anthropic', model: 'claude-sonnet-4-6', ap
 const empty = (caseId = 'case_001'): CaseSession => ({ caseId, messages: [], lessons: [] });
 
 test('all four cases parse with exact manifest counts and original-file hashes', async () => {
-  const cases = await store.summaries();
+  const cases = (await store.summaries()).filter((entry) => ['case_001', 'case_002', 'case_003', 'case_004'].includes(entry.id));
   assert.equal(cases.length, 4);
   assert.deepEqual(cases.map((entry) => entry.eventCount), [29362, 29389, 29419, 20954]);
   for (const entry of cases) {
@@ -53,6 +53,7 @@ test('citations resolve byte-preserved CSV and TXT lines, with 1-based locations
   for (const [file, line] of [['sniffer.csv', 1420], ['sensor.txt', 2]] as const) {
     const raw = (await readFile(join(EVIDENCE_ROOT, 'fixtures/case_001/raw', file), 'utf8')).split(/\r?\n/);
     const resolved = await store.resolve('case_001', `[${file}:L${line}]`);
+    assert.ok(resolved.kind !== 'calculation');
     assert.equal(resolved.lines.find((entry) => entry.highlight)!.content, raw[line - 1]);
     assert.equal(resolved.event!.line, line);
   }
@@ -157,6 +158,11 @@ test('native Claude truncation is rejected before incomplete text reaches the ro
     const runtime = createRuntime({ ...config, model: 'claude-haiku-5-5' }, new AbortController().signal);
     await assert.rejects(runtime.complete('Classify this request'), /output limit/i);
     assert.equal(fetchMock.mock.callCount(), 1);
+    const routingBody = JSON.parse(String(fetchMock.mock.calls[0]!.arguments[1]?.body));
+    await assert.rejects(runtime.complete('Review this evidence', 'medium'), /output limit/i);
+    const reviewBody = JSON.parse(String(fetchMock.mock.calls[1]!.arguments[1]?.body));
+    assert.ok(reviewBody.max_tokens >= 16_384, 'Adaptive claim review needs room for reasoning and its verdict');
+    assert.ok(reviewBody.max_tokens > routingBody.max_tokens);
   } finally { fetchMock.mock.restore(); }
 });
 
@@ -188,8 +194,9 @@ function fakeRuntime(text: string, readEvidence = true, route: Record<string, un
     ...(readEvidence ? [fauxAssistantMessage([fauxToolCall('get_evidence', { badge: '[sensor.txt:L1]' })], { stopReason: 'toolUse' })] : []),
     fauxAssistantMessage([fauxText(text)], { stopReason: 'stop' }),
     fauxAssistantMessage([fauxText(text)], { stopReason: 'stop' }),
+    fauxAssistantMessage([fauxText(text)], { stopReason: 'stop' }),
   ]);
-  return () => ({ model: registry.getModel()!, streamFn: registry.streamFn, complete: async () => JSON.stringify({ originalQuestion: 'sensor health', investigationId: 'case_001', entityScope: 'single', answerKind: 'health', mustCover: [], selectedSkillIds: ['health-status'], requiresClarification: false, confidence: .99, ...route }) });
+  return () => ({ model: registry.getModel()!, streamFn: registry.streamFn, complete: async (prompt = '') => prompt.startsWith('Review whether') ? JSON.stringify({ supported: true, issues: [] }) : JSON.stringify({ originalQuestion: 'sensor health', investigationId: 'case_001', entityScope: 'single', answerKind: 'health', mustCover: [], selectedSkillIds: ['health-status'], requiresClarification: false, confidence: .99, ...route }) });
 }
 
 test('chat runs the real agent/tool path, validates evidence and emits progress', async () => {
@@ -233,7 +240,7 @@ test('long answers are shortened using existing citations and still pass evidenc
   const classify = runtime.complete;
   const prompts: string[] = [];
   const answer = await runChat({ caseId: 'case_001', text: 'מה מצב המכ״ם?', evidence: [] }, empty(), store, config, new AbortController().signal, () => {}, () => ({
-    ...runtime, complete: async (prompt: string) => { prompts.push(prompt); return prompts.length === 1 ? classify() : concise; },
+    ...runtime, complete: async (prompt: string) => { if (prompt.startsWith('Review whether')) return JSON.stringify({ supported: true, issues: [] }); prompts.push(prompt); return prompts.length === 1 ? classify() : concise; },
   }));
   assert.equal(answer.text, concise);
   assert.equal(answer.validation, 'satisfied');
@@ -261,6 +268,14 @@ test('compact citation links explain the source and keep the exact evidence refe
   assert.match(html, /יומן · <bdi dir="ltr">4<\/bdi>/);
 });
 
+test('a finding with many sources folds its links without losing original references', async () => {
+  const badges = ['[case_report.txt:L1]', '[sniffer.csv:L205]', '[system_catalog.txt:L2]', '[capture_manifest.json:L46]'];
+  const html = await renderToString(createSSRApp({ render: () => h(MessageBody, { text: `ממצא מתוך הראיות. ${badges.join(' ')}` }) }));
+  assert.match(html, /<details class="finding-sources">/);
+  assert.match(html, /מקורות לממצא · 4/);
+  for (const badge of badges) assert.ok(html.includes(`data-evidence="${badge}"`));
+});
+
 test('parallel tool progress updates the matching step with real counts and source links', () => {
   const events: ProgressEvent[] = [];
   let time = 1000;
@@ -274,7 +289,7 @@ test('parallel tool progress updates the matching step with real counts and sour
   assert.equal(steps.length, 3);
   assert.match(steps.find((step) => step.id === 'tool:a')!.title, /המכ״ם/);
   assert.match(steps.find((step) => step.id === 'tool:a')!.detail!, /90 רשומות/);
-  assert.deepEqual(steps.find((step) => step.id === 'tool:a')!.citations, ['[sensor.txt:L49]']);
+  assert.deepEqual(steps.find((step) => step.id === 'tool:a')!.citations, [], 'Search order does not select evidence for a semantic claim');
   assert.match(steps.find((step) => step.id === 'tool:b')!.detail!, /אין בכך הוכחה/);
   assert.ok(steps.every((step) => step.state === 'complete'));
   const start = events.find((event) => event.type === 'tool_call' && event.step?.id === 'tool:a')!;
@@ -329,10 +344,10 @@ test('causal investigation validates coverage without inventing an all-systems h
   const registry = initModelRegistry({ useFaux: true, fauxOptions: { tokensPerSecond: 100_000 } });
   registry.fauxInstance!.setResponses([
     fauxAssistantMessage([fauxToolCall('get_case_overview', { case_id: 'case_004' })], { stopReason: 'toolUse' }),
-    fauxAssistantMessage([fauxToolCall('submit_findings', { answer: conciseAnswer, findings: [{ finding_id: 'F-test', investigation_id: 'case_004', status: 'ABSTENTION', title: 'Incomplete capture', claim: 'Some message types were excluded.', confidence: 0, rationale: 'Missing records do not prove absence.', evidence_citations: [{ badge: 'capture_manifest.json:L1', source_file: 'capture_manifest.json', kind: 'manifest' }], missing_coverage_flag: true }], rationale: 'Coverage limitation' })], { stopReason: 'toolUse' }),
+    fauxAssistantMessage([fauxToolCall('submit_findings', { summary_finding_ids: ['F-test'], findings: [{ finding_id: 'F-test', investigation_id: 'case_004', status: 'ABSTENTION', title: 'Incomplete capture', claim: conciseAnswer, confidence: 0, rationale: 'Missing records do not prove absence.', evidence_citations: [{ badge: '[capture_manifest.json:L1]', source_file: 'capture_manifest.json', kind: 'manifest' }], missing_coverage_flag: true }], rationale: 'Coverage limitation' })], { stopReason: 'toolUse' }),
     fauxAssistantMessage([fauxText('Done')], { stopReason: 'stop' }),
   ]);
-  const answer = await runChat({ caseId: 'case_004', text: 'Why was a target not visible?', evidence: [] }, empty('case_004'), store, config, new AbortController().signal, () => {}, () => ({ model: registry.getModel()!, streamFn: registry.streamFn, complete: async () => JSON.stringify({ originalQuestion: 'Why?', investigationId: 'case_004', entityScope: 'specified', requestedEntities: ['track-core', 'ui-gateway', 'radar-psr-01'], answerKind: 'cause', mustCover: [], selectedSkillIds: ['root-cause-investigation'], requiresClarification: false, confidence: .99 }) }));
+  const answer = await runChat({ caseId: 'case_004', text: 'Why was a target not visible?', evidence: [] }, empty('case_004'), store, config, new AbortController().signal, () => {}, () => ({ model: registry.getModel()!, streamFn: registry.streamFn, complete: async (prompt) => prompt.startsWith('Review whether') ? JSON.stringify({ supported: true, issues: [] }) : JSON.stringify({ originalQuestion: 'Why?', investigationId: 'case_004', entityScope: 'specified', requestedEntities: ['track-core', 'ui-gateway', 'radar-psr-01'], answerKind: 'cause', mustCover: [], selectedSkillIds: ['root-cause-investigation'], requiresClarification: false, confidence: .99 }) }));
   assert.equal(answer.validation, 'satisfied');
   assert.equal(answer.text, conciseAnswer);
   assert.equal(answer.details?.[0]?.title, 'Incomplete capture');

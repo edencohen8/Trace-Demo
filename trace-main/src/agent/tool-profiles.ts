@@ -20,7 +20,7 @@ export interface ToolProfile {
 const TOOL_PROFILES: Record<SkillId, ToolProfile> = {
   "health-status": {
     skillId: "health-status",
-    allowedToolNames: ["query_events", "search_text", "get_evidence", "get_case_overview"],
+    allowedToolNames: ["query_events", "search_text", "get_evidence", "get_case_overview", "reconstruct_state", "inspect_region", "trace_request"],
     maxToolCalls: 4,
     maxRowsPerCall: 50,
     readOnly: true,
@@ -28,7 +28,7 @@ const TOOL_PROFILES: Record<SkillId, ToolProfile> = {
   },
   "timeline-summary": {
     skillId: "timeline-summary",
-    allowedToolNames: ["query_events", "get_evidence", "get_case_overview"],
+    allowedToolNames: ["query_events", "get_evidence", "get_case_overview", "trace_request", "reconstruct_state"],
     maxToolCalls: 4,
     maxRowsPerCall: 100,
     readOnly: true,
@@ -36,7 +36,7 @@ const TOOL_PROFILES: Record<SkillId, ToolProfile> = {
   },
   "signal-analysis": {
     skillId: "signal-analysis",
-    allowedToolNames: ["analyze_fields", "get_evidence", "get_case_overview"],
+    allowedToolNames: ["analyze_fields", "get_evidence", "get_case_overview", "inspect_region", "reconstruct_state"],
     maxToolCalls: 4,
     maxRowsPerCall: 50,
     readOnly: true,

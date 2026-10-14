@@ -1,0 +1,4714 @@
+{
+  "id": "baseline-1-1",
+  "turn": 0,
+  "question": "למה T015I לא התגלתה?",
+  "provider": {
+    "provider": "anthropic",
+    "model": "claude-haiku-5-5",
+    "configured": true
+  },
+  "elapsedMs": 378318.742042,
+  "firstUsefulMs": 21483.560833,
+  "calls": {
+    "model": 33,
+    "tools": 41
+  },
+  "requests": [
+    {
+      "name": "get_case_overview",
+      "arguments": {
+        "case_id": "case_005"
+      }
+    },
+    {
+      "name": "update_blackboard",
+      "arguments": {
+        "action": "propose_hypothesis",
+        "hypothesis": {
+          "id": "H1",
+          "description": "מגזר החסימה SEC-7 (35°–50°) נשאר פעיל במצב האפקטיבי של המכ״ם בזמן המעבר, למרות שהתצוגה הציגה ביטול; לכן הגילוי דוכא.",
+          "status": "PROPOSED"
+        }
+      }
+    },
+    {
+      "name": "update_blackboard",
+      "arguments": {
+        "action": "propose_hypothesis",
+        "hypothesis": {
+          "id": "H2",
+          "description": "הכיסוי או פקודת החיפוש (req-202, SEARCH_WIDE) לא יצרו טווח/גזרה אפקטיביים שכוללים את מיקום המטרה (42°, 26 ק״מ), או שהבקשה נדחתה/לא יושמה.",
+          "status": "PROPOSED"
+        }
+      }
+    },
+    {
+      "name": "inspect_region",
+      "arguments": {
+        "report_badge": "case_report.txt:L1"
+      }
+    },
+    {
+      "name": "reconstruct_state",
+      "arguments": {
+        "at_utc": "2026-10-14T12:03:55Z"
+      }
+    },
+    {
+      "name": "reconstruct_state",
+      "arguments": {
+        "at_utc": "2026-10-14T12:04:10Z"
+      }
+    },
+    {
+      "name": "reconstruct_state",
+      "arguments": {
+        "at_utc": "2026-10-14T12:04:25Z"
+      }
+    },
+    {
+      "name": "trace_request",
+      "arguments": {
+        "request_id": "req-101"
+      }
+    },
+    {
+      "name": "trace_request",
+      "arguments": {
+        "request_id": "req-202"
+      }
+    },
+    {
+      "name": "trace_request",
+      "arguments": {
+        "request_id": "req-303"
+      }
+    },
+    {
+      "name": "trace_request",
+      "arguments": {
+        "request_id": "req-505"
+      }
+    },
+    {
+      "name": "delegate_investigation",
+      "arguments": {
+        "task_id": "task_005_baseline",
+        "question": "Within the window 2026-10-14T12:00:00Z to 12:10:05Z for case_005: (1) Run inspect_region with the report badge [case_report.txt:L1] (azimuth 42 deg, range 26 km, uncertainty 1 deg / 0.5 km, window 12:03:55Z-12:04:25Z) to get absence/coverage, detection counts and the calculation_citation. (2) Using reconstruct_state, report the effective InhibitSectorState and RadarState (search bounds, pattern, receiver status) at 12:03:55Z, 12:04:10Z and 12:04:25Z, and whether the SEC-7 inhibit sector (35-50 deg) was enabled. (3) Use trace_request for req-101, req-202, req-303 and req-505 and report the receipt/application acknowledgements, the schema_id used, and whether each was APPLIED, NOT_APPLIED or only received. (4) Report the SoftwareVersion records for radar-psr-01, config-service, control-gateway and operator-ui if available. Return exact source badges and calculation handles.",
+        "hypothesis": "H1: SEC-7 inhibit sector remained effective after the operator cancel (display open, effective suppression), suppressing detections at 42 deg. H2: the search request req-202 or cancel req-303 was not applied/schema-incompatible, so the radar kept old pattern or bounds; or the target was simply outside the effective search bounds.",
+        "allowed_tools": [
+          "get_case_overview",
+          "inspect_region",
+          "reconstruct_state",
+          "trace_request",
+          "query_events",
+          "analyze_fields",
+          "get_evidence"
+        ],
+        "budget": {
+          "max_tool_calls": 8,
+          "max_rows": 50,
+          "max_tokens": 4000
+        },
+        "time_window": {
+          "start_utc": "2026-10-14T12:00:00.000Z",
+          "end_utc": "2026-10-14T12:10:05.000Z"
+        }
+      }
+    },
+    {
+      "name": "inspect_region",
+      "arguments": {
+        "report_badge": "case_report.txt:L1"
+      }
+    },
+    {
+      "name": "reconstruct_state",
+      "arguments": {
+        "at_utc": "2026-10-14T12:08:00Z"
+      }
+    },
+    {
+      "name": "reconstruct_state",
+      "arguments": {
+        "at_utc": "2026-10-14T12:08:10Z"
+      }
+    },
+    {
+      "name": "inspect_region",
+      "arguments": {
+        "report_badge": "operator_diary.csv:L7"
+      }
+    },
+    {
+      "name": "inspect_region",
+      "arguments": {
+        "report_badge": "case_report.txt"
+      }
+    },
+    {
+      "name": "inspect_region",
+      "arguments": {
+        "report_badge": "operator_diary.csv"
+      }
+    },
+    {
+      "name": "query_events",
+      "arguments": {
+        "query": "SEC-7",
+        "time_start_utc": "2026-10-14T12:07:00Z",
+        "time_end_utc": "2026-10-14T12:08:10Z",
+        "limit": 20
+      }
+    },
+    {
+      "name": "query_events",
+      "arguments": {
+        "message_type": "Detection",
+        "time_start_utc": "2026-10-14T12:03:55Z",
+        "time_end_utc": "2026-10-14T12:04:25Z",
+        "limit": 50
+      }
+    },
+    {
+      "name": "delegate_investigation",
+      "arguments": {
+        "task_id": "task_005_region_recovery",
+        "question": "(1) Run inspect_region for the coordinator report, citing it exactly as \"case_report.txt:L1\" (the previous attempt with \"[case_report.txt:L1]\" returned Unknown report citation; if that fails, try \"case_report.txt\" with line 1). Geometry: azimuth 42 deg +/-1, range 26 km +/-0.5, window 2026-10-14T12:03:55Z-12:04:25Z. Report coverage (message types, all-target, spatially unfiltered, recorder drops), Detection/TargetTrack counts inside the region, and the calculation_citation. (2) Run reconstruct_state at 2026-10-14T12:08:00Z and 12:08:10Z (repeat pass window) to report the effective InhibitSectorState SEC-7 and RadarState bounds/pattern. (3) Run inspect_region for the repeat-pass report \"operator_diary.csv:L7\" (window 12:08:00Z-12:08:10Z, same geometry) and report coverage, detection counts in the region and calculation_citation. Also give the sniffer.csv rows where SEC-7 becomes enabled=false after req-505 if visible.",
+        "hypothesis": "H1: during 12:03:55-12:04:25Z, the effective SEC-7 inhibit sector (35-50 deg, enabled) suppressed Detection/TargetTrack output at the reported 42 deg / 26 km position, so no detection appeared although the search scanned it. After req-505 disabled SEC-7 (12:07:15), a detection at the repeat pass should be possible. Alternative H2: the target was outside effective bounds or absent from capture.",
+        "allowed_tools": [
+          "get_case_overview",
+          "inspect_region",
+          "reconstruct_state",
+          "trace_request",
+          "query_events",
+          "analyze_fields",
+          "get_evidence"
+        ],
+        "budget": {
+          "max_tool_calls": 8,
+          "max_rows": 50,
+          "max_tokens": 4000
+        },
+        "time_window": {
+          "start_utc": "2026-10-14T12:00:00.000Z",
+          "end_utc": "2026-10-14T12:10:05.000Z"
+        }
+      }
+    },
+    {
+      "name": "get_case_overview",
+      "arguments": {}
+    },
+    {
+      "name": "inspect_region",
+      "arguments": {
+        "report_badge": "case_report.txt:1"
+      }
+    },
+    {
+      "name": "inspect_region",
+      "arguments": {
+        "report_badge": "operator_diary.csv:7"
+      }
+    },
+    {
+      "name": "inspect_region",
+      "arguments": {
+        "report_badge": "case_report.txt:1"
+      }
+    },
+    {
+      "name": "query_events",
+      "arguments": {
+        "message_type": "InhibitSectorState",
+        "time_start_utc": "2026-10-14T12:00:00Z",
+        "time_end_utc": "2026-10-14T12:10:05Z",
+        "limit": 50
+      }
+    },
+    {
+      "name": "query_events",
+      "arguments": {
+        "message_type": "InhibitSectorState",
+        "time_start_utc": "2026-10-14T12:04:05Z",
+        "time_end_utc": "2026-10-14T12:08:10Z",
+        "limit": 50
+      }
+    },
+    {
+      "name": "delegate_investigation",
+      "arguments": {
+        "task_id": "task_005_region_geometry",
+        "question": "Use inspect_region with the exact report identifier \"case_report.txt:1\" (the report's id field; earlier attempts with \"case_report.txt:L1\" or \"[case_report.txt:L1]\" failed as Unknown report citation). Geometry: centre azimuth 42 deg (uncertainty +/-1 deg), range 26 km (+/-0.5 km), window 2026-10-14T12:03:55Z to 12:04:25Z. Report: coverage (message types, all-target, spatially unfiltered, recorder drops), Detection and TargetTrack counts inside the region, whether the region was inside the SEC-7 inhibit sector (35-50 deg, 0-80 km) and scanned by SEARCH_WIDE (30-65 deg), and the calculation_citation. Then do the same with report identifier \"operator_diary.csv:7\" for window 2026-10-14T12:08:00Z to 12:08:10Z.",
+        "hypothesis": "H1: the reported 42 deg / 26 km location was inside effective SEC-7 suppression during 12:03:55-12:04:25Z, so zero Detection/TargetTrack records appear there despite the scan; at the repeat pass 12:08:00-12:08:10Z, after SEC-7 was disabled at 12:07:15Z, a detection is expected in the same region. H2: capture coverage is incomplete or the region is outside scanned bounds.",
+        "allowed_tools": [
+          "get_case_overview",
+          "inspect_region",
+          "reconstruct_state",
+          "query_events",
+          "get_evidence"
+        ],
+        "budget": {
+          "max_tool_calls": 6,
+          "max_rows": 50,
+          "max_tokens": 4000
+        },
+        "time_window": {
+          "start_utc": "2026-10-14T12:00:00.000Z",
+          "end_utc": "2026-10-14T12:10:05.000Z"
+        }
+      }
+    },
+    {
+      "name": "get_case_overview",
+      "arguments": {}
+    },
+    {
+      "name": "query_events",
+      "arguments": {
+        "source_system": "sniffer.csv",
+        "message_type": "Detection",
+        "time_start_utc": "2026-10-14T12:03:55Z",
+        "time_end_utc": "2026-10-14T12:04:25Z",
+        "limit": 50
+      }
+    },
+    {
+      "name": "query_events",
+      "arguments": {
+        "source_system": "sniffer.csv",
+        "message_type": "TargetTrack",
+        "time_start_utc": "2026-10-14T12:03:55Z",
+        "time_end_utc": "2026-10-14T12:04:25Z",
+        "limit": 50
+      }
+    },
+    {
+      "name": "query_events",
+      "arguments": {
+        "source_system": "sniffer.csv",
+        "message_type": "Detection",
+        "time_start_utc": "2026-10-14T12:08:00Z",
+        "time_end_utc": "2026-10-14T12:08:10Z",
+        "limit": 50
+      }
+    },
+    {
+      "name": "query_events",
+      "arguments": {
+        "source_system": "sniffer.csv",
+        "message_type": "TargetTrack",
+        "time_start_utc": "2026-10-14T12:08:00Z",
+        "time_end_utc": "2026-10-14T12:08:10Z",
+        "limit": 50
+      }
+    },
+    {
+      "name": "query_events",
+      "arguments": {
+        "source_system": "sniffer.csv",
+        "message_type": "InhibitSectorState",
+        "time_start_utc": "2026-10-14T12:03:55Z",
+        "time_end_utc": "2026-10-14T12:10:05Z",
+        "limit": 50
+      }
+    },
+    {
+      "name": "delegate_investigation",
+      "arguments": {
+        "task_id": "task_005_region_scan",
+        "question": "Without inspect_region (it has failed for every report identifier), count Detection and TargetTrack records in the sniffer/radar feed whose azimuth is within 41-43 deg and range within 25.5-26.5 km, for (a) 2026-10-14T12:03:55Z to 12:04:25Z and (b) 2026-10-14T12:08:00Z to 12:08:10Z. Use analyze_fields or query_events with an azimuth/range filter if available; otherwise list all Detection/TargetTrack rows in each window and check azimuth/range yourself. Also report whether any record in (a) has target identifier T015I or equivalent. Report the total count, the matching row locators and the query handle. Also report the capture_manifest coverage (message types, spatial filter, recorder drops) with its badge.",
+        "hypothesis": "H1: no Detection/TargetTrack appears near 42 deg/26 km during 12:03:55-12:04:25Z (consistent with SEC-7 suppression), while a detection appears there during the 12:08 repeat pass after SEC-7 was disabled. H2: detections exist but are mis-geolocated or filtered.",
+        "allowed_tools": [
+          "get_case_overview",
+          "query_events",
+          "analyze_fields",
+          "search_text",
+          "get_evidence"
+        ],
+        "budget": {
+          "max_tool_calls": 6,
+          "max_rows": 50,
+          "max_tokens": 4000
+        },
+        "time_window": {
+          "start_utc": "2026-10-14T12:03:55.000Z",
+          "end_utc": "2026-10-14T12:10:05.000Z"
+        }
+      }
+    },
+    {
+      "name": "submit_findings",
+      "arguments": {
+        "summary_finding_ids": [
+          "F1",
+          "F2",
+          "F3"
+        ],
+        "findings": [
+          {
+            "finding_id": "F1",
+            "investigation_id": "case_005",
+            "status": "POSITIVE",
+            "title": "חסימת SEC-7 פעילה במערכת בזמן המעבר",
+            "claim": "השעות מקומיות. בין 15:03:55 ל-15:04:25 מקטע החסימה SEC-7 (35°–50°) היה פעיל במערכת בפועל וכיסה את המיקום המדווח (42°, 26 ק״מ). הסריקה כיסתה את הגזרה, ולא נרשם גילוי באזור. ייתכן שהחסימה מנעה הפקת גילוי שם.",
+            "confidence": 0.7,
+            "rationale": "UTC 12:03:55–12:04:25. ה-InhibitSectorState האפקטיבי היה enabled=true באזור 35–50° ו-0–80 ק״מ ב-12:03:55, 12:04:10 ו-12:04:25. מצב התצוגה הראה כבוי באותם רגעים, ולכן התצוגה והמצב האפקטיבי נחלקו. הקטלוג קובע שמקטע פעיל מדכא Detection/TargetTrack בתחומו. ספירת אפס הגילויים נעשתה ידנית על פלט query_events, ו-inspect_region נכשל בכל מזהה דיווח, לכן אין חישוב אזורי מלא. זו סיבה סבירה, לא מדידה ישירה של הדיכוי. הכיסוי בקטלוג מוגדר שלם ללא נפילות הקלטה.",
+            "evidence_citations": [
+              {
+                "badge": "[sniffer.csv:L193]",
+                "source_file": "sniffer.csv",
+                "line": 193
+              },
+              {
+                "badge": "[sniffer.csv:L205]",
+                "source_file": "sniffer.csv",
+                "line": 205
+              },
+              {
+                "badge": "[sniffer.csv:L217]",
+                "source_file": "sniffer.csv",
+                "line": 217
+              },
+              {
+                "badge": "[sniffer.csv:L192]",
+                "source_file": "sniffer.csv",
+                "line": 192
+              },
+              {
+                "badge": "[ui_client.txt:L56]",
+                "source_file": "ui_client.txt",
+                "line": 56
+              },
+              {
+                "badge": "[sniffer.csv:L194]",
+                "source_file": "sniffer.csv",
+                "line": 194
+              },
+              {
+                "badge": "[sniffer.csv:L215]",
+                "source_file": "sniffer.csv",
+                "line": 215
+              },
+              {
+                "badge": "[capture_manifest.json:L46]",
+                "source_file": "capture_manifest.json",
+                "line": 46
+              },
+              {
+                "badge": "[capture_manifest.json:L45]",
+                "source_file": "capture_manifest.json",
+                "line": 45
+              },
+              {
+                "badge": "[system_catalog.txt:L2]",
+                "source_file": "system_catalog.txt",
+                "line": 2
+              },
+              {
+                "badge": "[case_report.txt:L1]",
+                "source_file": "case_report.txt",
+                "line": 1
+              }
+            ],
+            "contradictions": [],
+            "missing_coverage_flag": true
+          },
+          {
+            "finding_id": "F2",
+            "investigation_id": "case_005",
+            "status": "POSITIVE",
+            "title": "ביטול החסימה נדחה בגלל חוסר תאימות גרסאות, והתצוגה הסירה את הסימון בכל זאת",
+            "claim": "השעה מקומית 15:03:00. ממשק המפעיל (גרסה 2.1.0) שלח ביטול בתבנית sector.v2, ושירות התצורה (גרסה 1.4.0) תומך רק ב-sector.v1. הבקשה נדחתה כ-NOT_APPLIED, והממשק הסיר את הסימון ללא אימות יישום.",
+            "confidence": 0.85,
+            "rationale": "UTC 12:03:00. בקשה req-303 התקבלה בשער הבקרה בלבד (קבלה, לא יישום). שירות התצורה דחה אותה עם UNSUPPORTED_SCHEMA ו-NOT_APPLIED, והתוצאה נשארה פנימית ולא הגיעה לממשק. הממשק הסיר את הסימון עם applied_state_verified=false, והתצוגה הציגה אזור פתוח בזמן שהחסימה נשארה פעילה. הגרסאות ותבנית הבקשה נלקחו מרשומות SoftwareVersion ו-RequestSent. גרסאות radar-psr-01 ו-control-gateway לא אומתו.",
+            "evidence_citations": [
+              {
+                "badge": "[ui_client.txt:L21]",
+                "source_file": "ui_client.txt",
+                "line": 21
+              },
+              {
+                "badge": "[config_service.txt:L1]",
+                "source_file": "config_service.txt",
+                "line": 1
+              },
+              {
+                "badge": "[config_service.txt:L7]",
+                "source_file": "config_service.txt",
+                "line": 7
+              },
+              {
+                "badge": "[control_gateway.txt:L5]",
+                "source_file": "control_gateway.txt",
+                "line": 5
+              },
+              {
+                "badge": "[control_gateway.txt:L6]",
+                "source_file": "control_gateway.txt",
+                "line": 6
+              },
+              {
+                "badge": "[ui_client.txt:L43]",
+                "source_file": "ui_client.txt",
+                "line": 43
+              },
+              {
+                "badge": "[operator_diary.csv:L4]",
+                "source_file": "operator_diary.csv",
+                "line": 4
+              },
+              {
+                "badge": "[system_catalog.txt:L4]",
+                "source_file": "system_catalog.txt",
+                "line": 4
+              },
+              {
+                "badge": "[system_catalog.txt:L5]",
+                "source_file": "system_catalog.txt",
+                "line": 5
+              }
+            ],
+            "contradictions": [],
+            "missing_coverage_flag": false
+          },
+          {
+            "finding_id": "F3",
+            "investigation_id": "case_005",
+            "status": "POSITIVE",
+            "title": "לאחר ביטול תואם הגרסה החסימה כובתה, וגילויים הופיעו במיקום הצפוי",
+            "claim": "השעה מקומית 15:07:15. ביטול נוסף (req-505) בתבנית sector.v2 יושם בגרסת התצורה 1.5.0 וכיבה את החסימה האפקטיבית. בין 15:08:00 ל-15:08:10 (מקומית) נרשמו גילויים ב-42.2°, 26.1 ק״מ. זהותם עם T015I לא נקבעה.",
+            "confidence": 0.75,
+            "rationale": "UTC 12:07:15: החסימה האפקטיבית הופכת ל-enabled=false ב-12:07:15.100. ב-12:08:00–12:08:10 נרשמו Detection ו-TargetTrack בשם TRK-781 באזור הדווח, בסריקות 96–97. ההתאמה המרחבית לבדה אינה אישור זהות לפי הקטלוג. ב-12:08 המפעיל דיווח על נוכחות גילוי במסך. לא נבדקו כל בדיקות ההשפעה על מערכות אחרות.",
+            "evidence_citations": [
+              {
+                "badge": "[config_service.txt:L13]",
+                "source_file": "config_service.txt",
+                "line": 13
+              },
+              {
+                "badge": "[config_service.txt:L15]",
+                "source_file": "config_service.txt",
+                "line": 15
+              },
+              {
+                "badge": "[sniffer.csv:L353]",
+                "source_file": "sniffer.csv",
+                "line": 353
+              },
+              {
+                "badge": "[sniffer.csv:L354]",
+                "source_file": "sniffer.csv",
+                "line": 354
+              },
+              {
+                "badge": "[sniffer.csv:L393]",
+                "source_file": "sniffer.csv",
+                "line": 393
+              },
+              {
+                "badge": "[sniffer.csv:L399]",
+                "source_file": "sniffer.csv",
+                "line": 399
+              },
+              {
+                "badge": "[system_catalog.txt:L9]",
+                "source_file": "system_catalog.txt",
+                "line": 9
+              },
+              {
+                "badge": "[operator_diary.csv:L7]",
+                "source_file": "operator_diary.csv",
+                "line": 7
+              }
+            ],
+            "contradictions": [],
+            "missing_coverage_flag": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "submit_findings",
+      "arguments": {
+        "summary_finding_ids": [
+          "F1",
+          "F2",
+          "F3"
+        ],
+        "corrections": [
+          {
+            "finding_id": "F1",
+            "status": "POSITIVE",
+            "title": "חסימת SEC-7 פעילה במערכת בזמן המעבר",
+            "claim": "השעות מקומיות. בין 15:03:55 ל-15:04:25 מקטע החסימה SEC-7 (35°–50°) היה פעיל במערכת וכיסה את המיקום המדווח (42°, 26 ק״מ). ברשומות שנבדקו לא נמצא גילוי באזור, אך הספירה היא ידנית ולא חושבה בחישוב אזורי. ייתכן שהחסימה דיכאה את הגילוי.",
+            "confidence": 0.7,
+            "rationale": "UTC 12:03:55–12:04:25. ה-InhibitSectorState האפקטיבי היה enabled=true באזור 35–50° ו-0–80 ק״מ ב-12:03:55, 12:04:10 ו-12:04:25, והסריקה SEARCH_WIDE כיסתה 30–65°. התצוגה הציגה את החסימה כבויה בכל שלושת הרגעים. הספירת הגילויים באזור (query_events, ספירה ידנית של 12 שורות) לא נבנתה כחישוב אזורי מואשר (inspect_region נכשל בכל ניסיון עם מזהה הדיווח). לכן הניחוש שהחסימה דיכתה את הגילוי הוא הסבר בלבד ולא נבדק ישירות. הציג במסך הראה כבוי ב-12:04:10 ו-12:04:25 לפי רגעים (ui_client.txt:L59, L62).",
+            "evidence_citations": [
+              {
+                "badge": "[sniffer.csv:L193]",
+                "source_file": "sniffer.csv",
+                "line": 193
+              },
+              {
+                "badge": "[sniffer.csv:L205]",
+                "source_file": "sniffer.csv",
+                "line": 205
+              },
+              {
+                "badge": "[sniffer.csv:L217]",
+                "source_file": "sniffer.csv",
+                "line": 217
+              },
+              {
+                "badge": "[sniffer.csv:L192]",
+                "source_file": "sniffer.csv",
+                "line": 192
+              },
+              {
+                "badge": "[ui_client.txt:L56]",
+                "source_file": "ui_client.txt",
+                "line": 56
+              },
+              {
+                "badge": "[ui_client.txt:L59]",
+                "source_file": "ui_client.txt",
+                "line": 59
+              },
+              {
+                "badge": "[ui_client.txt:L62]",
+                "source_file": "ui_client.txt",
+                "line": 62
+              },
+              {
+                "badge": "[sniffer.csv:L194]",
+                "source_file": "sniffer.csv",
+                "line": 194
+              },
+              {
+                "badge": "[sniffer.csv:L215]",
+                "source_file": "sniffer.csv",
+                "line": 215
+              },
+              {
+                "badge": "[capture_manifest.json:L46]",
+                "source_file": "capture_manifest.json",
+                "line": 46
+              },
+              {
+                "badge": "[capture_manifest.json:L45]",
+                "source_file": "capture_manifest.json",
+                "line": 45
+              },
+              {
+                "badge": "[system_catalog.txt:L2]",
+                "source_file": "system_catalog.txt",
+                "line": 2
+              },
+              {
+                "badge": "[case_report.txt:L1]",
+                "source_file": "case_report.txt",
+                "line": 1
+              }
+            ],
+            "missing_coverage_flag": true
+          },
+          {
+            "finding_id": "F2",
+            "status": "POSITIVE",
+            "title": "ביטול החסימה נדחה בגלל חוסר תאימות גרסאות, והתצוגה הסירה את הסימון",
+            "claim": "השעה מקומית 15:03:00. ממשק המפעיל (גרסה 2.1.0) שלח ביטול בתבנית sector.v2, ושירות התצורה (גרסה 1.4.0) תומך רק ב-sector.v1. הבקשה נדחתה (NOT_APPLIED) ותוצאתה לא הגיעה למסך הפעולה. הממשק הסיר את הסימון על סמך הקבלה בלבד, ללא אימות יישום.",
+            "confidence": 0.85,
+            "rationale": "UTC 12:03:00. בקשת req-303 התקבלה בשער הבקרה בלבד (קבלה בלבד, לא יישום). שירות התצורה דחה אותה עם UNSUPPORTED_SCHEMA ו-NOT_APPLIED. תוצאת הדחיה נשארה פנימית (ui_subscribed=false) ולא הגיעה לממשק. הממשק הסיר את הסימון עם קבלת הבקשה (לא עם אישור יישום), applied_state_verified=false. גרסאות radar-psr-01 ו-control-gateway לא אומתו.",
+            "evidence_citations": [
+              {
+                "badge": "[ui_client.txt:L21]",
+                "source_file": "ui_client.txt",
+                "line": 21
+              },
+              {
+                "badge": "[config_service.txt:L1]",
+                "source_file": "config_service.txt",
+                "line": 1
+              },
+              {
+                "badge": "[config_service.txt:L7]",
+                "source_file": "config_service.txt",
+                "line": 7
+              },
+              {
+                "badge": "[control_gateway.txt:L5]",
+                "source_file": "control_gateway.txt",
+                "line": 5
+              },
+              {
+                "badge": "[control_gateway.txt:L6]",
+                "source_file": "control_gateway.txt",
+                "line": 6
+              },
+              {
+                "badge": "[ui_client.txt:L43]",
+                "source_file": "ui_client.txt",
+                "line": 43
+              },
+              {
+                "badge": "[operator_diary.csv:L4]",
+                "source_file": "operator_diary.csv",
+                "line": 4
+              },
+              {
+                "badge": "[system_catalog.txt:L4]",
+                "source_file": "system_catalog.txt",
+                "line": 4
+              },
+              {
+                "badge": "[system_catalog.txt:L5]",
+                "source_file": "system_catalog.txt",
+                "line": 5
+              }
+            ],
+            "missing_coverage_flag": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "submit_findings",
+      "arguments": {
+        "summary_finding_ids": [
+          "F1",
+          "F2",
+          "F3"
+        ],
+        "corrections": [
+          {
+            "finding_id": "F1",
+            "status": "POSITIVE",
+            "title": "חסימת SEC-7 פעילה במערכת בזמן המעבר",
+            "claim": "השעות מקומיות. בין 15:03:55 ל-15:04:25 מקטע החסימה SEC-7 (35°–50°) היה פעיל במערכת וכיסה את המיקום המדווח (42°, 26 ק״מ), בעוד שהסריקה הציגה אותו כפתוח. זו הסיבה האפשרית עיקרית לאי-הגילוי, אך ההשפעה על הסריקה לא נבדקה בחישוב אזורי מואשר.",
+            "confidence": 0.7,
+            "rationale": "UTC 12:03:55–12:04:25. ה-InhibitSectorState האפקטיבי היה enabled=true באזור 35–50° ו-0–80 ק״מ ב-12:03:55, 12:04:10 ו-12:04:25, והסריקה SEARCH_WIDE כיסתה 30–65°. התצוגה הציגה את החסימה כבויה בכל שלושת הרגעים (רק ב-12:04:25 היא בדיווח ההיסטורי בהקט ביניים בו הציג החסימה כבויה). הקטלוג קובע שגילוי בתחום חסום על ידי החסימה (אזור בעיקרון של הפעלת האזור במשך). לכן לא נטען כאן היעדר גילוי או היעדר הספירה הידנית של אזור החסימה; הסבר הדיכוי הוא הסבר מקצועי בלבד ולא נבדק בחישוב אזורי.",
+            "evidence_citations": [
+              {
+                "badge": "[sniffer.csv:L193]",
+                "source_file": "sniffer.csv",
+                "line": 193
+              },
+              {
+                "badge": "[sniffer.csv:L205]",
+                "source_file": "sniffer.csv",
+                "line": 205
+              },
+              {
+                "badge": "[sniffer.csv:L217]",
+                "source_file": "sniffer.csv",
+                "line": 217
+              },
+              {
+                "badge": "[sniffer.csv:L192]",
+                "source_file": "sniffer.csv",
+                "line": 192
+              },
+              {
+                "badge": "[ui_client.txt:L56]",
+                "source_file": "ui_client.txt",
+                "line": 56
+              },
+              {
+                "badge": "[ui_client.txt:L59]",
+                "source_file": "ui_client.txt",
+                "line": 59
+              },
+              {
+                "badge": "[ui_client.txt:L62]",
+                "source_file": "ui_client.txt",
+                "line": 62
+              },
+              {
+                "badge": "[system_catalog.txt:L2]",
+                "source_file": "system_catalog.txt",
+                "line": 2
+              },
+              {
+                "badge": "[system_catalog.txt:L10]",
+                "source_file": "system_catalog.txt",
+                "line": 10
+              },
+              {
+                "badge": "[case_report.txt:L1]",
+                "source_file": "case_report.txt",
+                "line": 1
+              }
+            ],
+            "missing_coverage_flag": true
+          },
+          {
+            "finding_id": "F3",
+            "status": "POSITIVE",
+            "title": "לאחר ביטול תואם הגרסה החסימה כובתה, גילויים הופיעו במיקום הצפוי",
+            "claim": "השעה מקומית 15:07:15. ביטול נוסף (req-505) בתבנית sector.v2 יושם בגרסת התצורה 1.5.0 וכיבה את החסימה האפקטיבית. בין 15:08:00 ל-15:08:10 (מקומית) נרשמו גילויים (Detection) של מסלול TRK-781 באזימוט 42.2° ובטווח 26.1 ק״מ. זהותו עם T015I לא נקבעה.",
+            "confidence": 0.75,
+            "rationale": "UTC 12:07:15: החסימה האפקטיבית הופכת ל-enabled=false ב-12:07:15.100. ב-12:08:00–12:08:10 נרשמו Detection בשם TRK-781 באזור הדווח (סריקות 96–97). ההתאמה המרחבית לבדה אינה אישור זהות לפי הקטלוג (system_catalog.txt:L9). בדיקה זו לא נבדקה רשומה של TargetTrack עבור TRK-781. הגרסה של הפקודה החדשה (req-505) נבדקה בנפרד ב-config_service.txt:L13 ו-L15.",
+            "evidence_citations": [
+              {
+                "badge": "[config_service.txt:L13]",
+                "source_file": "config_service.txt",
+                "line": 13
+              },
+              {
+                "badge": "[config_service.txt:L15]",
+                "source_file": "config_service.txt",
+                "line": 15
+              },
+              {
+                "badge": "[sniffer.csv:L353]",
+                "source_file": "sniffer.csv",
+                "line": 353
+              },
+              {
+                "badge": "[sniffer.csv:L354]",
+                "source_file": "sniffer.csv",
+                "line": 354
+              },
+              {
+                "badge": "[sniffer.csv:L393]",
+                "source_file": "sniffer.csv",
+                "line": 393
+              },
+              {
+                "badge": "[sniffer.csv:L399]",
+                "source_file": "sniffer.csv",
+                "line": 399
+              },
+              {
+                "badge": "[system_catalog.txt:L9]",
+                "source_file": "system_catalog.txt",
+                "line": 9
+              },
+              {
+                "badge": "[operator_diary.csv:L7]",
+                "source_file": "operator_diary.csv",
+                "line": 7
+              }
+            ],
+            "missing_coverage_flag": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "submit_findings",
+      "arguments": {
+        "summary_finding_ids": [
+          "F1",
+          "F2",
+          "F3"
+        ],
+        "corrections": [
+          {
+            "finding_id": "F1",
+            "status": "POSITIVE",
+            "title": "חסימת SEC-7 נשארה פעילה והתצוגה הציגה אותה כבויה",
+            "claim": "השעות מקומיות. בשעה 15:03 ביטול החסימה נדחה (NOT_APPLIED), אך הממשק הסיר את הסימון, והתצוגה הציגה את האזור כפתוח. מקטע SEC-7 (35°–50°) נשאר פעיל בפועל עד 15:07:15 וכיסה את המיקום המדווח (42°, 26 ק״מ). לכן ייתכן שהחסימה דיכאה את הגילוי.",
+            "confidence": 0.7,
+            "rationale": "UTC 12:03:00 ביטול req-303 נדחה בשל חוסר תאימות גרסאות (config_service.txt:L7), ותוצאתה נשארה פנימית (control_gateway.txt:L6). הסימון הסר על סמך קבלת הבקשה (ui_client.txt:L43). בפועל הראדר SEC-7 נשאר enabled=true ב-12:03:55, 12:04:10, 12:04:25 (sniffer.csv:L193, L205, L217). התצוגה הראה displayed_enabled=false (ui_client.txt:L56, L59, L62). הסריקה SEARCH_WIDE כיסתה 30–65° (sniffer.csv:L192). הקטלוג קובע שמקטע פעיל מדכא גילויים (system_catalog.txt:L2). אין חישוב אזורי מואשר (inspect_region נכשל), ולכן אין קביעה של העדר גילוי באזור.",
+            "evidence_citations": [
+              {
+                "badge": "[config_service.txt:L7]",
+                "source_file": "config_service.txt",
+                "line": 7
+              },
+              {
+                "badge": "[control_gateway.txt:L6]",
+                "source_file": "control_gateway.txt",
+                "line": 6
+              },
+              {
+                "badge": "[ui_client.txt:L43]",
+                "source_file": "ui_client.txt",
+                "line": 43
+              },
+              {
+                "badge": "[sniffer.csv:L193]",
+                "source_file": "sniffer.csv",
+                "line": 193
+              },
+              {
+                "badge": "[sniffer.csv:L205]",
+                "source_file": "sniffer.csv",
+                "line": 205
+              },
+              {
+                "badge": "[sniffer.csv:L217]",
+                "source_file": "sniffer.csv",
+                "line": 217
+              },
+              {
+                "badge": "[sniffer.csv:L192]",
+                "source_file": "sniffer.csv",
+                "line": 192
+              },
+              {
+                "badge": "[ui_client.txt:L56]",
+                "source_file": "ui_client.txt",
+                "line": 56
+              },
+              {
+                "badge": "[ui_client.txt:L59]",
+                "source_file": "ui_client.txt",
+                "line": 59
+              },
+              {
+                "badge": "[ui_client.txt:L62]",
+                "source_file": "ui_client.txt",
+                "line": 62
+              },
+              {
+                "badge": "[system_catalog.txt:L2]",
+                "source_file": "system_catalog.txt",
+                "line": 2
+              },
+              {
+                "badge": "[system_catalog.txt:L3]",
+                "source_file": "system_catalog.txt",
+                "line": 3
+              },
+              {
+                "badge": "[case_report.txt:L1]",
+                "source_file": "case_report.txt",
+                "line": 1
+              }
+            ],
+            "missing_coverage_flag": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "submit_findings",
+      "arguments": {
+        "summary_finding_ids": [
+          "F1",
+          "F2",
+          "F3"
+        ],
+        "corrections": [
+          {
+            "finding_id": "F1",
+            "status": "POSITIVE",
+            "title": "חסימת SEC-7 נשארה פעילה והתצוגה הציגה אותה כבויה",
+            "claim": "השעות מקומיות. בשעה 15:03 ביטול החסימה נדחה (NOT_APPLIED), אך הממשק הסיר את הסימון, והתצוגה הציגה את האזור כפתוח. בזמן 15:03:55–15:04:25 מקטע SEC-7 (35°–50°) היה פעיל בפועל וכיסה את המיקום המדווח (42°, 26 ק״מ). לכן ייתכן שהחסימה דיכתה את הגילוי.",
+            "confidence": 0.7,
+            "rationale": "UTC 12:03:00 ביטול req-303 נדחה בשל חוסר תאימות גרסאות (config_service.txt:L7), ותוצאתה נשארה פנימית (control_gateway.txt:L6). הסימון הסר על סמך קבלת הבקשה (ui_client.txt:L43). בפועל הראדר SEC-7 enabled=true ב-12:03:55, 12:04:10, 12:04:25 (sniffer.csv:L193, L205, L217), וב-12:07:10 (sniffer.csv:L349). הרציפות בין 12:04:30 ל-12:07:10 לא נבדקה במלואו, לכן לא נקבע שהמצב היה פעיל רציף כל הדרך. התצוגה הראה displayed_enabled=false (ui_client.txt:L56, L59, L62). הסריקה SEARCH_WIDE כיסתה 30–65° (sniffer.csv:L192). הקטלוג קובע שמקטע פעיל מדכא גילויים (system_catalog.txt:L2), אך אין חישוב אזורי מואשר של העדר גילוי באזור בפועל.",
+            "evidence_citations": [
+              {
+                "badge": "[config_service.txt:L7]",
+                "source_file": "config_service.txt",
+                "line": 7
+              },
+              {
+                "badge": "[control_gateway.txt:L6]",
+                "source_file": "control_gateway.txt",
+                "line": 6
+              },
+              {
+                "badge": "[ui_client.txt:L43]",
+                "source_file": "ui_client.txt",
+                "line": 43
+              },
+              {
+                "badge": "[sniffer.csv:L193]",
+                "source_file": "sniffer.csv",
+                "line": 193
+              },
+              {
+                "badge": "[sniffer.csv:L205]",
+                "source_file": "sniffer.csv",
+                "line": 205
+              },
+              {
+                "badge": "[sniffer.csv:L217]",
+                "source_file": "sniffer.csv",
+                "line": 217
+              },
+              {
+                "badge": "[sniffer.csv:L349]",
+                "source_file": "sniffer.csv",
+                "line": 349
+              },
+              {
+                "badge": "[sniffer.csv:L192]",
+                "source_file": "sniffer.csv",
+                "line": 192
+              },
+              {
+                "badge": "[ui_client.txt:L56]",
+                "source_file": "ui_client.txt",
+                "line": 56
+              },
+              {
+                "badge": "[ui_client.txt:L59]",
+                "source_file": "ui_client.txt",
+                "line": 59
+              },
+              {
+                "badge": "[ui_client.txt:L62]",
+                "source_file": "ui_client.txt",
+                "line": 62
+              },
+              {
+                "badge": "[system_catalog.txt:L2]",
+                "source_file": "system_catalog.txt",
+                "line": 2
+              },
+              {
+                "badge": "[system_catalog.txt:L3]",
+                "source_file": "system_catalog.txt",
+                "line": 3
+              },
+              {
+                "badge": "[case_report.txt:L1]",
+                "source_file": "case_report.txt",
+                "line": 1
+              }
+            ],
+            "missing_coverage_flag": true
+          }
+        ]
+      }
+    }
+  ],
+  "toolErrors": [
+    {
+      "tool": "inspect_region",
+      "error": "Unknown report citation"
+    },
+    {
+      "tool": "inspect_region",
+      "error": "Unknown report citation"
+    },
+    {
+      "tool": "inspect_region",
+      "error": "Unknown report citation"
+    },
+    {
+      "tool": "inspect_region",
+      "error": "Unknown report citation"
+    },
+    {
+      "tool": "inspect_region",
+      "error": "Unknown report citation"
+    },
+    {
+      "tool": "inspect_region",
+      "error": "Unknown report citation"
+    },
+    {
+      "tool": "inspect_region",
+      "error": "Unknown report citation"
+    },
+    {
+      "tool": "inspect_region",
+      "error": "Unknown report citation"
+    },
+    {
+      "tool": "submit_findings",
+      "error": "Claims need correction: F1: The claim that no Detection or TargetTrack was recorded in the SEC-7 area during 15:03:55–15:04:25 has no supporting calculation or record. The returned trace_request counts are scoped to request IDs, not to the sector and window, and the rationale says the zero count was a manual step on query_events output that is not among the returned calculations. Cite a region calculation (calc:region) for the sector and window, or qualify the claim in both the answer and F1. F1: The rationale says inspect_region failed for every report badge, but no inspect_region result appe"
+    },
+    {
+      "tool": "submit_findings",
+      "error": "Claims need correction: F1: The claim that no detection was found in the SEC-7 area during 15:03:55–15:04:25 is not supported. No cited record or returned calculation establishes zero in-region detections. The cited detections (sniffer.csv:L194, L215) are at 56–57°, outside the 35–50° sector. The rationale's manual 12-row count is uncited and reads as contradicting 'no detection found'. No inspect_region result appears in the returned calculations. Either cite a reproducible regional count (calc:region) or a complete query that supports the absence, and reconcile or remove the 12-row count. F1"
+    },
+    {
+      "tool": "submit_findings",
+      "error": "Claims need correction: F1 (answer, first paragraph): the answer says 'הסריקה הציגה אותו כפתוח' (the scan showed it open). The cited sources do not support this. The open-looking state is the operator display (ui_client.txt:L56, L59, L62, DisplayState displayed_enabled=false). The radar scan (sniffer.csv:L192) only gives the SEARCH_WIDE bounds. Rewrite it as 'התצוגה הציגה אותו כפתוח' and keep the scan/display distinction, as system_catalog.txt:L3 requires. F2 → F1 (answer, second paragraph): the answer does not state the causal link that the rejected req-303 cancellation (NOT_APPLIED) left the"
+    },
+    {
+      "tool": "submit_findings",
+      "error": "Claims need correction: F1: The rationale says 'inspect_region נכשל' and uses that failure to justify 'אין קביעה של העדר גילוי באזור', but no inspect_region result appears in the returned calculations. The capture metadata also reports complete Detection and TargetTrack coverage, all targets, no spatial filter, and zero recorder drops. Either cite a real failed tool result or revise the absence-limitation reasoning. F1 and the answer's first paragraph: 'נשאר פעיל בפועל עד 15:07:15' relies on the SEC-7 enabled state across 12:04:30–12:07:15. The cited snapshots end at 12:04:30 (L217, valid_unti"
+    },
+    {
+      "tool": "submit_findings",
+      "error": "Claims need correction: F1 and the answer's first paragraph state that SEC-7 was active in fact throughout 15:03:55–15:04:25 (12:03:55–12:04:25 UTC). The cited InhibitSectorState snapshots are at 12:03:55 (L193, valid to 12:04:00), 12:04:10 (L205, valid to 12:04:15) and 12:04:25 (L217, valid to 12:04:30). Under system_catalog.txt:L8, validity is limited and state must not be carried across a gap, so 12:04:00–12:04:10 and 12:04:15–12:04:25 lack cited effective-state records. Cite the intermediate InhibitSectorState rows that cover those intervals, or qualify the answer and F1 as active only at "
+    }
+  ],
+  "reviews": [
+    "{\"supported\":false,\"issues\":[\"F1: The claim that no Detection or TargetTrack was recorded in the SEC-7 area during 15:03:55–15:04:25 has no supporting calculation or record. The returned trace_request counts are scoped to request IDs, not to the sector and window, and the rationale says the zero count was a manual step on query_events output that is not among the returned calculations. Cite a region calculation (calc:region) for the sector and window, or qualify the claim in both the answer and F1.\",\"F1: The rationale says inspect_region failed for every report badge, but no inspect_region result appears in the returned calculations or cited records. Remove this claim or cite the failed tool result.\",\"F1: The claim that the display showed the block as off at 12:03:55, 12:04:10 and 12:04:25 cites only ui_client.txt:L56. The 12:04:10 and 12:04:25 display observations (ui_client.txt:L59 and L62, from the returned reconstruct_state results) are not cited in F1.\",\"Answer: The visible answer omits the result-delivery failure that explains why the operator saw the mark removed without a verified application. The answer should state that the NOT_APPLIED result stayed on the internal channel with ui_subscribed=false (control_gateway.txt:L6) and that the UI removed the overlay on RECEIPT (ui_client.txt:L43), as F2 says.\"]}",
+    "{\"supported\":false,\"issues\":[\"F1: The claim that no detection was found in the SEC-7 area during 15:03:55–15:04:25 is not supported. No cited record or returned calculation establishes zero in-region detections. The cited detections (sniffer.csv:L194, L215) are at 56–57°, outside the 35–50° sector. The rationale's manual 12-row count is uncited and reads as contradicting 'no detection found'. No inspect_region result appears in the returned calculations. Either cite a reproducible regional count (calc:region) or a complete query that supports the absence, and reconcile or remove the 12-row count.\",\"F1: The absence reasoning needs the rule that Detection/TargetTrack absence is meaningful only with complete, all-target, unfiltered capture and zero drops (system_catalog.txt:L10). That rule is not cited. capture_manifest.json:L45–L46 supports the coverage facts, but not the rule that makes absence interpretable.\",\"F3: The claim and rationale say TargetTrack records named TRK-781 were registered at 12:08:00–12:08:10. The only cited records for TRK-781 are Detection rows (sniffer.csv:L393, L399). Cite a TargetTrack record for TRK-781 or remove the TargetTrack claim.\"]}",
+    "{\"supported\":false,\"issues\":[\"F1 (answer, first paragraph): the answer says 'הסריקה הציגה אותו כפתוח' (the scan showed it open). The cited sources do not support this. The open-looking state is the operator display (ui_client.txt:L56, L59, L62, DisplayState displayed_enabled=false). The radar scan (sniffer.csv:L192) only gives the SEARCH_WIDE bounds. Rewrite it as 'התצוגה הציגה אותו כפתוח' and keep the scan/display distinction, as system_catalog.txt:L3 requires.\",\"F2 → F1 (answer, second paragraph): the answer does not state the causal link that the rejected req-303 cancellation (NOT_APPLIED) left the SEC-7 inhibit enabled during 15:03:55–15:04:25. That link is needed to explain the first paragraph's active block. Add it, citing the existing F2 evidence (config_service.txt:L7, control_gateway.txt:L6) and the sniffer records already cited in F1. Also state that the operator-visible mark was removed on receipt (ui_client.txt:L43), so the display did not reflect the applied state.\"]}",
+    "{\"supported\":false,\"issues\":[\"F1: The rationale says 'inspect_region נכשל' and uses that failure to justify 'אין קביעה של העדר גילוי באזור', but no inspect_region result appears in the returned calculations. The capture metadata also reports complete Detection and TargetTrack coverage, all targets, no spatial filter, and zero recorder drops. Either cite a real failed tool result or revise the absence-limitation reasoning.\",\"F1 and the answer's first paragraph: 'נשאר פעיל בפועל עד 15:07:15' relies on the SEC-7 enabled state across 12:04:30–12:07:15. The cited snapshots end at 12:04:30 (L217, valid_until 12:04:30), and the next cited state is at 12:07:15 (L353). The catalog says not to carry state across a gap, so cite intermediate InhibitSectorState records or a reconstruct_state result inside that interval, or qualify the continuity claim.\"]}",
+    "{\"supported\":false,\"issues\":[\"F1 and the answer's first paragraph state that SEC-7 was active in fact throughout 15:03:55–15:04:25 (12:03:55–12:04:25 UTC). The cited InhibitSectorState snapshots are at 12:03:55 (L193, valid to 12:04:00), 12:04:10 (L205, valid to 12:04:15) and 12:04:25 (L217, valid to 12:04:30). Under system_catalog.txt:L8, validity is limited and state must not be carried across a gap, so 12:04:00–12:04:10 and 12:04:15–12:04:25 lack cited effective-state records. Cite the intermediate InhibitSectorState rows that cover those intervals, or qualify the answer and F1 as active only at the sampled snapshots.\"]}",
+    "{\"supported\":true,\"issues\":[]}"
+  ],
+  "answer": {
+    "id": "312eae91-08a2-40f1-87fd-a60b6e12d829",
+    "role": "assistant",
+    "text": "השעות מקומיות. בשעה 15:03 ביטול החסימה נדחה (NOT_APPLIED), אך הממשק הסיר את הסימון, והתצוגה הציגה את האזור כפתוח. בדגימות של 15:03:55, 15:04:10 ו-15:04:25 מקומית מקטע SEC-7 (35°–50°) היה פעיל וכיסה את המיקום המדווח (42°, 26 ק״מ). לכן ייתכן שהחסימה דיכתה את הגילוי. [config_service.txt:L7] [control_gateway.txt:L6] [ui_client.txt:L43] [sniffer.csv:L193] [sniffer.csv:L205] [sniffer.csv:L217] [sniffer.csv:L349] [sniffer.csv:L192] [ui_client.txt:L56] [ui_client.txt:L59] [ui_client.txt:L62] [system_catalog.txt:L2] [system_catalog.txt:L3] [case_report.txt:L1]\n\nהשעה מקומית 15:03:00. ממשק המפעיל (גרסה 2.1.0) שלח ביטול בתבנית sector.v2, ושירות התצורה (גרסה 1.4.0) תומך רק ב-sector.v1. הבקשה נדחתה (NOT_APPLIED) ותוצאתה לא הגיעה למסך הפעולה. הממשק הסיר את הסימון על סמך הקבלה בלבד, ללא אימות יישום. [ui_client.txt:L21] [config_service.txt:L1] [config_service.txt:L7] [control_gateway.txt:L5] [control_gateway.txt:L6] [ui_client.txt:L43] [operator_diary.csv:L4] [system_catalog.txt:L4] [system_catalog.txt:L5]\n\nהשעה מקומית 15:07:15. ביטול נוסף (req-505) בתבנית sector.v2 יושם בגרסת התצורה 1.5.0 וכיבה את החסימה האפקטיבית. בין 15:08:00 ל-15:08:10 (מקומית) נרשמו גילויים (Detection) של מסלול TRK-781 באזימוט 42.2° ובטווח 26.1 ק״מ. זהותו עם T015I לא נקבעה. [config_service.txt:L13] [config_service.txt:L15] [sniffer.csv:L353] [sniffer.csv:L354] [sniffer.csv:L393] [sniffer.csv:L399] [system_catalog.txt:L9] [operator_diary.csv:L7]",
+    "createdAt": "2026-10-14T13:33:42.067Z",
+    "citations": [
+      "[config_service.txt:L7]",
+      "[control_gateway.txt:L6]",
+      "[ui_client.txt:L43]",
+      "[sniffer.csv:L193]",
+      "[sniffer.csv:L205]",
+      "[sniffer.csv:L217]",
+      "[sniffer.csv:L349]",
+      "[sniffer.csv:L192]",
+      "[ui_client.txt:L56]",
+      "[ui_client.txt:L59]",
+      "[ui_client.txt:L62]",
+      "[system_catalog.txt:L2]",
+      "[system_catalog.txt:L3]",
+      "[case_report.txt:L1]",
+      "[ui_client.txt:L21]",
+      "[config_service.txt:L1]",
+      "[control_gateway.txt:L5]",
+      "[operator_diary.csv:L4]",
+      "[system_catalog.txt:L4]",
+      "[system_catalog.txt:L5]",
+      "[config_service.txt:L13]",
+      "[config_service.txt:L15]",
+      "[sniffer.csv:L353]",
+      "[sniffer.csv:L354]",
+      "[sniffer.csv:L393]",
+      "[sniffer.csv:L399]",
+      "[system_catalog.txt:L9]",
+      "[operator_diary.csv:L7]"
+    ],
+    "mode": "cause",
+    "model": "anthropic/claude-haiku-5-5",
+    "validation": "satisfied",
+    "details": [
+      {
+        "title": "חסימת SEC-7 נשארה פעילה והתצוגה הציגה אותה כבויה",
+        "explanation": "השעות מקומיות. בשעה 15:03 ביטול החסימה נדחה (NOT_APPLIED), אך הממשק הסיר את הסימון, והתצוגה הציגה את האזור כפתוח. בדגימות של 15:03:55, 15:04:10 ו-15:04:25 מקומית מקטע SEC-7 (35°–50°) היה פעיל וכיסה את המיקום המדווח (42°, 26 ק״מ). לכן ייתכן שהחסימה דיכתה את הגילוי.\n\nUTC 12:03:00 ביטול req-303 נדחה בשל חוסר תאימות גרסאות (config_service.txt:L7), ותוצאתה נשארה פנימית (control_gateway.txt:L6). הסימון הסר על סמך קבלת הבקשה (ui_client.txt:L43). בדגימות 12:03:55, 12:04:10, 12:04:25 SEC-7 היה enabled=true (sniffer.csv:L193, L205, L217); ב-12:07:10 שוב enabled=true (sniffer.csv:L349). הרציפות בין הדגימות לא נבדקו על בסיס רשומות מכסות בחלון. התצוגה הראה displayed_enabled=false (ui_client.txt:L56, L59, L62). הסריקה SEARCH_WIDE כיסתה 30–65° (sniffer.csv:L192). הקטלוג קובע שמקטע פעיל מדכא גילויים (system_catalog.txt:L2). לא נמצא חישוב אזורי מואשר של העדר גילוי באזור.",
+        "citations": [
+          "[config_service.txt:L7]",
+          "[control_gateway.txt:L6]",
+          "[ui_client.txt:L43]",
+          "[sniffer.csv:L193]",
+          "[sniffer.csv:L205]",
+          "[sniffer.csv:L217]",
+          "[sniffer.csv:L349]",
+          "[sniffer.csv:L192]",
+          "[ui_client.txt:L56]",
+          "[ui_client.txt:L59]",
+          "[ui_client.txt:L62]",
+          "[system_catalog.txt:L2]",
+          "[system_catalog.txt:L3]",
+          "[case_report.txt:L1]"
+        ]
+      },
+      {
+        "title": "ביטול החסימה נדחה בגלל חוסר תאימות גרסאות, והתצוגה הסירה את הסימון",
+        "explanation": "השעה מקומית 15:03:00. ממשק המפעיל (גרסה 2.1.0) שלח ביטול בתבנית sector.v2, ושירות התצורה (גרסה 1.4.0) תומך רק ב-sector.v1. הבקשה נדחתה (NOT_APPLIED) ותוצאתה לא הגיעה למסך הפעולה. הממשק הסיר את הסימון על סמך הקבלה בלבד, ללא אימות יישום.\n\nUTC 12:03:00. בקשת req-303 התקבלה בשער הבקרה בלבד (קבלה בלבד, לא יישום). שירות התצורה דחה אותה עם UNSUPPORTED_SCHEMA ו-NOT_APPLIED. תוצאת הדחיה נשארה פנימית (ui_subscribed=false) ולא הגיעה לממשק. הממשק הסיר את הסימון עם קבלת הבקשה (לא עם אישור יישום), applied_state_verified=false. גרסאות radar-psr-01 ו-control-gateway לא אומתו.",
+        "citations": [
+          "[ui_client.txt:L21]",
+          "[config_service.txt:L1]",
+          "[config_service.txt:L7]",
+          "[control_gateway.txt:L5]",
+          "[control_gateway.txt:L6]",
+          "[ui_client.txt:L43]",
+          "[operator_diary.csv:L4]",
+          "[system_catalog.txt:L4]",
+          "[system_catalog.txt:L5]"
+        ]
+      },
+      {
+        "title": "לאחר ביטול תואם הגרסה החסימה כובתה, גילויים הופיעו במיקום הצפוי",
+        "explanation": "השעה מקומית 15:07:15. ביטול נוסף (req-505) בתבנית sector.v2 יושם בגרסת התצורה 1.5.0 וכיבה את החסימה האפקטיבית. בין 15:08:00 ל-15:08:10 (מקומית) נרשמו גילויים (Detection) של מסלול TRK-781 באזימוט 42.2° ובטווח 26.1 ק״מ. זהותו עם T015I לא נקבעה.\n\nUTC 12:07:15: החסימה האפקטיבית הופכת ל-enabled=false ב-12:07:15.100. ב-12:08:00–12:08:10 נרשמו Detection בשם TRK-781 באזור הדווח (סריקות 96–97). ההתאמה המרחבית לבדה אינה אישור זהות לפי הקטלוג (system_catalog.txt:L9). בדיקה זו לא נבדקה רשומה של TargetTrack עבור TRK-781. הגרסה של הפקודה החדשה (req-505) נבדקה בנפרד ב-config_service.txt:L13 ו-L15.",
+        "citations": [
+          "[config_service.txt:L13]",
+          "[config_service.txt:L15]",
+          "[sniffer.csv:L353]",
+          "[sniffer.csv:L354]",
+          "[sniffer.csv:L393]",
+          "[sniffer.csv:L399]",
+          "[system_catalog.txt:L9]",
+          "[operator_diary.csv:L7]"
+        ]
+      }
+    ],
+    "activity": [
+      {
+        "id": "phase:1",
+        "title": "מתאים את הבדיקה לשאלה שלך",
+        "detail": "קורא את ההקשר ואת המקורות הזמינים בתחקיר.",
+        "state": "complete",
+        "startedAt": 1791984443811,
+        "completedAt": 1791984449725,
+        "completionOrder": 1
+      },
+      {
+        "id": "phase:2",
+        "title": "משווה בין הסברים אפשריים לאירוע",
+        "detail": "הבדיקות הבאות יחפשו גם ראיות תומכות וגם ראיות סותרות.",
+        "state": "complete",
+        "startedAt": 1791984449725,
+        "completedAt": 1791984580302,
+        "completionOrder": 37
+      },
+      {
+        "id": "tool:toolu_01SFZZtYHNHP8vS4Sad3hBG9",
+        "title": "בודק מקורות וכיסוי קליטה",
+        "detail": "5 מקורות זמינים לבדיקה.",
+        "state": "complete",
+        "startedAt": 1791984451074,
+        "completedAt": 1791984451075,
+        "citations": [],
+        "completionOrder": 2
+      },
+      {
+        "id": "tool:toolu_01FxbFLQkJrFYnVEnuG7GWUu",
+        "title": "מוסיף הסבר אפשרי לבדיקה",
+        "detail": "הממצאים והבדיקות הבאות עודכנו.",
+        "state": "complete",
+        "startedAt": 1791984454838,
+        "completedAt": 1791984454841,
+        "citations": [],
+        "completionOrder": 3
+      },
+      {
+        "id": "tool:toolu_01T61KZMAFgYBfL6gmrcGV1w",
+        "title": "מוסיף הסבר אפשרי לבדיקה",
+        "detail": "הממצאים והבדיקות הבאות עודכנו.",
+        "state": "complete",
+        "startedAt": 1791984454841,
+        "completedAt": 1791984454841,
+        "citations": [],
+        "completionOrder": 4
+      },
+      {
+        "id": "tool:toolu_01BZq1SnrPDNU9XQhLmzorX4",
+        "title": "בודק כיוון חקירה 1",
+        "detail": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+        "state": "complete",
+        "startedAt": 1791984458517,
+        "completedAt": 1791984475208,
+        "citations": [],
+        "completionOrder": 13
+      },
+      {
+        "id": "tool:toolu_017kF1tkskQ5pNUPZaBvbEzp",
+        "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+        "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "state": "error",
+        "startedAt": 1791984465202,
+        "completedAt": 1791984465205,
+        "citations": [],
+        "completionOrder": 5
+      },
+      {
+        "id": "tool:toolu_013qBFT3GT1DfF1L5PjRzeGN",
+        "title": "משווה מצב תצוגה למצב בפועל",
+        "detail": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+        "state": "complete",
+        "startedAt": 1791984465203,
+        "completedAt": 1791984465205,
+        "citations": [
+          "[sniffer.csv:L192]",
+          "[sniffer.csv:L193]",
+          "[ui_client.txt:L56]"
+        ],
+        "completionOrder": 10
+      },
+      {
+        "id": "tool:toolu_01NVvFUvWRMXMMC5VwAbvgE7",
+        "title": "משווה מצב תצוגה למצב בפועל",
+        "detail": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+        "state": "complete",
+        "startedAt": 1791984465203,
+        "completedAt": 1791984465205,
+        "citations": [
+          "[sniffer.csv:L204]",
+          "[sniffer.csv:L205]",
+          "[ui_client.txt:L59]"
+        ],
+        "completionOrder": 11
+      },
+      {
+        "id": "tool:toolu_01NMvPx6i6RsK5tAgDc7EVEy",
+        "title": "משווה מצב תצוגה למצב בפועל",
+        "detail": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+        "state": "complete",
+        "startedAt": 1791984465203,
+        "completedAt": 1791984465205,
+        "citations": [
+          "[sniffer.csv:L216]",
+          "[sniffer.csv:L217]",
+          "[ui_client.txt:L62]"
+        ],
+        "completionOrder": 12
+      },
+      {
+        "id": "tool:toolu_01LCDUir2EmAEQcA4uE6h9wE",
+        "title": "עוקב אחר הבקשה בין הרכיבים",
+        "detail": "נמצאו 5 רשומות לבקשה. תועד אישור קבלה. תועד אישור החלה.",
+        "state": "complete",
+        "startedAt": 1791984465203,
+        "completedAt": 1791984465205,
+        "citations": [
+          "[control_gateway.txt:L1]",
+          "[control_gateway.txt:L2]"
+        ],
+        "completionOrder": 6
+      },
+      {
+        "id": "tool:toolu_01KPLDs9gYdsbhFvp7DTJyjr",
+        "title": "עוקב אחר הבקשה בין הרכיבים",
+        "detail": "נמצאו 47 רשומות לבקשה. תועד אישור קבלה. תועד אישור החלה.",
+        "state": "complete",
+        "startedAt": 1791984465203,
+        "completedAt": 1791984465205,
+        "citations": [
+          "[control_gateway.txt:L3]",
+          "[control_gateway.txt:L4]"
+        ],
+        "completionOrder": 7
+      },
+      {
+        "id": "tool:toolu_01Y1hRLDmv8egauMdut9FkHL",
+        "title": "עוקב אחר הבקשה בין הרכיבים",
+        "detail": "בקשת sector.v2 נדחתה בשירות בגרסה 1.4.0; הפורמט הנתמך הוא sector.v1. התצוגה השתנתה לפי אישור קבלה, ללא אימות החלה. ערוץ תוצאת העיבוד לא היה מחובר לממשק.",
+        "state": "complete",
+        "startedAt": 1791984465203,
+        "completedAt": 1791984465205,
+        "citations": [
+          "[control_gateway.txt:L5]",
+          "[ui_client.txt:L43]",
+          "[config_service.txt:L7]",
+          "[control_gateway.txt:L6]"
+        ],
+        "completionOrder": 8
+      },
+      {
+        "id": "tool:toolu_01KE28aarX2TudtJz9gna9Zi",
+        "title": "עוקב אחר הבקשה בין הרכיבים",
+        "detail": "נמצאו 6 רשומות לבקשה. תועד אישור קבלה. תועד אישור החלה.",
+        "state": "complete",
+        "startedAt": 1791984465203,
+        "completedAt": 1791984465205,
+        "citations": [
+          "[control_gateway.txt:L9]",
+          "[control_gateway.txt:L10]"
+        ],
+        "completionOrder": 9
+      },
+      {
+        "id": "tool:toolu_01Ej3ukAitM5YiUyzChKv2dE",
+        "title": "בודק כיוון חקירה 2",
+        "detail": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+        "state": "complete",
+        "startedAt": 1791984480709,
+        "completedAt": 1791984503433,
+        "citations": [],
+        "completionOrder": 22
+      },
+      {
+        "id": "tool:toolu_01TFEB11fPoTvNzFQQ2bAbq7",
+        "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+        "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "state": "error",
+        "startedAt": 1791984485623,
+        "completedAt": 1791984485624,
+        "citations": [],
+        "completionOrder": 14
+      },
+      {
+        "id": "tool:toolu_01R2oarMVc6qLVs2eHNrgs3z",
+        "title": "משווה מצב תצוגה למצב בפועל",
+        "detail": "מצב מגזר בפועל: כבוי. מצב בתצוגה: כבוי.",
+        "state": "complete",
+        "startedAt": 1791984485624,
+        "completedAt": 1791984485624,
+        "citations": [
+          "[sniffer.csv:L389]",
+          "[sniffer.csv:L390]",
+          "[ui_client.txt:L108]"
+        ],
+        "completionOrder": 16
+      },
+      {
+        "id": "tool:toolu_016B4RacMC1uZrV8cKHcGAwK",
+        "title": "משווה מצב תצוגה למצב בפועל",
+        "detail": "מצב מגזר בפועל: כבוי. מצב בתצוגה: כבוי.",
+        "state": "complete",
+        "startedAt": 1791984485624,
+        "completedAt": 1791984485625,
+        "citations": [
+          "[sniffer.csv:L401]",
+          "[sniffer.csv:L402]",
+          "[ui_client.txt:L110]"
+        ],
+        "completionOrder": 17
+      },
+      {
+        "id": "tool:toolu_018GccfQJXhjW631MGC7eBUy",
+        "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+        "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "state": "error",
+        "startedAt": 1791984485624,
+        "completedAt": 1791984485624,
+        "citations": [],
+        "completionOrder": 15
+      },
+      {
+        "id": "tool:toolu_01L84A1KfNgGPRU2KauueGKk",
+        "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+        "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "state": "error",
+        "startedAt": 1791984490875,
+        "completedAt": 1791984490876,
+        "citations": [],
+        "completionOrder": 18
+      },
+      {
+        "id": "tool:toolu_01M2cY1F3ufVNmYEBr1UKMSs",
+        "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+        "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "state": "error",
+        "startedAt": 1791984490875,
+        "completedAt": 1791984490876,
+        "citations": [],
+        "completionOrder": 19
+      },
+      {
+        "id": "tool:toolu_01Gdcy92xjxPdd4rfrTfiwUg",
+        "title": "בודק את רצף האירועים",
+        "detail": "נמצאו 36 רשומות; הוחזרו 20 לבדיקה. קיימות רשומות נוספות.",
+        "state": "complete",
+        "startedAt": 1791984490875,
+        "completedAt": 1791984490876,
+        "citations": [],
+        "completionOrder": 20
+      },
+      {
+        "id": "tool:toolu_012mY3Xf3CWB8TtC4tduJpHE",
+        "title": "בודק את רצף האירועים",
+        "detail": "נמצאו 6 רשומות; הוחזרו 6 לבדיקה.",
+        "state": "complete",
+        "startedAt": 1791984496231,
+        "completedAt": 1791984496232,
+        "citations": [],
+        "completionOrder": 21
+      },
+      {
+        "id": "tool:toolu_016eAoXCdQLUrAGkUSHWt5wc",
+        "title": "בודק כיוון חקירה 3",
+        "detail": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+        "state": "complete",
+        "startedAt": 1791984508003,
+        "completedAt": 1791984528252,
+        "citations": [],
+        "completionOrder": 29
+      },
+      {
+        "id": "tool:toolu_01KPYBy3kWBG6QzgMbPArnJA",
+        "title": "בודק מקורות וכיסוי קליטה",
+        "detail": "5 מקורות זמינים לבדיקה.",
+        "state": "complete",
+        "startedAt": 1791984511688,
+        "completedAt": 1791984511689,
+        "citations": [],
+        "completionOrder": 25
+      },
+      {
+        "id": "tool:toolu_018T2vBpjWWokrDcCPHTmrFt",
+        "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+        "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "state": "error",
+        "startedAt": 1791984511688,
+        "completedAt": 1791984511688,
+        "citations": [],
+        "completionOrder": 23
+      },
+      {
+        "id": "tool:toolu_01AoypXwheHuGzjaT9fH12B2",
+        "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+        "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "state": "error",
+        "startedAt": 1791984511688,
+        "completedAt": 1791984511688,
+        "citations": [],
+        "completionOrder": 24
+      },
+      {
+        "id": "tool:toolu_016qFBREPZbse5RnzyX4pZZg",
+        "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+        "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "state": "error",
+        "startedAt": 1791984515789,
+        "completedAt": 1791984515791,
+        "citations": [],
+        "completionOrder": 26
+      },
+      {
+        "id": "tool:toolu_01SkPyLVFjXjg6w6dDZYBXVA",
+        "title": "בודק את רצף האירועים",
+        "detail": "נמצאו 123 רשומות; הוחזרו 50 לבדיקה. קיימות רשומות נוספות.",
+        "state": "complete",
+        "startedAt": 1791984515790,
+        "completedAt": 1791984515791,
+        "citations": [],
+        "completionOrder": 27
+      },
+      {
+        "id": "tool:toolu_01KJrfw7cLRF535wTvNmYLDW",
+        "title": "בודק את רצף האירועים",
+        "detail": "נמצאו 51 רשומות; הוחזרו 50 לבדיקה. קיימות רשומות נוספות.",
+        "state": "complete",
+        "startedAt": 1791984521543,
+        "completedAt": 1791984521543,
+        "citations": [],
+        "completionOrder": 28
+      },
+      {
+        "id": "tool:toolu_01DFGeJ8iy9QeRkQNZ4rHxR2",
+        "title": "בודק כיוון חקירה 4",
+        "detail": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+        "state": "complete",
+        "startedAt": 1791984533122,
+        "completedAt": 1791984554203,
+        "citations": [],
+        "completionOrder": 36
+      },
+      {
+        "id": "tool:toolu_016pLdzR8anFHCxi1n896eVN",
+        "title": "בודק מקורות וכיסוי קליטה",
+        "detail": "5 מקורות זמינים לבדיקה.",
+        "state": "complete",
+        "startedAt": 1791984534867,
+        "completedAt": 1791984534867,
+        "citations": [],
+        "completionOrder": 30
+      },
+      {
+        "id": "tool:toolu_018tGfy6VwDuXMNDfkrSAPqZ",
+        "title": "בודק אירועים מתוך המקורות שנבחרו",
+        "detail": "נמצאו 6 רשומות; הוחזרו 6 לבדיקה.",
+        "state": "complete",
+        "startedAt": 1791984538861,
+        "completedAt": 1791984538862,
+        "citations": [],
+        "completionOrder": 31
+      },
+      {
+        "id": "tool:toolu_0144gnatHYpZPb9EiyQEN9RY",
+        "title": "בודק אירועים מתוך המקורות שנבחרו",
+        "detail": "נמצאו 6 רשומות; הוחזרו 6 לבדיקה.",
+        "state": "complete",
+        "startedAt": 1791984538861,
+        "completedAt": 1791984538862,
+        "citations": [],
+        "completionOrder": 32
+      },
+      {
+        "id": "tool:toolu_01RvBMSWTW1abPBZZVSdKsTy",
+        "title": "בודק אירועים מתוך המקורות שנבחרו",
+        "detail": "נמצאו 4 רשומות; הוחזרו 4 לבדיקה.",
+        "state": "complete",
+        "startedAt": 1791984538861,
+        "completedAt": 1791984538862,
+        "citations": [],
+        "completionOrder": 33
+      },
+      {
+        "id": "tool:toolu_01W5BhKhe9TSXUvf2fqwBoKo",
+        "title": "בודק אירועים מתוך המקורות שנבחרו",
+        "detail": "נמצאו 4 רשומות; הוחזרו 4 לבדיקה.",
+        "state": "complete",
+        "startedAt": 1791984538861,
+        "completedAt": 1791984538862,
+        "citations": [],
+        "completionOrder": 34
+      },
+      {
+        "id": "tool:toolu_016KK3nfLJzReYZkmzM3KzRF",
+        "title": "בודק אירועים מתוך המקורות שנבחרו",
+        "detail": "נמצאו 75 רשומות; הוחזרו 50 לבדיקה. קיימות רשומות נוספות.",
+        "state": "complete",
+        "startedAt": 1791984544951,
+        "completedAt": 1791984544951,
+        "citations": [],
+        "completionOrder": 35
+      },
+      {
+        "id": "tool:toolu_01WMvYPpGDej249fcL5g797f",
+        "title": "מסכם ממצאים ושאלות פתוחות",
+        "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "state": "error",
+        "startedAt": 1791984580301,
+        "completedAt": 1791984606096,
+        "citations": [],
+        "completionOrder": 38
+      },
+      {
+        "id": "phase:3",
+        "title": "בודק שהטענות נתמכות בראיות",
+        "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "state": "complete",
+        "startedAt": 1791984580302,
+        "completedAt": 1791984627875,
+        "completionOrder": 39
+      },
+      {
+        "id": "tool:toolu_01MxTTWBCUqnBYWDjo98EhsN",
+        "title": "מסכם ממצאים ושאלות פתוחות",
+        "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "state": "error",
+        "startedAt": 1791984627874,
+        "completedAt": 1791984649924,
+        "citations": [],
+        "completionOrder": 40
+      },
+      {
+        "id": "phase:4",
+        "title": "בודק שהטענות נתמכות בראיות",
+        "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "state": "complete",
+        "startedAt": 1791984627875,
+        "completedAt": 1791984671556,
+        "completionOrder": 41
+      },
+      {
+        "id": "tool:toolu_01Xr6zczPnXh4Ha5rAzyocKf",
+        "title": "מסכם ממצאים ושאלות פתוחות",
+        "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "state": "error",
+        "startedAt": 1791984671555,
+        "completedAt": 1791984693556,
+        "citations": [],
+        "completionOrder": 42
+      },
+      {
+        "id": "phase:5",
+        "title": "בודק שהטענות נתמכות בראיות",
+        "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "state": "complete",
+        "startedAt": 1791984671556,
+        "completedAt": 1791984704940,
+        "completionOrder": 43
+      },
+      {
+        "id": "tool:toolu_01Vc5qWYsCfFck9eynMZSpxC",
+        "title": "מסכם ממצאים ושאלות פתוחות",
+        "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "state": "error",
+        "startedAt": 1791984704939,
+        "completedAt": 1791984742432,
+        "citations": [],
+        "completionOrder": 44
+      },
+      {
+        "id": "phase:6",
+        "title": "בודק שהטענות נתמכות בראיות",
+        "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "state": "complete",
+        "startedAt": 1791984704940,
+        "completedAt": 1791984754441,
+        "completionOrder": 45
+      },
+      {
+        "id": "tool:toolu_01Ew2rgYdvWxf1cnhCCvJ1nK",
+        "title": "מסכם ממצאים ושאלות פתוחות",
+        "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "state": "error",
+        "startedAt": 1791984754440,
+        "completedAt": 1791984783165,
+        "citations": [],
+        "completionOrder": 46
+      },
+      {
+        "id": "phase:7",
+        "title": "בודק שהטענות נתמכות בראיות",
+        "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "state": "complete",
+        "startedAt": 1791984754441,
+        "completedAt": 1791984793512,
+        "completionOrder": 47
+      },
+      {
+        "id": "tool:toolu_013333zzxegxNRn2LsmH4uGs",
+        "title": "מסכם ממצאים ושאלות פתוחות",
+        "detail": "הוגשו 3 ממצאים. בודק את האסמכתאות.",
+        "state": "complete",
+        "startedAt": 1791984793511,
+        "completedAt": 1791984822066,
+        "citations": [],
+        "completionOrder": 48
+      },
+      {
+        "id": "phase:8",
+        "title": "בודק שהטענות נתמכות בראיות",
+        "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "state": "complete",
+        "startedAt": 1791984793512,
+        "completedAt": 1791984822067,
+        "completionOrder": 49
+      },
+      {
+        "id": "phase:9",
+        "title": "התשובה והאסמכתאות נבדקו",
+        "detail": "28 אסמכתאות נפתחו ונבדקו מול קובצי המקור.",
+        "state": "complete",
+        "startedAt": 1791984822067,
+        "completedAt": 1791984822067,
+        "completionOrder": 50
+      }
+    ]
+  },
+  "sources": [
+    {
+      "badge": "[config_service.txt:L7]",
+      "sourceFile": "config_service.txt",
+      "line": 7,
+      "event": {
+        "family": "component_log",
+        "source": "config-service",
+        "time": "2026-10-14T12:03:00.100Z",
+        "type": "RequestRejected",
+        "severity": "ERROR",
+        "text": "Unsupported sector request schema: expected enabled:boolean in sector.v1; sector_action in sector.v2 cannot be decoded",
+        "fields": {
+          "request_id": "req-303",
+          "sector_id": "SEC-7",
+          "software_version": "1.4.0",
+          "schema_id": "sector.v2",
+          "supported_schema": "sector.v1",
+          "error_code": "UNSUPPORTED_SCHEMA",
+          "result": "NOT_APPLIED"
+        },
+        "id": "config_service.txt:7",
+        "badge": "[config_service.txt:L7]",
+        "caseId": "case_005",
+        "sourceFile": "config_service.txt",
+        "line": 7
+      },
+      "sha256": "7e781beee8b84985aade11c967047a212190666256f3772fd7469adcab1939cb",
+      "lines": [
+        {
+          "number": 5,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:55.100Z\",\"source\":\"config-service\",\"type\":\"RequestApplied\",\"severity\":\"INFO\",\"message\":\"Request decoded and applied\",\"fields\":{\"request_id\":\"req-202\",\"schema_id\":\"search.v1\",\"operation\":\"SET_SEARCH\",\"result\":\"APPLIED\",\"pattern\":\"SEARCH_WIDE\"}}",
+          "highlight": false
+        },
+        {
+          "number": 6,
+          "content": "{\"timestamp\":\"2026-10-14T12:02:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":120}}",
+          "highlight": false
+        },
+        {
+          "number": 7,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.100Z\",\"source\":\"config-service\",\"type\":\"RequestRejected\",\"severity\":\"ERROR\",\"message\":\"Unsupported sector request schema: expected enabled:boolean in sector.v1; sector_action in sector.v2 cannot be decoded\",\"fields\":{\"request_id\":\"req-303\",\"sector_id\":\"SEC-7\",\"software_version\":\"1.4.0\",\"schema_id\":\"sector.v2\",\"supported_schema\":\"sector.v1\",\"error_code\":\"UNSUPPORTED_SCHEMA\",\"result\":\"NOT_APPLIED\"}}",
+          "highlight": true
+        },
+        {
+          "number": 8,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":180}}",
+          "highlight": false
+        },
+        {
+          "number": 9,
+          "content": "{\"timestamp\":\"2026-10-14T12:04:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":240}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[control_gateway.txt:L6]",
+      "sourceFile": "control_gateway.txt",
+      "line": 6,
+      "event": {
+        "family": "component_log",
+        "source": "control-gateway",
+        "time": "2026-10-14T12:03:00.120Z",
+        "type": "ResultDelivery",
+        "severity": "WARN",
+        "text": "Processing result retained on internal result channel",
+        "fields": {
+          "request_id": "req-303",
+          "result": "NOT_APPLIED",
+          "destination": "internal-results",
+          "ui_subscribed": "false"
+        },
+        "id": "control_gateway.txt:6",
+        "badge": "[control_gateway.txt:L6]",
+        "caseId": "case_005",
+        "sourceFile": "control_gateway.txt",
+        "line": 6
+      },
+      "sha256": "8d7e9f154880e56bb1f05ac6ec161797fcd6e186ba9498f603202f9e313ba3a7",
+      "lines": [
+        {
+          "number": 4,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:55.110Z\",\"source\":\"control-gateway\",\"type\":\"ApplicationAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Applied result forwarded\",\"fields\":{\"request_id\":\"req-202\",\"acknowledgement\":\"APPLICATION\",\"result\":\"APPLIED\",\"pattern\":\"SEARCH_WIDE\"}}",
+          "highlight": false
+        },
+        {
+          "number": 5,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.020Z\",\"source\":\"control-gateway\",\"type\":\"ReceiptAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Request accepted into queue\",\"fields\":{\"request_id\":\"req-303\",\"acknowledgement\":\"RECEIPT\",\"queued\":\"true\"}}",
+          "highlight": false
+        },
+        {
+          "number": 6,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.120Z\",\"source\":\"control-gateway\",\"type\":\"ResultDelivery\",\"severity\":\"WARN\",\"message\":\"Processing result retained on internal result channel\",\"fields\":{\"request_id\":\"req-303\",\"result\":\"NOT_APPLIED\",\"destination\":\"internal-results\",\"ui_subscribed\":\"false\"}}",
+          "highlight": true
+        },
+        {
+          "number": 7,
+          "content": "{\"timestamp\":\"2026-10-14T12:05:20.020Z\",\"source\":\"control-gateway\",\"type\":\"ReceiptAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Request accepted into queue\",\"fields\":{\"request_id\":\"req-404\",\"acknowledgement\":\"RECEIPT\",\"queued\":\"true\"}}",
+          "highlight": false
+        },
+        {
+          "number": 8,
+          "content": "{\"timestamp\":\"2026-10-14T12:05:20.110Z\",\"source\":\"control-gateway\",\"type\":\"ApplicationAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Applied result forwarded\",\"fields\":{\"request_id\":\"req-404\",\"acknowledgement\":\"APPLICATION\",\"result\":\"APPLIED\",\"pattern\":\"SEARCH_WIDE\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[ui_client.txt:L43]",
+      "sourceFile": "ui_client.txt",
+      "line": 43,
+      "event": {
+        "family": "component_log",
+        "source": "operator-ui",
+        "time": "2026-10-14T12:03:00.030Z",
+        "type": "DisplayChanged",
+        "severity": "INFO",
+        "text": "Sector overlay removed after queue receipt",
+        "fields": {
+          "request_id": "req-303",
+          "sector_id": "SEC-7",
+          "displayed_enabled": "false",
+          "applied_state_verified": "false",
+          "trigger": "RECEIPT"
+        },
+        "id": "ui_client.txt:43",
+        "badge": "[ui_client.txt:L43]",
+        "caseId": "case_005",
+        "sourceFile": "ui_client.txt",
+        "line": 43
+      },
+      "sha256": "3eea6727ff2b184ad28954bac42ac79dc7cc3f11b19347fd536b49cb8d75690e",
+      "lines": [
+        {
+          "number": 41,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.000Z\",\"source\":\"operator-ui\",\"type\":\"RequestSent\",\"severity\":\"INFO\",\"message\":\"Control request sent\",\"fields\":{\"request_id\":\"req-303\",\"schema_id\":\"sector.v2\",\"operation\":\"REMOVE\",\"sector_id\":\"SEC-7\",\"ui_version\":\"2.1.0\",\"payload_field\":\"sector_action\",\"payload_value\":\"remove\"}}",
+          "highlight": false
+        },
+        {
+          "number": 42,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"true\",\"valid_until\":\"2026-10-14T12:03:00.030Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 43,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.030Z\",\"source\":\"operator-ui\",\"type\":\"DisplayChanged\",\"severity\":\"INFO\",\"message\":\"Sector overlay removed after queue receipt\",\"fields\":{\"request_id\":\"req-303\",\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"applied_state_verified\":\"false\",\"trigger\":\"RECEIPT\"}}",
+          "highlight": true
+        },
+        {
+          "number": 44,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.030Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector transition\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:03:05.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 45,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:01.000Z\",\"source\":\"operator-ui\",\"type\":\"ResultSubscription\",\"severity\":\"INFO\",\"message\":\"UI listens for queue receipts; application result subscription disabled\",\"fields\":{\"receipt_channel\":\"subscribed\",\"application_result_channel\":\"not_subscribed\",\"reconcile_effective_state\":\"false\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[sniffer.csv:L193]",
+      "sourceFile": "sniffer.csv",
+      "line": 193,
+      "event": {
+        "family": "sniffer",
+        "source": "radar-psr-01",
+        "time": "2026-10-14T12:03:55.000Z",
+        "type": "InhibitSectorState",
+        "severity": "INFO",
+        "text": "InhibitSectorState · Effective sector state",
+        "fields": {
+          "capture_time_utc": "2026-10-14T12:03:55.000Z",
+          "producer": "radar-psr-01",
+          "message_type": "InhibitSectorState",
+          "details": "Effective sector state",
+          "sector_id": "SEC-7",
+          "enabled": "true",
+          "azimuth_start_deg": 35,
+          "azimuth_end_deg": 50,
+          "range_min_km": 0,
+          "range_max_km": 80,
+          "valid_until": "2026-10-14T12:04:00.000Z"
+        },
+        "id": "sniffer.csv:193",
+        "badge": "[sniffer.csv:L193]",
+        "caseId": "case_005",
+        "sourceFile": "sniffer.csv",
+        "line": 193
+      },
+      "sha256": "6cbc02b7c6b0e00fff7a8b13f5c3805ac54c1080f5b0ca57a7d3df970c2efdd9",
+      "lines": [
+        {
+          "number": 191,
+          "content": "\"2026-10-14T12:03:50.500Z\",\"radar-psr-01\",\"TargetTrack\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"58\",\"32\",\"2\",\"scan-46\"",
+          "highlight": false
+        },
+        {
+          "number": 192,
+          "content": "\"2026-10-14T12:03:55.000Z\",\"radar-psr-01\",\"RadarState\",\"\",\"Effective search state\",\"req-202\",\"\",\"\",\"SEARCH_WIDE\",\"30\",\"65\",\"0\",\"80\",\"2026-10-14T12:04:00.000Z\",\"5\",\"ACTIVE\",\"\",\"\",\"\",\"\"",
+          "highlight": false
+        },
+        {
+          "number": 193,
+          "content": "\"2026-10-14T12:03:55.000Z\",\"radar-psr-01\",\"InhibitSectorState\",\"\",\"Effective sector state\",\"\",\"SEC-7\",\"true\",\"\",\"35\",\"50\",\"0\",\"80\",\"2026-10-14T12:04:00.000Z\",\"\",\"\",\"\",\"\",\"\",\"\"",
+          "highlight": true
+        },
+        {
+          "number": 194,
+          "content": "\"2026-10-14T12:03:55.500Z\",\"radar-psr-01\",\"Detection\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"57\",\"32\",\"2\",\"scan-47\"",
+          "highlight": false
+        },
+        {
+          "number": 195,
+          "content": "\"2026-10-14T12:03:55.500Z\",\"radar-psr-01\",\"TargetTrack\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"57\",\"32\",\"2\",\"scan-47\"",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[sniffer.csv:L205]",
+      "sourceFile": "sniffer.csv",
+      "line": 205,
+      "event": {
+        "family": "sniffer",
+        "source": "radar-psr-01",
+        "time": "2026-10-14T12:04:10.000Z",
+        "type": "InhibitSectorState",
+        "severity": "INFO",
+        "text": "InhibitSectorState · Effective sector state",
+        "fields": {
+          "capture_time_utc": "2026-10-14T12:04:10.000Z",
+          "producer": "radar-psr-01",
+          "message_type": "InhibitSectorState",
+          "details": "Effective sector state",
+          "sector_id": "SEC-7",
+          "enabled": "true",
+          "azimuth_start_deg": 35,
+          "azimuth_end_deg": 50,
+          "range_min_km": 0,
+          "range_max_km": 80,
+          "valid_until": "2026-10-14T12:04:15.000Z"
+        },
+        "id": "sniffer.csv:205",
+        "badge": "[sniffer.csv:L205]",
+        "caseId": "case_005",
+        "sourceFile": "sniffer.csv",
+        "line": 205
+      },
+      "sha256": "6cbc02b7c6b0e00fff7a8b13f5c3805ac54c1080f5b0ca57a7d3df970c2efdd9",
+      "lines": [
+        {
+          "number": 203,
+          "content": "\"2026-10-14T12:04:05.500Z\",\"radar-psr-01\",\"TargetTrack\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"58\",\"32\",\"2\",\"scan-49\"",
+          "highlight": false
+        },
+        {
+          "number": 204,
+          "content": "\"2026-10-14T12:04:10.000Z\",\"radar-psr-01\",\"RadarState\",\"\",\"Effective search state\",\"req-202\",\"\",\"\",\"SEARCH_WIDE\",\"30\",\"65\",\"0\",\"80\",\"2026-10-14T12:04:15.000Z\",\"5\",\"ACTIVE\",\"\",\"\",\"\",\"\"",
+          "highlight": false
+        },
+        {
+          "number": 205,
+          "content": "\"2026-10-14T12:04:10.000Z\",\"radar-psr-01\",\"InhibitSectorState\",\"\",\"Effective sector state\",\"\",\"SEC-7\",\"true\",\"\",\"35\",\"50\",\"0\",\"80\",\"2026-10-14T12:04:15.000Z\",\"\",\"\",\"\",\"\",\"\",\"\"",
+          "highlight": true
+        },
+        {
+          "number": 206,
+          "content": "\"2026-10-14T12:04:10.500Z\",\"radar-psr-01\",\"Detection\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"56\",\"32\",\"2\",\"scan-50\"",
+          "highlight": false
+        },
+        {
+          "number": 207,
+          "content": "\"2026-10-14T12:04:10.500Z\",\"radar-psr-01\",\"TargetTrack\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"56\",\"32\",\"2\",\"scan-50\"",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[sniffer.csv:L217]",
+      "sourceFile": "sniffer.csv",
+      "line": 217,
+      "event": {
+        "family": "sniffer",
+        "source": "radar-psr-01",
+        "time": "2026-10-14T12:04:25.000Z",
+        "type": "InhibitSectorState",
+        "severity": "INFO",
+        "text": "InhibitSectorState · Effective sector state",
+        "fields": {
+          "capture_time_utc": "2026-10-14T12:04:25.000Z",
+          "producer": "radar-psr-01",
+          "message_type": "InhibitSectorState",
+          "details": "Effective sector state",
+          "sector_id": "SEC-7",
+          "enabled": "true",
+          "azimuth_start_deg": 35,
+          "azimuth_end_deg": 50,
+          "range_min_km": 0,
+          "range_max_km": 80,
+          "valid_until": "2026-10-14T12:04:30.000Z"
+        },
+        "id": "sniffer.csv:217",
+        "badge": "[sniffer.csv:L217]",
+        "caseId": "case_005",
+        "sourceFile": "sniffer.csv",
+        "line": 217
+      },
+      "sha256": "6cbc02b7c6b0e00fff7a8b13f5c3805ac54c1080f5b0ca57a7d3df970c2efdd9",
+      "lines": [
+        {
+          "number": 215,
+          "content": "\"2026-10-14T12:04:20.500Z\",\"radar-psr-01\",\"TargetTrack\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"56\",\"32\",\"2\",\"scan-52\"",
+          "highlight": false
+        },
+        {
+          "number": 216,
+          "content": "\"2026-10-14T12:04:25.000Z\",\"radar-psr-01\",\"RadarState\",\"\",\"Effective search state\",\"req-202\",\"\",\"\",\"SEARCH_WIDE\",\"30\",\"65\",\"0\",\"80\",\"2026-10-14T12:04:30.000Z\",\"5\",\"ACTIVE\",\"\",\"\",\"\",\"\"",
+          "highlight": false
+        },
+        {
+          "number": 217,
+          "content": "\"2026-10-14T12:04:25.000Z\",\"radar-psr-01\",\"InhibitSectorState\",\"\",\"Effective sector state\",\"\",\"SEC-7\",\"true\",\"\",\"35\",\"50\",\"0\",\"80\",\"2026-10-14T12:04:30.000Z\",\"\",\"\",\"\",\"\",\"\",\"\"",
+          "highlight": true
+        },
+        {
+          "number": 218,
+          "content": "\"2026-10-14T12:04:25.500Z\",\"radar-psr-01\",\"Detection\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"56\",\"32\",\"2\",\"scan-53\"",
+          "highlight": false
+        },
+        {
+          "number": 219,
+          "content": "\"2026-10-14T12:04:25.500Z\",\"radar-psr-01\",\"TargetTrack\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"56\",\"32\",\"2\",\"scan-53\"",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[sniffer.csv:L349]",
+      "sourceFile": "sniffer.csv",
+      "line": 349,
+      "event": {
+        "family": "sniffer",
+        "source": "radar-psr-01",
+        "time": "2026-10-14T12:07:10.000Z",
+        "type": "InhibitSectorState",
+        "severity": "INFO",
+        "text": "InhibitSectorState · Effective sector state",
+        "fields": {
+          "capture_time_utc": "2026-10-14T12:07:10.000Z",
+          "producer": "radar-psr-01",
+          "message_type": "InhibitSectorState",
+          "details": "Effective sector state",
+          "sector_id": "SEC-7",
+          "enabled": "true",
+          "azimuth_start_deg": 35,
+          "azimuth_end_deg": 50,
+          "range_min_km": 0,
+          "range_max_km": 80,
+          "valid_until": "2026-10-14T12:07:15.000Z"
+        },
+        "id": "sniffer.csv:349",
+        "badge": "[sniffer.csv:L349]",
+        "caseId": "case_005",
+        "sourceFile": "sniffer.csv",
+        "line": 349
+      },
+      "sha256": "6cbc02b7c6b0e00fff7a8b13f5c3805ac54c1080f5b0ca57a7d3df970c2efdd9",
+      "lines": [
+        {
+          "number": 347,
+          "content": "\"2026-10-14T12:07:05.500Z\",\"radar-psr-01\",\"TargetTrack\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"57\",\"32\",\"2\",\"scan-85\"",
+          "highlight": false
+        },
+        {
+          "number": 348,
+          "content": "\"2026-10-14T12:07:10.000Z\",\"radar-psr-01\",\"RadarState\",\"\",\"Effective search state\",\"req-404\",\"\",\"\",\"SEARCH_WIDE\",\"30\",\"65\",\"0\",\"80\",\"2026-10-14T12:07:15.000Z\",\"5\",\"ACTIVE\",\"\",\"\",\"\",\"\"",
+          "highlight": false
+        },
+        {
+          "number": 349,
+          "content": "\"2026-10-14T12:07:10.000Z\",\"radar-psr-01\",\"InhibitSectorState\",\"\",\"Effective sector state\",\"\",\"SEC-7\",\"true\",\"\",\"35\",\"50\",\"0\",\"80\",\"2026-10-14T12:07:15.000Z\",\"\",\"\",\"\",\"\",\"\",\"\"",
+          "highlight": true
+        },
+        {
+          "number": 350,
+          "content": "\"2026-10-14T12:07:10.500Z\",\"radar-psr-01\",\"Detection\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"58\",\"32\",\"2\",\"scan-86\"",
+          "highlight": false
+        },
+        {
+          "number": 351,
+          "content": "\"2026-10-14T12:07:10.500Z\",\"radar-psr-01\",\"TargetTrack\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"58\",\"32\",\"2\",\"scan-86\"",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[sniffer.csv:L192]",
+      "sourceFile": "sniffer.csv",
+      "line": 192,
+      "event": {
+        "family": "sniffer",
+        "source": "radar-psr-01",
+        "time": "2026-10-14T12:03:55.000Z",
+        "type": "RadarState",
+        "severity": "INFO",
+        "text": "RadarState · Effective search state",
+        "fields": {
+          "capture_time_utc": "2026-10-14T12:03:55.000Z",
+          "producer": "radar-psr-01",
+          "message_type": "RadarState",
+          "details": "Effective search state",
+          "request_id": "req-202",
+          "pattern": "SEARCH_WIDE",
+          "azimuth_start_deg": 30,
+          "azimuth_end_deg": 65,
+          "range_min_km": 0,
+          "range_max_km": 80,
+          "valid_until": "2026-10-14T12:04:00.000Z",
+          "scan_period_s": 5,
+          "receiver": "ACTIVE"
+        },
+        "id": "sniffer.csv:192",
+        "badge": "[sniffer.csv:L192]",
+        "caseId": "case_005",
+        "sourceFile": "sniffer.csv",
+        "line": 192
+      },
+      "sha256": "6cbc02b7c6b0e00fff7a8b13f5c3805ac54c1080f5b0ca57a7d3df970c2efdd9",
+      "lines": [
+        {
+          "number": 190,
+          "content": "\"2026-10-14T12:03:50.500Z\",\"radar-psr-01\",\"Detection\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"58\",\"32\",\"2\",\"scan-46\"",
+          "highlight": false
+        },
+        {
+          "number": 191,
+          "content": "\"2026-10-14T12:03:50.500Z\",\"radar-psr-01\",\"TargetTrack\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"58\",\"32\",\"2\",\"scan-46\"",
+          "highlight": false
+        },
+        {
+          "number": 192,
+          "content": "\"2026-10-14T12:03:55.000Z\",\"radar-psr-01\",\"RadarState\",\"\",\"Effective search state\",\"req-202\",\"\",\"\",\"SEARCH_WIDE\",\"30\",\"65\",\"0\",\"80\",\"2026-10-14T12:04:00.000Z\",\"5\",\"ACTIVE\",\"\",\"\",\"\",\"\"",
+          "highlight": true
+        },
+        {
+          "number": 193,
+          "content": "\"2026-10-14T12:03:55.000Z\",\"radar-psr-01\",\"InhibitSectorState\",\"\",\"Effective sector state\",\"\",\"SEC-7\",\"true\",\"\",\"35\",\"50\",\"0\",\"80\",\"2026-10-14T12:04:00.000Z\",\"\",\"\",\"\",\"\",\"\",\"\"",
+          "highlight": false
+        },
+        {
+          "number": 194,
+          "content": "\"2026-10-14T12:03:55.500Z\",\"radar-psr-01\",\"Detection\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"57\",\"32\",\"2\",\"scan-47\"",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[ui_client.txt:L56]",
+      "sourceFile": "ui_client.txt",
+      "line": 56,
+      "event": {
+        "family": "component_log",
+        "source": "operator-ui",
+        "time": "2026-10-14T12:03:55.000Z",
+        "type": "DisplayState",
+        "severity": "INFO",
+        "text": "Displayed sector state",
+        "fields": {
+          "sector_id": "SEC-7",
+          "displayed_enabled": "false",
+          "valid_until": "2026-10-14T12:04:00.000Z"
+        },
+        "id": "ui_client.txt:56",
+        "badge": "[ui_client.txt:L56]",
+        "caseId": "case_005",
+        "sourceFile": "ui_client.txt",
+        "line": 56
+      },
+      "sha256": "3eea6727ff2b184ad28954bac42ac79dc7cc3f11b19347fd536b49cb8d75690e",
+      "lines": [
+        {
+          "number": 54,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:45.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:03:50.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 55,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:50.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:03:55.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 56,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:55.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:04:00.000Z\"}}",
+          "highlight": true
+        },
+        {
+          "number": 57,
+          "content": "{\"timestamp\":\"2026-10-14T12:04:00.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:04:05.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 58,
+          "content": "{\"timestamp\":\"2026-10-14T12:04:05.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:04:10.000Z\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[ui_client.txt:L59]",
+      "sourceFile": "ui_client.txt",
+      "line": 59,
+      "event": {
+        "family": "component_log",
+        "source": "operator-ui",
+        "time": "2026-10-14T12:04:10.000Z",
+        "type": "DisplayState",
+        "severity": "INFO",
+        "text": "Displayed sector state",
+        "fields": {
+          "sector_id": "SEC-7",
+          "displayed_enabled": "false",
+          "valid_until": "2026-10-14T12:04:15.000Z"
+        },
+        "id": "ui_client.txt:59",
+        "badge": "[ui_client.txt:L59]",
+        "caseId": "case_005",
+        "sourceFile": "ui_client.txt",
+        "line": 59
+      },
+      "sha256": "3eea6727ff2b184ad28954bac42ac79dc7cc3f11b19347fd536b49cb8d75690e",
+      "lines": [
+        {
+          "number": 57,
+          "content": "{\"timestamp\":\"2026-10-14T12:04:00.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:04:05.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 58,
+          "content": "{\"timestamp\":\"2026-10-14T12:04:05.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:04:10.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 59,
+          "content": "{\"timestamp\":\"2026-10-14T12:04:10.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:04:15.000Z\"}}",
+          "highlight": true
+        },
+        {
+          "number": 60,
+          "content": "{\"timestamp\":\"2026-10-14T12:04:15.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:04:20.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 61,
+          "content": "{\"timestamp\":\"2026-10-14T12:04:20.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:04:25.000Z\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[ui_client.txt:L62]",
+      "sourceFile": "ui_client.txt",
+      "line": 62,
+      "event": {
+        "family": "component_log",
+        "source": "operator-ui",
+        "time": "2026-10-14T12:04:25.000Z",
+        "type": "DisplayState",
+        "severity": "INFO",
+        "text": "Displayed sector state",
+        "fields": {
+          "sector_id": "SEC-7",
+          "displayed_enabled": "false",
+          "valid_until": "2026-10-14T12:04:30.000Z"
+        },
+        "id": "ui_client.txt:62",
+        "badge": "[ui_client.txt:L62]",
+        "caseId": "case_005",
+        "sourceFile": "ui_client.txt",
+        "line": 62
+      },
+      "sha256": "3eea6727ff2b184ad28954bac42ac79dc7cc3f11b19347fd536b49cb8d75690e",
+      "lines": [
+        {
+          "number": 60,
+          "content": "{\"timestamp\":\"2026-10-14T12:04:15.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:04:20.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 61,
+          "content": "{\"timestamp\":\"2026-10-14T12:04:20.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:04:25.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 62,
+          "content": "{\"timestamp\":\"2026-10-14T12:04:25.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:04:30.000Z\"}}",
+          "highlight": true
+        },
+        {
+          "number": 63,
+          "content": "{\"timestamp\":\"2026-10-14T12:04:30.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:04:35.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 64,
+          "content": "{\"timestamp\":\"2026-10-14T12:04:35.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:04:40.000Z\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[system_catalog.txt:L2]",
+      "sourceFile": "system_catalog.txt",
+      "line": 2,
+      "sha256": "15ecb336f065d40e7a127daf143ac1d817decad0c205214a98658188a417cdfe",
+      "lines": [
+        {
+          "number": 1,
+          "content": "Synthetic radar system catalog. Not a description of a real radar.",
+          "highlight": false
+        },
+        {
+          "number": 2,
+          "content": "InhibitSectorState is effective radar state. An enabled inhibit sector suppresses production of Detection and TargetTrack messages within its angular and range bounds, even if the area is scanned.",
+          "highlight": true
+        },
+        {
+          "number": 3,
+          "content": "Requested state, DisplayState and effective RadarState/InhibitSectorState are separate observations. Display state does not certify applied state.",
+          "highlight": false
+        },
+        {
+          "number": 4,
+          "content": "ReceiptAcknowledgement means accepted into a queue only. ApplicationAcknowledgement with APPLIED means processing and application completed. RequestRejected with NOT_APPLIED is local to that request; it does not mean the service crashed.",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[system_catalog.txt:L3]",
+      "sourceFile": "system_catalog.txt",
+      "line": 3,
+      "sha256": "15ecb336f065d40e7a127daf143ac1d817decad0c205214a98658188a417cdfe",
+      "lines": [
+        {
+          "number": 1,
+          "content": "Synthetic radar system catalog. Not a description of a real radar.",
+          "highlight": false
+        },
+        {
+          "number": 2,
+          "content": "InhibitSectorState is effective radar state. An enabled inhibit sector suppresses production of Detection and TargetTrack messages within its angular and range bounds, even if the area is scanned.",
+          "highlight": false
+        },
+        {
+          "number": 3,
+          "content": "Requested state, DisplayState and effective RadarState/InhibitSectorState are separate observations. Display state does not certify applied state.",
+          "highlight": true
+        },
+        {
+          "number": 4,
+          "content": "ReceiptAcknowledgement means accepted into a queue only. ApplicationAcknowledgement with APPLIED means processing and application completed. RequestRejected with NOT_APPLIED is local to that request; it does not mean the service crashed.",
+          "highlight": false
+        },
+        {
+          "number": 5,
+          "content": "SoftwareVersion reports the actual component software version and supported schemas. RequestSent carries schema_id. sector.v1 represents a change with enabled:boolean. sector.v2 uses sector_action:set|remove. search.v1 is a separate request schema.",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[case_report.txt:L1]",
+      "sourceFile": "case_report.txt",
+      "line": 1,
+      "event": {
+        "family": "operator_diary",
+        "source": "operator",
+        "time": "2026-10-14T12:04:30.000Z",
+        "type": "InitialReport",
+        "severity": "INFO",
+        "text": "דיווח מפעיל: מטרת התרגיל T015I לא התגלתה במעבר הצפוי סביב 15:04:10, זמן מקומי UTC+03:00. חלון הבדיקה כולל אי-ודאות בזמן: 15:03:55–15:04:25. המיקום הצפוי לפי תיאום התרגיל הוא אזימוט 42° מצפון אמיתי, בטווח 26 ק״מ; אי-ודאות ±1° ו־±0.5 ק״מ. זהו דיווח מתיאום התרגיל, לא מדידת מכ״ם. התבקשה סריקה בגזרה 30°–65°, בתבנית SEARCH_WIDE. יש לבדוק גילוי מכ״ם; אין כאן דיווח על כשל IFF.",
+        "fields": {
+          "azimuth_deg": 42,
+          "azimuth_uncertainty_deg": 1,
+          "range_km": 26,
+          "range_uncertainty_km": 0.5,
+          "target_id": "T015I",
+          "window_start": "2026-10-14T12:03:55.000Z",
+          "window_end": "2026-10-14T12:04:25.000Z",
+          "observation_basis": "exercise_coordinator_report",
+          "reported_precision": "time window includes ±5s; angle ±1deg; range ±0.5km"
+        },
+        "precision": "time window includes ±5s; angle ±1deg; range ±0.5km",
+        "target": "T015I",
+        "id": "case_report.txt:1",
+        "badge": "[case_report.txt:L1]",
+        "caseId": "case_005",
+        "sourceFile": "case_report.txt",
+        "line": 1
+      },
+      "sha256": "34581c1c25395b0ec72e15bad7a6020170600b0f94b1f375e1db2cbd9cfe3aa3",
+      "lines": [
+        {
+          "number": 1,
+          "content": "{\"timestamp\":\"2026-10-14T12:04:30.000Z\",\"source\":\"operator\",\"type\":\"InitialReport\",\"severity\":\"INFO\",\"message\":\"דיווח מפעיל: מטרת התרגיל T015I לא התגלתה במעבר הצפוי סביב 15:04:10, זמן מקומי UTC+03:00. חלון הבדיקה כולל אי-ודאות בזמן: 15:03:55–15:04:25. המיקום הצפוי לפי תיאום התרגיל הוא אזימוט 42° מצפון אמיתי, בטווח 26 ק״מ; אי-ודאות ±1° ו־±0.5 ק״מ. זהו דיווח מתיאום התרגיל, לא מדידת מכ״ם. התבקשה סריקה בגזרה 30°–65°, בתבנית SEARCH_WIDE. יש לבדוק גילוי מכ״ם; אין כאן דיווח על כשל IFF.\",\"fields\":{\"azimuth_deg\":42,\"azimuth_uncertainty_deg\":1,\"range_km\":26,\"range_uncertainty_km\":0.5,\"target_id\":\"T015I\",\"window_start\":\"2026-10-14T12:03:55.000Z\",\"window_end\":\"2026-10-14T12:04:25.000Z\",\"observation_basis\":\"exercise_coordinator_report\",\"reported_precision\":\"time window includes ±5s; angle ±1deg; range ±0.5km\"}}",
+          "highlight": true
+        }
+      ]
+    },
+    {
+      "badge": "[ui_client.txt:L21]",
+      "sourceFile": "ui_client.txt",
+      "line": 21,
+      "event": {
+        "family": "component_log",
+        "source": "operator-ui",
+        "time": "2026-10-14T12:01:30.000Z",
+        "type": "SoftwareVersion",
+        "severity": "INFO",
+        "text": "UI update completed",
+        "fields": {
+          "software_version": "2.1.0",
+          "previous_version": "2.0.0",
+          "sector_request_schema": "sector.v2",
+          "search_request_schema": "search.v1"
+        },
+        "id": "ui_client.txt:21",
+        "badge": "[ui_client.txt:L21]",
+        "caseId": "case_005",
+        "sourceFile": "ui_client.txt",
+        "line": 21
+      },
+      "sha256": "3eea6727ff2b184ad28954bac42ac79dc7cc3f11b19347fd536b49cb8d75690e",
+      "lines": [
+        {
+          "number": 19,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:20.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"true\",\"valid_until\":\"2026-10-14T12:01:25.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 20,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:25.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"true\",\"valid_until\":\"2026-10-14T12:01:30.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 21,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:30.000Z\",\"source\":\"operator-ui\",\"type\":\"SoftwareVersion\",\"severity\":\"INFO\",\"message\":\"UI update completed\",\"fields\":{\"software_version\":\"2.1.0\",\"previous_version\":\"2.0.0\",\"sector_request_schema\":\"sector.v2\",\"search_request_schema\":\"search.v1\"}}",
+          "highlight": true
+        },
+        {
+          "number": 22,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:30.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"true\",\"valid_until\":\"2026-10-14T12:01:35.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 23,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:35.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"true\",\"valid_until\":\"2026-10-14T12:01:40.000Z\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[config_service.txt:L1]",
+      "sourceFile": "config_service.txt",
+      "line": 1,
+      "event": {
+        "family": "component_log",
+        "source": "config-service",
+        "time": "2026-10-14T12:00:00.000Z",
+        "type": "SoftwareVersion",
+        "severity": "INFO",
+        "text": "Configuration service started",
+        "fields": {
+          "software_version": "1.4.0",
+          "supported_schemas": "sector.v1,search.v1"
+        },
+        "id": "config_service.txt:1",
+        "badge": "[config_service.txt:L1]",
+        "caseId": "case_005",
+        "sourceFile": "config_service.txt",
+        "line": 1
+      },
+      "sha256": "7e781beee8b84985aade11c967047a212190666256f3772fd7469adcab1939cb",
+      "lines": [
+        {
+          "number": 1,
+          "content": "{\"timestamp\":\"2026-10-14T12:00:00.000Z\",\"source\":\"config-service\",\"type\":\"SoftwareVersion\",\"severity\":\"INFO\",\"message\":\"Configuration service started\",\"fields\":{\"software_version\":\"1.4.0\",\"supported_schemas\":\"sector.v1,search.v1\"}}",
+          "highlight": true
+        },
+        {
+          "number": 2,
+          "content": "{\"timestamp\":\"2026-10-14T12:00:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":0}}",
+          "highlight": false
+        },
+        {
+          "number": 3,
+          "content": "{\"timestamp\":\"2026-10-14T12:00:20.100Z\",\"source\":\"config-service\",\"type\":\"RequestApplied\",\"severity\":\"INFO\",\"message\":\"Request decoded and applied\",\"fields\":{\"request_id\":\"req-101\",\"schema_id\":\"sector.v1\",\"operation\":\"SET\",\"result\":\"APPLIED\",\"sector_id\":\"SEC-7\",\"enabled\":\"true\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[control_gateway.txt:L5]",
+      "sourceFile": "control_gateway.txt",
+      "line": 5,
+      "event": {
+        "family": "component_log",
+        "source": "control-gateway",
+        "time": "2026-10-14T12:03:00.020Z",
+        "type": "ReceiptAcknowledgement",
+        "severity": "INFO",
+        "text": "Request accepted into queue",
+        "fields": {
+          "request_id": "req-303",
+          "acknowledgement": "RECEIPT",
+          "queued": "true"
+        },
+        "id": "control_gateway.txt:5",
+        "badge": "[control_gateway.txt:L5]",
+        "caseId": "case_005",
+        "sourceFile": "control_gateway.txt",
+        "line": 5
+      },
+      "sha256": "8d7e9f154880e56bb1f05ac6ec161797fcd6e186ba9498f603202f9e313ba3a7",
+      "lines": [
+        {
+          "number": 3,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:55.020Z\",\"source\":\"control-gateway\",\"type\":\"ReceiptAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Request accepted into queue\",\"fields\":{\"request_id\":\"req-202\",\"acknowledgement\":\"RECEIPT\",\"queued\":\"true\"}}",
+          "highlight": false
+        },
+        {
+          "number": 4,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:55.110Z\",\"source\":\"control-gateway\",\"type\":\"ApplicationAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Applied result forwarded\",\"fields\":{\"request_id\":\"req-202\",\"acknowledgement\":\"APPLICATION\",\"result\":\"APPLIED\",\"pattern\":\"SEARCH_WIDE\"}}",
+          "highlight": false
+        },
+        {
+          "number": 5,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.020Z\",\"source\":\"control-gateway\",\"type\":\"ReceiptAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Request accepted into queue\",\"fields\":{\"request_id\":\"req-303\",\"acknowledgement\":\"RECEIPT\",\"queued\":\"true\"}}",
+          "highlight": true
+        },
+        {
+          "number": 6,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.120Z\",\"source\":\"control-gateway\",\"type\":\"ResultDelivery\",\"severity\":\"WARN\",\"message\":\"Processing result retained on internal result channel\",\"fields\":{\"request_id\":\"req-303\",\"result\":\"NOT_APPLIED\",\"destination\":\"internal-results\",\"ui_subscribed\":\"false\"}}",
+          "highlight": false
+        },
+        {
+          "number": 7,
+          "content": "{\"timestamp\":\"2026-10-14T12:05:20.020Z\",\"source\":\"control-gateway\",\"type\":\"ReceiptAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Request accepted into queue\",\"fields\":{\"request_id\":\"req-404\",\"acknowledgement\":\"RECEIPT\",\"queued\":\"true\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[operator_diary.csv:L4]",
+      "sourceFile": "operator_diary.csv",
+      "line": 4,
+      "event": {
+        "family": "operator_diary",
+        "source": "operator",
+        "time": "2026-10-14T12:03:00.000Z",
+        "type": "OperatorNote",
+        "severity": "INFO",
+        "text": "לחצתי על ביטול המגזר. סימון החסימה נעלם מהמסך.",
+        "fields": {
+          "request_id": "req-303",
+          "sector_id": "SEC-7"
+        },
+        "precision": "reported by operator",
+        "id": "operator_diary.csv:4",
+        "badge": "[operator_diary.csv:L4]",
+        "caseId": "case_005",
+        "sourceFile": "operator_diary.csv",
+        "line": 4
+      },
+      "sha256": "b7fda06e4a27cceaf4f281babeb2bc9cc5eefef22193281e2223773261d977f3",
+      "lines": [
+        {
+          "number": 2,
+          "content": "\"2026-10-14T12:00:20.000Z\",\"operator\",\"OperatorNote\",\"INFO\",\"הוגדרה חסימה זמנית לגזרה 35°–50° לצורך הכנת התרגיל.\",\"{\"\"sector_id\"\":\"\"SEC-7\"\",\"\"request_id\"\":\"\"req-101\"\"}\"",
+          "highlight": false
+        },
+        {
+          "number": 3,
+          "content": "\"2026-10-14T12:01:55.000Z\",\"operator\",\"OperatorNote\",\"INFO\",\"הנחיית חיפוש: עבור לסריקה 30°–65°, תבנית SEARCH_WIDE, טווח עד 80 ק״מ. בוצעה פקודת הכיוון.\",\"{\"\"request_id\"\":\"\"req-202\"\"}\"",
+          "highlight": false
+        },
+        {
+          "number": 4,
+          "content": "\"2026-10-14T12:03:00.000Z\",\"operator\",\"OperatorNote\",\"INFO\",\"לחצתי על ביטול המגזר. סימון החסימה נעלם מהמסך.\",\"{\"\"request_id\"\":\"\"req-303\"\",\"\"sector_id\"\":\"\"SEC-7\"\"}\"",
+          "highlight": true
+        },
+        {
+          "number": 5,
+          "content": "\"2026-10-14T12:04:35.000Z\",\"operator\",\"OperatorNote\",\"INFO\",\"לא ראיתי גילוי במעבר שעליו דיווח מתאם התרגיל. האזור מוצג פתוח.\",\"{\"\"target_id\"\":\"\"T015I\"\",\"\"report_ref\"\":\"\"case_report.txt\"\"}\"",
+          "highlight": false
+        },
+        {
+          "number": 6,
+          "content": "\"2026-10-14T12:07:15.000Z\",\"operator\",\"OperatorNote\",\"INFO\",\"בוצעה פעולת ביטול נוספת לפי נוהל תחזוקה.\",\"{\"\"request_id\"\":\"\"req-505\"\",\"\"sector_id\"\":\"\"SEC-7\"\"}\"",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[system_catalog.txt:L4]",
+      "sourceFile": "system_catalog.txt",
+      "line": 4,
+      "sha256": "15ecb336f065d40e7a127daf143ac1d817decad0c205214a98658188a417cdfe",
+      "lines": [
+        {
+          "number": 2,
+          "content": "InhibitSectorState is effective radar state. An enabled inhibit sector suppresses production of Detection and TargetTrack messages within its angular and range bounds, even if the area is scanned.",
+          "highlight": false
+        },
+        {
+          "number": 3,
+          "content": "Requested state, DisplayState and effective RadarState/InhibitSectorState are separate observations. Display state does not certify applied state.",
+          "highlight": false
+        },
+        {
+          "number": 4,
+          "content": "ReceiptAcknowledgement means accepted into a queue only. ApplicationAcknowledgement with APPLIED means processing and application completed. RequestRejected with NOT_APPLIED is local to that request; it does not mean the service crashed.",
+          "highlight": true
+        },
+        {
+          "number": 5,
+          "content": "SoftwareVersion reports the actual component software version and supported schemas. RequestSent carries schema_id. sector.v1 represents a change with enabled:boolean. sector.v2 uses sector_action:set|remove. search.v1 is a separate request schema.",
+          "highlight": false
+        },
+        {
+          "number": 6,
+          "content": "Angles are degrees clockwise from true north in a fixed radar-site polar frame. Ranges are kilometres. Bounds are inclusive. Increasing azimuth wraps through north (0 degrees). Equal angular endpoints mean zero width.",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[system_catalog.txt:L5]",
+      "sourceFile": "system_catalog.txt",
+      "line": 5,
+      "sha256": "15ecb336f065d40e7a127daf143ac1d817decad0c205214a98658188a417cdfe",
+      "lines": [
+        {
+          "number": 3,
+          "content": "Requested state, DisplayState and effective RadarState/InhibitSectorState are separate observations. Display state does not certify applied state.",
+          "highlight": false
+        },
+        {
+          "number": 4,
+          "content": "ReceiptAcknowledgement means accepted into a queue only. ApplicationAcknowledgement with APPLIED means processing and application completed. RequestRejected with NOT_APPLIED is local to that request; it does not mean the service crashed.",
+          "highlight": false
+        },
+        {
+          "number": 5,
+          "content": "SoftwareVersion reports the actual component software version and supported schemas. RequestSent carries schema_id. sector.v1 represents a change with enabled:boolean. sector.v2 uses sector_action:set|remove. search.v1 is a separate request schema.",
+          "highlight": true
+        },
+        {
+          "number": 6,
+          "content": "Angles are degrees clockwise from true north in a fixed radar-site polar frame. Ranges are kilometres. Bounds are inclusive. Increasing azimuth wraps through north (0 degrees). Equal angular endpoints mean zero width.",
+          "highlight": false
+        },
+        {
+          "number": 7,
+          "content": "RadarState gives the effective search bounds, pattern and receiver status. SEARCH_WIDE and SEARCH_EAST name search patterns; use the reported bounds, not the name alone, for geometry.",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[config_service.txt:L13]",
+      "sourceFile": "config_service.txt",
+      "line": 13,
+      "event": {
+        "family": "component_log",
+        "source": "config-service",
+        "time": "2026-10-14T12:07:00.000Z",
+        "type": "SoftwareVersion",
+        "severity": "INFO",
+        "text": "Service update complete",
+        "fields": {
+          "software_version": "1.5.0",
+          "previous_version": "1.4.0",
+          "supported_schemas": "sector.v1,sector.v2,search.v1"
+        },
+        "id": "config_service.txt:13",
+        "badge": "[config_service.txt:L13]",
+        "caseId": "case_005",
+        "sourceFile": "config_service.txt",
+        "line": 13
+      },
+      "sha256": "7e781beee8b84985aade11c967047a212190666256f3772fd7469adcab1939cb",
+      "lines": [
+        {
+          "number": 11,
+          "content": "{\"timestamp\":\"2026-10-14T12:05:20.100Z\",\"source\":\"config-service\",\"type\":\"RequestApplied\",\"severity\":\"INFO\",\"message\":\"Request decoded and applied\",\"fields\":{\"request_id\":\"req-404\",\"schema_id\":\"search.v1\",\"operation\":\"SET_SEARCH\",\"result\":\"APPLIED\",\"pattern\":\"SEARCH_WIDE\"}}",
+          "highlight": false
+        },
+        {
+          "number": 12,
+          "content": "{\"timestamp\":\"2026-10-14T12:06:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":360}}",
+          "highlight": false
+        },
+        {
+          "number": 13,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:00.000Z\",\"source\":\"config-service\",\"type\":\"SoftwareVersion\",\"severity\":\"INFO\",\"message\":\"Service update complete\",\"fields\":{\"software_version\":\"1.5.0\",\"previous_version\":\"1.4.0\",\"supported_schemas\":\"sector.v1,sector.v2,search.v1\"}}",
+          "highlight": true
+        },
+        {
+          "number": 14,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":0}}",
+          "highlight": false
+        },
+        {
+          "number": 15,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:15.100Z\",\"source\":\"config-service\",\"type\":\"RequestApplied\",\"severity\":\"INFO\",\"message\":\"Request decoded and applied\",\"fields\":{\"request_id\":\"req-505\",\"schema_id\":\"sector.v2\",\"operation\":\"REMOVE\",\"result\":\"APPLIED\",\"sector_id\":\"SEC-7\",\"enabled\":\"false\",\"software_version\":\"1.5.0\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[config_service.txt:L15]",
+      "sourceFile": "config_service.txt",
+      "line": 15,
+      "event": {
+        "family": "component_log",
+        "source": "config-service",
+        "time": "2026-10-14T12:07:15.100Z",
+        "type": "RequestApplied",
+        "severity": "INFO",
+        "text": "Request decoded and applied",
+        "fields": {
+          "request_id": "req-505",
+          "schema_id": "sector.v2",
+          "operation": "REMOVE",
+          "result": "APPLIED",
+          "sector_id": "SEC-7",
+          "enabled": "false",
+          "software_version": "1.5.0"
+        },
+        "id": "config_service.txt:15",
+        "badge": "[config_service.txt:L15]",
+        "caseId": "case_005",
+        "sourceFile": "config_service.txt",
+        "line": 15
+      },
+      "sha256": "7e781beee8b84985aade11c967047a212190666256f3772fd7469adcab1939cb",
+      "lines": [
+        {
+          "number": 13,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:00.000Z\",\"source\":\"config-service\",\"type\":\"SoftwareVersion\",\"severity\":\"INFO\",\"message\":\"Service update complete\",\"fields\":{\"software_version\":\"1.5.0\",\"previous_version\":\"1.4.0\",\"supported_schemas\":\"sector.v1,sector.v2,search.v1\"}}",
+          "highlight": false
+        },
+        {
+          "number": 14,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":0}}",
+          "highlight": false
+        },
+        {
+          "number": 15,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:15.100Z\",\"source\":\"config-service\",\"type\":\"RequestApplied\",\"severity\":\"INFO\",\"message\":\"Request decoded and applied\",\"fields\":{\"request_id\":\"req-505\",\"schema_id\":\"sector.v2\",\"operation\":\"REMOVE\",\"result\":\"APPLIED\",\"sector_id\":\"SEC-7\",\"enabled\":\"false\",\"software_version\":\"1.5.0\"}}",
+          "highlight": true
+        },
+        {
+          "number": 16,
+          "content": "{\"timestamp\":\"2026-10-14T12:08:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":60}}",
+          "highlight": false
+        },
+        {
+          "number": 17,
+          "content": "{\"timestamp\":\"2026-10-14T12:09:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":120}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[sniffer.csv:L353]",
+      "sourceFile": "sniffer.csv",
+      "line": 353,
+      "event": {
+        "family": "sniffer",
+        "source": "radar-psr-01",
+        "time": "2026-10-14T12:07:15.000Z",
+        "type": "InhibitSectorState",
+        "severity": "INFO",
+        "text": "InhibitSectorState · Effective sector state",
+        "fields": {
+          "capture_time_utc": "2026-10-14T12:07:15.000Z",
+          "producer": "radar-psr-01",
+          "message_type": "InhibitSectorState",
+          "details": "Effective sector state",
+          "sector_id": "SEC-7",
+          "enabled": "true",
+          "azimuth_start_deg": 35,
+          "azimuth_end_deg": 50,
+          "range_min_km": 0,
+          "range_max_km": 80,
+          "valid_until": "2026-10-14T12:07:15.100Z"
+        },
+        "id": "sniffer.csv:353",
+        "badge": "[sniffer.csv:L353]",
+        "caseId": "case_005",
+        "sourceFile": "sniffer.csv",
+        "line": 353
+      },
+      "sha256": "6cbc02b7c6b0e00fff7a8b13f5c3805ac54c1080f5b0ca57a7d3df970c2efdd9",
+      "lines": [
+        {
+          "number": 351,
+          "content": "\"2026-10-14T12:07:10.500Z\",\"radar-psr-01\",\"TargetTrack\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"58\",\"32\",\"2\",\"scan-86\"",
+          "highlight": false
+        },
+        {
+          "number": 352,
+          "content": "\"2026-10-14T12:07:15.000Z\",\"radar-psr-01\",\"RadarState\",\"\",\"Effective search state\",\"req-404\",\"\",\"\",\"SEARCH_WIDE\",\"30\",\"65\",\"0\",\"80\",\"2026-10-14T12:07:20.000Z\",\"5\",\"ACTIVE\",\"\",\"\",\"\",\"\"",
+          "highlight": false
+        },
+        {
+          "number": 353,
+          "content": "\"2026-10-14T12:07:15.000Z\",\"radar-psr-01\",\"InhibitSectorState\",\"\",\"Effective sector state\",\"\",\"SEC-7\",\"true\",\"\",\"35\",\"50\",\"0\",\"80\",\"2026-10-14T12:07:15.100Z\",\"\",\"\",\"\",\"\",\"\",\"\"",
+          "highlight": true
+        },
+        {
+          "number": 354,
+          "content": "\"2026-10-14T12:07:15.100Z\",\"radar-psr-01\",\"InhibitSectorState\",\"\",\"Effective sector transition\",\"\",\"SEC-7\",\"false\",\"\",\"35\",\"50\",\"0\",\"80\",\"2026-10-14T12:07:20.000Z\",\"\",\"\",\"\",\"\",\"\",\"\"",
+          "highlight": false
+        },
+        {
+          "number": 355,
+          "content": "\"2026-10-14T12:07:15.500Z\",\"radar-psr-01\",\"Detection\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"57\",\"32\",\"2\",\"scan-87\"",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[sniffer.csv:L354]",
+      "sourceFile": "sniffer.csv",
+      "line": 354,
+      "event": {
+        "family": "sniffer",
+        "source": "radar-psr-01",
+        "time": "2026-10-14T12:07:15.100Z",
+        "type": "InhibitSectorState",
+        "severity": "INFO",
+        "text": "InhibitSectorState · Effective sector transition",
+        "fields": {
+          "capture_time_utc": "2026-10-14T12:07:15.100Z",
+          "producer": "radar-psr-01",
+          "message_type": "InhibitSectorState",
+          "details": "Effective sector transition",
+          "sector_id": "SEC-7",
+          "enabled": "false",
+          "azimuth_start_deg": 35,
+          "azimuth_end_deg": 50,
+          "range_min_km": 0,
+          "range_max_km": 80,
+          "valid_until": "2026-10-14T12:07:20.000Z"
+        },
+        "id": "sniffer.csv:354",
+        "badge": "[sniffer.csv:L354]",
+        "caseId": "case_005",
+        "sourceFile": "sniffer.csv",
+        "line": 354
+      },
+      "sha256": "6cbc02b7c6b0e00fff7a8b13f5c3805ac54c1080f5b0ca57a7d3df970c2efdd9",
+      "lines": [
+        {
+          "number": 352,
+          "content": "\"2026-10-14T12:07:15.000Z\",\"radar-psr-01\",\"RadarState\",\"\",\"Effective search state\",\"req-404\",\"\",\"\",\"SEARCH_WIDE\",\"30\",\"65\",\"0\",\"80\",\"2026-10-14T12:07:20.000Z\",\"5\",\"ACTIVE\",\"\",\"\",\"\",\"\"",
+          "highlight": false
+        },
+        {
+          "number": 353,
+          "content": "\"2026-10-14T12:07:15.000Z\",\"radar-psr-01\",\"InhibitSectorState\",\"\",\"Effective sector state\",\"\",\"SEC-7\",\"true\",\"\",\"35\",\"50\",\"0\",\"80\",\"2026-10-14T12:07:15.100Z\",\"\",\"\",\"\",\"\",\"\",\"\"",
+          "highlight": false
+        },
+        {
+          "number": 354,
+          "content": "\"2026-10-14T12:07:15.100Z\",\"radar-psr-01\",\"InhibitSectorState\",\"\",\"Effective sector transition\",\"\",\"SEC-7\",\"false\",\"\",\"35\",\"50\",\"0\",\"80\",\"2026-10-14T12:07:20.000Z\",\"\",\"\",\"\",\"\",\"\",\"\"",
+          "highlight": true
+        },
+        {
+          "number": 355,
+          "content": "\"2026-10-14T12:07:15.500Z\",\"radar-psr-01\",\"Detection\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"57\",\"32\",\"2\",\"scan-87\"",
+          "highlight": false
+        },
+        {
+          "number": 356,
+          "content": "\"2026-10-14T12:07:15.500Z\",\"radar-psr-01\",\"TargetTrack\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"57\",\"32\",\"2\",\"scan-87\"",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[sniffer.csv:L393]",
+      "sourceFile": "sniffer.csv",
+      "line": 393,
+      "event": {
+        "family": "sniffer",
+        "source": "radar-psr-01",
+        "time": "2026-10-14T12:08:01.000Z",
+        "type": "Detection",
+        "severity": "INFO",
+        "target": "TRK-781",
+        "text": "Detection · TRK-781 · Radar observation",
+        "fields": {
+          "capture_time_utc": "2026-10-14T12:08:01.000Z",
+          "producer": "radar-psr-01",
+          "message_type": "Detection",
+          "target_id": "TRK-781",
+          "details": "Radar observation",
+          "azimuth_deg": 42.2,
+          "range_km": 26.1,
+          "altitude_km": 2.02,
+          "scan_id": "scan-96"
+        },
+        "id": "sniffer.csv:393",
+        "badge": "[sniffer.csv:L393]",
+        "caseId": "case_005",
+        "sourceFile": "sniffer.csv",
+        "line": 393
+      },
+      "sha256": "6cbc02b7c6b0e00fff7a8b13f5c3805ac54c1080f5b0ca57a7d3df970c2efdd9",
+      "lines": [
+        {
+          "number": 391,
+          "content": "\"2026-10-14T12:08:00.500Z\",\"radar-psr-01\",\"Detection\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"56\",\"32\",\"2\",\"scan-96\"",
+          "highlight": false
+        },
+        {
+          "number": 392,
+          "content": "\"2026-10-14T12:08:00.500Z\",\"radar-psr-01\",\"TargetTrack\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"56\",\"32\",\"2\",\"scan-96\"",
+          "highlight": false
+        },
+        {
+          "number": 393,
+          "content": "\"2026-10-14T12:08:01.000Z\",\"radar-psr-01\",\"Detection\",\"TRK-781\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"42.2\",\"26.1\",\"2.02\",\"scan-96\"",
+          "highlight": true
+        },
+        {
+          "number": 394,
+          "content": "\"2026-10-14T12:08:01.000Z\",\"radar-psr-01\",\"TargetTrack\",\"TRK-781\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"42.2\",\"26.1\",\"2.02\",\"scan-96\"",
+          "highlight": false
+        },
+        {
+          "number": 395,
+          "content": "\"2026-10-14T12:08:05.000Z\",\"radar-psr-01\",\"RadarState\",\"\",\"Effective search state\",\"req-404\",\"\",\"\",\"SEARCH_WIDE\",\"30\",\"65\",\"0\",\"80\",\"2026-10-14T12:08:10.000Z\",\"5\",\"ACTIVE\",\"\",\"\",\"\",\"\"",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[sniffer.csv:L399]",
+      "sourceFile": "sniffer.csv",
+      "line": 399,
+      "event": {
+        "family": "sniffer",
+        "source": "radar-psr-01",
+        "time": "2026-10-14T12:08:06.000Z",
+        "type": "Detection",
+        "severity": "INFO",
+        "target": "TRK-781",
+        "text": "Detection · TRK-781 · Radar observation",
+        "fields": {
+          "capture_time_utc": "2026-10-14T12:08:06.000Z",
+          "producer": "radar-psr-01",
+          "message_type": "Detection",
+          "target_id": "TRK-781",
+          "details": "Radar observation",
+          "azimuth_deg": 42.2,
+          "range_km": 26.1,
+          "altitude_km": 2.02,
+          "scan_id": "scan-97"
+        },
+        "id": "sniffer.csv:399",
+        "badge": "[sniffer.csv:L399]",
+        "caseId": "case_005",
+        "sourceFile": "sniffer.csv",
+        "line": 399
+      },
+      "sha256": "6cbc02b7c6b0e00fff7a8b13f5c3805ac54c1080f5b0ca57a7d3df970c2efdd9",
+      "lines": [
+        {
+          "number": 397,
+          "content": "\"2026-10-14T12:08:05.500Z\",\"radar-psr-01\",\"Detection\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"57\",\"32\",\"2\",\"scan-97\"",
+          "highlight": false
+        },
+        {
+          "number": 398,
+          "content": "\"2026-10-14T12:08:05.500Z\",\"radar-psr-01\",\"TargetTrack\",\"TRK-B12\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"57\",\"32\",\"2\",\"scan-97\"",
+          "highlight": false
+        },
+        {
+          "number": 399,
+          "content": "\"2026-10-14T12:08:06.000Z\",\"radar-psr-01\",\"Detection\",\"TRK-781\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"42.2\",\"26.1\",\"2.02\",\"scan-97\"",
+          "highlight": true
+        },
+        {
+          "number": 400,
+          "content": "\"2026-10-14T12:08:06.000Z\",\"radar-psr-01\",\"TargetTrack\",\"TRK-781\",\"Radar observation\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"42.2\",\"26.1\",\"2.02\",\"scan-97\"",
+          "highlight": false
+        },
+        {
+          "number": 401,
+          "content": "\"2026-10-14T12:08:10.000Z\",\"radar-psr-01\",\"RadarState\",\"\",\"Effective search state\",\"req-404\",\"\",\"\",\"SEARCH_WIDE\",\"30\",\"65\",\"0\",\"80\",\"2026-10-14T12:08:15.000Z\",\"5\",\"ACTIVE\",\"\",\"\",\"\",\"\"",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[system_catalog.txt:L9]",
+      "sourceFile": "system_catalog.txt",
+      "line": 9,
+      "sha256": "15ecb336f065d40e7a127daf143ac1d817decad0c205214a98658188a417cdfe",
+      "lines": [
+        {
+          "number": 7,
+          "content": "RadarState gives the effective search bounds, pattern and receiver status. SEARCH_WIDE and SEARCH_EAST name search patterns; use the reported bounds, not the name alone, for geometry.",
+          "highlight": false
+        },
+        {
+          "number": 8,
+          "content": "Snapshots are valid from timestamp until valid_until (exclusive), unless replaced earlier. Do not carry state across a gap. Clocks are synchronized UTC within 10ms; report windows include human timing uncertainty.",
+          "highlight": false
+        },
+        {
+          "number": 9,
+          "content": "InitialReport and RepeatPassReport are human reports from the exercise coordinator. Their position and time uncertainty are explicit. The exercise target identifier need not be present in radar observations. A spatial match is not independent identity confirmation.",
+          "highlight": true
+        },
+        {
+          "number": 10,
+          "content": "Detection/TargetTrack absence is meaningful only within an interval with complete message-type, all-target, spatially unfiltered capture and zero recorder drops. Partial exports cannot prove absence.",
+          "highlight": false
+        },
+        {
+          "number": 11,
+          "content": "Use inspect_region with a report badge for reproducible geometry, coverage and counts. Its calculation_citation opens the result, method and input references. Use that real calculation handle for derived claims; do not invent a source row. Use reconstruct_state for a UTC instant and trace_request for request identifiers.",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[operator_diary.csv:L7]",
+      "sourceFile": "operator_diary.csv",
+      "line": 7,
+      "event": {
+        "family": "operator_diary",
+        "source": "operator",
+        "time": "2026-10-14T12:08:20.000Z",
+        "type": "RepeatPassReport",
+        "severity": "INFO",
+        "text": "מתאם התרגיל דיווח על מעבר נוסף של T015I באותו אזור ובגובה ובמהירות דומים. נצפה גילוי במסך.",
+        "fields": {
+          "azimuth_deg": 42,
+          "azimuth_uncertainty_deg": 1,
+          "range_km": 26,
+          "range_uncertainty_km": 0.5,
+          "target_id": "T015I",
+          "window_start": "2026-10-14T12:08:00.000Z",
+          "window_end": "2026-10-14T12:08:10.000Z",
+          "observation_basis": "exercise_coordinator_report",
+          "conditions": "same exercise aircraft; altitude 2km ±0.1; speed 150m/s ±10"
+        },
+        "precision": "reported by operator",
+        "target": "T015I",
+        "id": "operator_diary.csv:7",
+        "badge": "[operator_diary.csv:L7]",
+        "caseId": "case_005",
+        "sourceFile": "operator_diary.csv",
+        "line": 7
+      },
+      "sha256": "b7fda06e4a27cceaf4f281babeb2bc9cc5eefef22193281e2223773261d977f3",
+      "lines": [
+        {
+          "number": 5,
+          "content": "\"2026-10-14T12:04:35.000Z\",\"operator\",\"OperatorNote\",\"INFO\",\"לא ראיתי גילוי במעבר שעליו דיווח מתאם התרגיל. האזור מוצג פתוח.\",\"{\"\"target_id\"\":\"\"T015I\"\",\"\"report_ref\"\":\"\"case_report.txt\"\"}\"",
+          "highlight": false
+        },
+        {
+          "number": 6,
+          "content": "\"2026-10-14T12:07:15.000Z\",\"operator\",\"OperatorNote\",\"INFO\",\"בוצעה פעולת ביטול נוספת לפי נוהל תחזוקה.\",\"{\"\"request_id\"\":\"\"req-505\"\",\"\"sector_id\"\":\"\"SEC-7\"\"}\"",
+          "highlight": false
+        },
+        {
+          "number": 7,
+          "content": "\"2026-10-14T12:08:20.000Z\",\"operator\",\"RepeatPassReport\",\"INFO\",\"מתאם התרגיל דיווח על מעבר נוסף של T015I באותו אזור ובגובה ובמהירות דומים. נצפה גילוי במסך.\",\"{\"\"azimuth_deg\"\":42,\"\"azimuth_uncertainty_deg\"\":1,\"\"range_km\"\":26,\"\"range_uncertainty_km\"\":0.5,\"\"target_id\"\":\"\"T015I\"\",\"\"window_start\"\":\"\"2026-10-14T12:08:00.000Z\"\",\"\"window_end\"\":\"\"2026-10-14T12:08:10.000Z\"\",\"\"observation_basis\"\":\"\"exercise_coordinator_report\"\",\"\"conditions\"\":\"\"same exercise aircraft; altitude 2km ±0.1; speed 150m/s ±10\"\"}\"",
+          "highlight": true
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "elapsedMs": 89.56687499999998,
+      "event": {
+        "type": "status",
+        "text": "קורא את ההקשר ואת המקורות הזמינים בתחקיר.",
+        "step": {
+          "id": "phase:1",
+          "title": "מתאים את הבדיקה לשאלה שלך",
+          "detail": "קורא את ההקשר ואת המקורות הזמינים בתחקיר.",
+          "state": "running",
+          "startedAt": 1791984443811
+        }
+      }
+    },
+    {
+      "elapsedMs": 6003.318333,
+      "event": {
+        "type": "status",
+        "text": "קורא את ההקשר ואת המקורות הזמינים בתחקיר.",
+        "step": {
+          "id": "phase:1",
+          "title": "מתאים את הבדיקה לשאלה שלך",
+          "detail": "קורא את ההקשר ואת המקורות הזמינים בתחקיר.",
+          "state": "complete",
+          "startedAt": 1791984443811,
+          "completedAt": 1791984449725,
+          "completionOrder": 1
+        }
+      }
+    },
+    {
+      "elapsedMs": 6003.327583,
+      "event": {
+        "type": "status",
+        "text": "הבדיקות הבאות יחפשו גם ראיות תומכות וגם ראיות סותרות.",
+        "step": {
+          "id": "phase:2",
+          "title": "משווה בין הסברים אפשריים לאירוע",
+          "detail": "הבדיקות הבאות יחפשו גם ראיות תומכות וגם ראיות סותרות.",
+          "state": "running",
+          "startedAt": 1791984449725
+        }
+      }
+    },
+    {
+      "elapsedMs": 7352.846458,
+      "event": {
+        "type": "tool_call",
+        "text": "קורא גם את דיווחי המפעיל.",
+        "tool": "get_case_overview",
+        "step": {
+          "id": "tool:toolu_01SFZZtYHNHP8vS4Sad3hBG9",
+          "title": "בודק מקורות וכיסוי קליטה",
+          "detail": "קורא גם את דיווחי המפעיל.",
+          "state": "running",
+          "startedAt": 1791984451074
+        }
+      }
+    },
+    {
+      "elapsedMs": 7353.275083,
+      "event": {
+        "type": "tool_result",
+        "text": "5 מקורות זמינים לבדיקה.",
+        "tool": "get_case_overview",
+        "step": {
+          "id": "tool:toolu_01SFZZtYHNHP8vS4Sad3hBG9",
+          "title": "בודק מקורות וכיסוי קליטה",
+          "detail": "5 מקורות זמינים לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791984451074,
+          "completedAt": 1791984451075,
+          "citations": [],
+          "completionOrder": 2
+        }
+      }
+    },
+    {
+      "elapsedMs": 11116.547458,
+      "event": {
+        "type": "tool_call",
+        "text": "השערה לבדיקה: מגזר החסימה SEC-7 (35°–50°) נשאר פעיל במצב האפקטיבי של המכ״ם בזמן המעבר, למרות שהתצוגה הציגה ביטול; לכן הגילוי דוכא.",
+        "tool": "update_blackboard",
+        "step": {
+          "id": "tool:toolu_01FxbFLQkJrFYnVEnuG7GWUu",
+          "title": "מוסיף הסבר אפשרי לבדיקה",
+          "detail": "השערה לבדיקה: מגזר החסימה SEC-7 (35°–50°) נשאר פעיל במצב האפקטיבי של המכ״ם בזמן המעבר, למרות שהתצוגה הציגה ביטול; לכן הגילוי דוכא.",
+          "state": "running",
+          "startedAt": 1791984454838
+        }
+      }
+    },
+    {
+      "elapsedMs": 11119.081999999999,
+      "event": {
+        "type": "tool_call",
+        "text": "השערה לבדיקה: הכיסוי או פקודת החיפוש (req-202, SEARCH_WIDE) לא יצרו טווח/גזרה אפקטיביים שכוללים את מיקום המטרה (42°, 26 ק״מ), או שהבקשה נדחתה/לא יושמה.",
+        "tool": "update_blackboard",
+        "step": {
+          "id": "tool:toolu_01T61KZMAFgYBfL6gmrcGV1w",
+          "title": "מוסיף הסבר אפשרי לבדיקה",
+          "detail": "השערה לבדיקה: הכיסוי או פקודת החיפוש (req-202, SEARCH_WIDE) לא יצרו טווח/גזרה אפקטיביים שכוללים את מיקום המטרה (42°, 26 ק״מ), או שהבקשה נדחתה/לא יושמה.",
+          "state": "running",
+          "startedAt": 1791984454841
+        }
+      }
+    },
+    {
+      "elapsedMs": 11119.516082999999,
+      "event": {
+        "type": "tool_result",
+        "text": "הממצאים והבדיקות הבאות עודכנו.",
+        "tool": "update_blackboard",
+        "step": {
+          "id": "tool:toolu_01FxbFLQkJrFYnVEnuG7GWUu",
+          "title": "מוסיף הסבר אפשרי לבדיקה",
+          "detail": "הממצאים והבדיקות הבאות עודכנו.",
+          "state": "complete",
+          "startedAt": 1791984454838,
+          "completedAt": 1791984454841,
+          "citations": [],
+          "completionOrder": 3
+        }
+      }
+    },
+    {
+      "elapsedMs": 11119.654625,
+      "event": {
+        "type": "tool_result",
+        "text": "הממצאים והבדיקות הבאות עודכנו.",
+        "tool": "update_blackboard",
+        "step": {
+          "id": "tool:toolu_01T61KZMAFgYBfL6gmrcGV1w",
+          "title": "מוסיף הסבר אפשרי לבדיקה",
+          "detail": "הממצאים והבדיקות הבאות עודכנו.",
+          "state": "complete",
+          "startedAt": 1791984454841,
+          "completedAt": 1791984454841,
+          "citations": [],
+          "completionOrder": 4
+        }
+      }
+    },
+    {
+      "elapsedMs": 14795.8895,
+      "event": {
+        "type": "tool_call",
+        "text": "משווה הסבר נוסף מול המקורות.",
+        "tool": "delegate_investigation",
+        "step": {
+          "id": "tool:toolu_01BZq1SnrPDNU9XQhLmzorX4",
+          "title": "בודק כיוון חקירה 1",
+          "detail": "משווה הסבר נוסף מול המקורות.",
+          "state": "running",
+          "startedAt": 1791984458517
+        }
+      }
+    },
+    {
+      "elapsedMs": 21480.776917,
+      "event": {
+        "type": "tool_call",
+        "text": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_017kF1tkskQ5pNUPZaBvbEzp",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+          "state": "running",
+          "startedAt": 1791984465202
+        }
+      }
+    },
+    {
+      "elapsedMs": 21481.089625,
+      "event": {
+        "type": "tool_call",
+        "text": "מצב בשעה 15:03:55 (זמן מקומי).",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_013qBFT3GT1DfF1L5PjRzeGN",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב בשעה 15:03:55 (זמן מקומי).",
+          "state": "running",
+          "startedAt": 1791984465203
+        }
+      }
+    },
+    {
+      "elapsedMs": 21481.212042,
+      "event": {
+        "type": "tool_call",
+        "text": "מצב בשעה 15:04:10 (זמן מקומי).",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_01NVvFUvWRMXMMC5VwAbvgE7",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב בשעה 15:04:10 (זמן מקומי).",
+          "state": "running",
+          "startedAt": 1791984465203
+        }
+      }
+    },
+    {
+      "elapsedMs": 21481.269625,
+      "event": {
+        "type": "tool_call",
+        "text": "מצב בשעה 15:04:25 (זמן מקומי).",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_01NMvPx6i6RsK5tAgDc7EVEy",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב בשעה 15:04:25 (זמן מקומי).",
+          "state": "running",
+          "startedAt": 1791984465203
+        }
+      }
+    },
+    {
+      "elapsedMs": 21481.290875,
+      "event": {
+        "type": "tool_call",
+        "text": "מזהה בקשה: req-101",
+        "tool": "trace_request",
+        "step": {
+          "id": "tool:toolu_01LCDUir2EmAEQcA4uE6h9wE",
+          "title": "עוקב אחר הבקשה בין הרכיבים",
+          "detail": "מזהה בקשה: req-101",
+          "state": "running",
+          "startedAt": 1791984465203
+        }
+      }
+    },
+    {
+      "elapsedMs": 21481.430292,
+      "event": {
+        "type": "tool_call",
+        "text": "מזהה בקשה: req-202",
+        "tool": "trace_request",
+        "step": {
+          "id": "tool:toolu_01KPLDs9gYdsbhFvp7DTJyjr",
+          "title": "עוקב אחר הבקשה בין הרכיבים",
+          "detail": "מזהה בקשה: req-202",
+          "state": "running",
+          "startedAt": 1791984465203
+        }
+      }
+    },
+    {
+      "elapsedMs": 21481.473958,
+      "event": {
+        "type": "tool_call",
+        "text": "מזהה בקשה: req-303",
+        "tool": "trace_request",
+        "step": {
+          "id": "tool:toolu_01Y1hRLDmv8egauMdut9FkHL",
+          "title": "עוקב אחר הבקשה בין הרכיבים",
+          "detail": "מזהה בקשה: req-303",
+          "state": "running",
+          "startedAt": 1791984465203
+        }
+      }
+    },
+    {
+      "elapsedMs": 21481.483833,
+      "event": {
+        "type": "tool_call",
+        "text": "מזהה בקשה: req-505",
+        "tool": "trace_request",
+        "step": {
+          "id": "tool:toolu_01KE28aarX2TudtJz9gna9Zi",
+          "title": "עוקב אחר הבקשה בין הרכיבים",
+          "detail": "מזהה בקשה: req-505",
+          "state": "running",
+          "startedAt": 1791984465203
+        }
+      }
+    },
+    {
+      "elapsedMs": 21483.422667,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_017kF1tkskQ5pNUPZaBvbEzp",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+          "state": "error",
+          "startedAt": 1791984465202,
+          "completedAt": 1791984465205,
+          "citations": [],
+          "completionOrder": 5
+        }
+      }
+    },
+    {
+      "elapsedMs": 21483.560833,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 5 רשומות לבקשה. תועד אישור קבלה. תועד אישור החלה.",
+        "tool": "trace_request",
+        "step": {
+          "id": "tool:toolu_01LCDUir2EmAEQcA4uE6h9wE",
+          "title": "עוקב אחר הבקשה בין הרכיבים",
+          "detail": "נמצאו 5 רשומות לבקשה. תועד אישור קבלה. תועד אישור החלה.",
+          "state": "complete",
+          "startedAt": 1791984465203,
+          "completedAt": 1791984465205,
+          "citations": [
+            "[control_gateway.txt:L1]",
+            "[control_gateway.txt:L2]"
+          ],
+          "completionOrder": 6
+        }
+      }
+    },
+    {
+      "elapsedMs": 21483.59925,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 47 רשומות לבקשה. תועד אישור קבלה. תועד אישור החלה.",
+        "tool": "trace_request",
+        "step": {
+          "id": "tool:toolu_01KPLDs9gYdsbhFvp7DTJyjr",
+          "title": "עוקב אחר הבקשה בין הרכיבים",
+          "detail": "נמצאו 47 רשומות לבקשה. תועד אישור קבלה. תועד אישור החלה.",
+          "state": "complete",
+          "startedAt": 1791984465203,
+          "completedAt": 1791984465205,
+          "citations": [
+            "[control_gateway.txt:L3]",
+            "[control_gateway.txt:L4]"
+          ],
+          "completionOrder": 7
+        }
+      }
+    },
+    {
+      "elapsedMs": 21483.620917,
+      "event": {
+        "type": "tool_result",
+        "text": "בקשת sector.v2 נדחתה בשירות בגרסה 1.4.0; הפורמט הנתמך הוא sector.v1. התצוגה השתנתה לפי אישור קבלה, ללא אימות החלה. ערוץ תוצאת העיבוד לא היה מחובר לממשק.",
+        "tool": "trace_request",
+        "step": {
+          "id": "tool:toolu_01Y1hRLDmv8egauMdut9FkHL",
+          "title": "עוקב אחר הבקשה בין הרכיבים",
+          "detail": "בקשת sector.v2 נדחתה בשירות בגרסה 1.4.0; הפורמט הנתמך הוא sector.v1. התצוגה השתנתה לפי אישור קבלה, ללא אימות החלה. ערוץ תוצאת העיבוד לא היה מחובר לממשק.",
+          "state": "complete",
+          "startedAt": 1791984465203,
+          "completedAt": 1791984465205,
+          "citations": [
+            "[control_gateway.txt:L5]",
+            "[ui_client.txt:L43]",
+            "[config_service.txt:L7]",
+            "[control_gateway.txt:L6]"
+          ],
+          "completionOrder": 8
+        }
+      }
+    },
+    {
+      "elapsedMs": 21483.641042,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 6 רשומות לבקשה. תועד אישור קבלה. תועד אישור החלה.",
+        "tool": "trace_request",
+        "step": {
+          "id": "tool:toolu_01KE28aarX2TudtJz9gna9Zi",
+          "title": "עוקב אחר הבקשה בין הרכיבים",
+          "detail": "נמצאו 6 רשומות לבקשה. תועד אישור קבלה. תועד אישור החלה.",
+          "state": "complete",
+          "startedAt": 1791984465203,
+          "completedAt": 1791984465205,
+          "citations": [
+            "[control_gateway.txt:L9]",
+            "[control_gateway.txt:L10]"
+          ],
+          "completionOrder": 9
+        }
+      }
+    },
+    {
+      "elapsedMs": 21483.660333,
+      "event": {
+        "type": "tool_result",
+        "text": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_013qBFT3GT1DfF1L5PjRzeGN",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+          "state": "complete",
+          "startedAt": 1791984465203,
+          "completedAt": 1791984465205,
+          "citations": [
+            "[sniffer.csv:L192]",
+            "[sniffer.csv:L193]",
+            "[ui_client.txt:L56]"
+          ],
+          "completionOrder": 10
+        }
+      }
+    },
+    {
+      "elapsedMs": 21483.674208,
+      "event": {
+        "type": "tool_result",
+        "text": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_01NVvFUvWRMXMMC5VwAbvgE7",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+          "state": "complete",
+          "startedAt": 1791984465203,
+          "completedAt": 1791984465205,
+          "citations": [
+            "[sniffer.csv:L204]",
+            "[sniffer.csv:L205]",
+            "[ui_client.txt:L59]"
+          ],
+          "completionOrder": 11
+        }
+      }
+    },
+    {
+      "elapsedMs": 21483.6965,
+      "event": {
+        "type": "tool_result",
+        "text": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_01NMvPx6i6RsK5tAgDc7EVEy",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+          "state": "complete",
+          "startedAt": 1791984465203,
+          "completedAt": 1791984465205,
+          "citations": [
+            "[sniffer.csv:L216]",
+            "[sniffer.csv:L217]",
+            "[ui_client.txt:L62]"
+          ],
+          "completionOrder": 12
+        }
+      }
+    },
+    {
+      "elapsedMs": 31486.142958,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+        "tool": "delegate_investigation",
+        "step": {
+          "id": "tool:toolu_01BZq1SnrPDNU9XQhLmzorX4",
+          "title": "בודק כיוון חקירה 1",
+          "detail": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791984458517,
+          "completedAt": 1791984475208,
+          "citations": [],
+          "completionOrder": 13
+        }
+      }
+    },
+    {
+      "elapsedMs": 36987.591375,
+      "event": {
+        "type": "tool_call",
+        "text": "משווה הסבר נוסף מול המקורות.",
+        "tool": "delegate_investigation",
+        "step": {
+          "id": "tool:toolu_01Ej3ukAitM5YiUyzChKv2dE",
+          "title": "בודק כיוון חקירה 2",
+          "detail": "משווה הסבר נוסף מול המקורות.",
+          "state": "running",
+          "startedAt": 1791984480709
+        }
+      }
+    },
+    {
+      "elapsedMs": 41901.82925,
+      "event": {
+        "type": "tool_call",
+        "text": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_01TFEB11fPoTvNzFQQ2bAbq7",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+          "state": "running",
+          "startedAt": 1791984485623
+        }
+      }
+    },
+    {
+      "elapsedMs": 41902.1895,
+      "event": {
+        "type": "tool_call",
+        "text": "מצב בשעה 15:08:00 (זמן מקומי).",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_01R2oarMVc6qLVs2eHNrgs3z",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב בשעה 15:08:00 (זמן מקומי).",
+          "state": "running",
+          "startedAt": 1791984485624
+        }
+      }
+    },
+    {
+      "elapsedMs": 41902.322917000005,
+      "event": {
+        "type": "tool_call",
+        "text": "מצב בשעה 15:08:10 (זמן מקומי).",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_016B4RacMC1uZrV8cKHcGAwK",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב בשעה 15:08:10 (זמן מקומי).",
+          "state": "running",
+          "startedAt": 1791984485624
+        }
+      }
+    },
+    {
+      "elapsedMs": 41902.347875,
+      "event": {
+        "type": "tool_call",
+        "text": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_018GccfQJXhjW631MGC7eBUy",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+          "state": "running",
+          "startedAt": 1791984485624
+        }
+      }
+    },
+    {
+      "elapsedMs": 41902.937792000004,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_01TFEB11fPoTvNzFQQ2bAbq7",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+          "state": "error",
+          "startedAt": 1791984485623,
+          "completedAt": 1791984485624,
+          "citations": [],
+          "completionOrder": 14
+        }
+      }
+    },
+    {
+      "elapsedMs": 41903.049333,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_018GccfQJXhjW631MGC7eBUy",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+          "state": "error",
+          "startedAt": 1791984485624,
+          "completedAt": 1791984485624,
+          "citations": [],
+          "completionOrder": 15
+        }
+      }
+    },
+    {
+      "elapsedMs": 41903.092625000005,
+      "event": {
+        "type": "tool_result",
+        "text": "מצב מגזר בפועל: כבוי. מצב בתצוגה: כבוי.",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_01R2oarMVc6qLVs2eHNrgs3z",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב מגזר בפועל: כבוי. מצב בתצוגה: כבוי.",
+          "state": "complete",
+          "startedAt": 1791984485624,
+          "completedAt": 1791984485624,
+          "citations": [
+            "[sniffer.csv:L389]",
+            "[sniffer.csv:L390]",
+            "[ui_client.txt:L108]"
+          ],
+          "completionOrder": 16
+        }
+      }
+    },
+    {
+      "elapsedMs": 41903.111958,
+      "event": {
+        "type": "tool_result",
+        "text": "מצב מגזר בפועל: כבוי. מצב בתצוגה: כבוי.",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_016B4RacMC1uZrV8cKHcGAwK",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב מגזר בפועל: כבוי. מצב בתצוגה: כבוי.",
+          "state": "complete",
+          "startedAt": 1791984485624,
+          "completedAt": 1791984485625,
+          "citations": [
+            "[sniffer.csv:L401]",
+            "[sniffer.csv:L402]",
+            "[ui_client.txt:L110]"
+          ],
+          "completionOrder": 17
+        }
+      }
+    },
+    {
+      "elapsedMs": 47153.148625,
+      "event": {
+        "type": "tool_call",
+        "text": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_01L84A1KfNgGPRU2KauueGKk",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+          "state": "running",
+          "startedAt": 1791984490875
+        }
+      }
+    },
+    {
+      "elapsedMs": 47153.329333,
+      "event": {
+        "type": "tool_call",
+        "text": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_01M2cY1F3ufVNmYEBr1UKMSs",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+          "state": "running",
+          "startedAt": 1791984490875
+        }
+      }
+    },
+    {
+      "elapsedMs": 47153.799125000005,
+      "event": {
+        "type": "tool_call",
+        "text": "בין 15:07:00 ל־15:08:10 (זמן מקומי)",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01Gdcy92xjxPdd4rfrTfiwUg",
+          "title": "בודק את רצף האירועים",
+          "detail": "בין 15:07:00 ל־15:08:10 (זמן מקומי)",
+          "state": "running",
+          "startedAt": 1791984490875
+        }
+      }
+    },
+    {
+      "elapsedMs": 47154.424542,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_01L84A1KfNgGPRU2KauueGKk",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+          "state": "error",
+          "startedAt": 1791984490875,
+          "completedAt": 1791984490876,
+          "citations": [],
+          "completionOrder": 18
+        }
+      }
+    },
+    {
+      "elapsedMs": 47154.533875,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_01M2cY1F3ufVNmYEBr1UKMSs",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+          "state": "error",
+          "startedAt": 1791984490875,
+          "completedAt": 1791984490876,
+          "citations": [],
+          "completionOrder": 19
+        }
+      }
+    },
+    {
+      "elapsedMs": 47154.581792000004,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 36 רשומות; הוחזרו 20 לבדיקה. קיימות רשומות נוספות.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01Gdcy92xjxPdd4rfrTfiwUg",
+          "title": "בודק את רצף האירועים",
+          "detail": "נמצאו 36 רשומות; הוחזרו 20 לבדיקה. קיימות רשומות נוספות.",
+          "state": "complete",
+          "startedAt": 1791984490875,
+          "completedAt": 1791984490876,
+          "citations": [],
+          "completionOrder": 20
+        }
+      }
+    },
+    {
+      "elapsedMs": 52510.05645800001,
+      "event": {
+        "type": "tool_call",
+        "text": "בין 15:03:55 ל־15:04:25 (זמן מקומי)",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_012mY3Xf3CWB8TtC4tduJpHE",
+          "title": "בודק את רצף האירועים",
+          "detail": "בין 15:03:55 ל־15:04:25 (זמן מקומי)",
+          "state": "running",
+          "startedAt": 1791984496231
+        }
+      }
+    },
+    {
+      "elapsedMs": 52510.495792,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 6 רשומות; הוחזרו 6 לבדיקה.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_012mY3Xf3CWB8TtC4tduJpHE",
+          "title": "בודק את רצף האירועים",
+          "detail": "נמצאו 6 רשומות; הוחזרו 6 לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791984496231,
+          "completedAt": 1791984496232,
+          "citations": [],
+          "completionOrder": 21
+        }
+      }
+    },
+    {
+      "elapsedMs": 59712.162833,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+        "tool": "delegate_investigation",
+        "step": {
+          "id": "tool:toolu_01Ej3ukAitM5YiUyzChKv2dE",
+          "title": "בודק כיוון חקירה 2",
+          "detail": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791984480709,
+          "completedAt": 1791984503433,
+          "citations": [],
+          "completionOrder": 22
+        }
+      }
+    },
+    {
+      "elapsedMs": 64281.852875000004,
+      "event": {
+        "type": "tool_call",
+        "text": "משווה הסבר נוסף מול המקורות.",
+        "tool": "delegate_investigation",
+        "step": {
+          "id": "tool:toolu_016eAoXCdQLUrAGkUSHWt5wc",
+          "title": "בודק כיוון חקירה 3",
+          "detail": "משווה הסבר נוסף מול המקורות.",
+          "state": "running",
+          "startedAt": 1791984508003
+        }
+      }
+    },
+    {
+      "elapsedMs": 67966.432667,
+      "event": {
+        "type": "tool_call",
+        "text": "קורא גם את דיווחי המפעיל.",
+        "tool": "get_case_overview",
+        "step": {
+          "id": "tool:toolu_01KPYBy3kWBG6QzgMbPArnJA",
+          "title": "בודק מקורות וכיסוי קליטה",
+          "detail": "קורא גם את דיווחי המפעיל.",
+          "state": "running",
+          "startedAt": 1791984511688
+        }
+      }
+    },
+    {
+      "elapsedMs": 67966.726542,
+      "event": {
+        "type": "tool_call",
+        "text": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_018T2vBpjWWokrDcCPHTmrFt",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+          "state": "running",
+          "startedAt": 1791984511688
+        }
+      }
+    },
+    {
+      "elapsedMs": 67966.794167,
+      "event": {
+        "type": "tool_call",
+        "text": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_01AoypXwheHuGzjaT9fH12B2",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+          "state": "running",
+          "startedAt": 1791984511688
+        }
+      }
+    },
+    {
+      "elapsedMs": 67967.019208,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_018T2vBpjWWokrDcCPHTmrFt",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+          "state": "error",
+          "startedAt": 1791984511688,
+          "completedAt": 1791984511688,
+          "citations": [],
+          "completionOrder": 23
+        }
+      }
+    },
+    {
+      "elapsedMs": 67967.138042,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_01AoypXwheHuGzjaT9fH12B2",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+          "state": "error",
+          "startedAt": 1791984511688,
+          "completedAt": 1791984511688,
+          "citations": [],
+          "completionOrder": 24
+        }
+      }
+    },
+    {
+      "elapsedMs": 67967.455833,
+      "event": {
+        "type": "tool_result",
+        "text": "5 מקורות זמינים לבדיקה.",
+        "tool": "get_case_overview",
+        "step": {
+          "id": "tool:toolu_01KPYBy3kWBG6QzgMbPArnJA",
+          "title": "בודק מקורות וכיסוי קליטה",
+          "detail": "5 מקורות זמינים לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791984511688,
+          "completedAt": 1791984511689,
+          "citations": [],
+          "completionOrder": 25
+        }
+      }
+    },
+    {
+      "elapsedMs": 72067.64025,
+      "event": {
+        "type": "tool_call",
+        "text": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_016qFBREPZbse5RnzyX4pZZg",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+          "state": "running",
+          "startedAt": 1791984515789
+        }
+      }
+    },
+    {
+      "elapsedMs": 72068.628083,
+      "event": {
+        "type": "tool_call",
+        "text": "בין 15:00:00 ל־15:10:05 (זמן מקומי)",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01SkPyLVFjXjg6w6dDZYBXVA",
+          "title": "בודק את רצף האירועים",
+          "detail": "בין 15:00:00 ל־15:10:05 (זמן מקומי)",
+          "state": "running",
+          "startedAt": 1791984515790
+        }
+      }
+    },
+    {
+      "elapsedMs": 72069.39266700001,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_016qFBREPZbse5RnzyX4pZZg",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+          "state": "error",
+          "startedAt": 1791984515789,
+          "completedAt": 1791984515791,
+          "citations": [],
+          "completionOrder": 26
+        }
+      }
+    },
+    {
+      "elapsedMs": 72069.57333300001,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 123 רשומות; הוחזרו 50 לבדיקה. קיימות רשומות נוספות.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01SkPyLVFjXjg6w6dDZYBXVA",
+          "title": "בודק את רצף האירועים",
+          "detail": "נמצאו 123 רשומות; הוחזרו 50 לבדיקה. קיימות רשומות נוספות.",
+          "state": "complete",
+          "startedAt": 1791984515790,
+          "completedAt": 1791984515791,
+          "citations": [],
+          "completionOrder": 27
+        }
+      }
+    },
+    {
+      "elapsedMs": 77821.904375,
+      "event": {
+        "type": "tool_call",
+        "text": "בין 15:04:05 ל־15:08:10 (זמן מקומי)",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01KJrfw7cLRF535wTvNmYLDW",
+          "title": "בודק את רצף האירועים",
+          "detail": "בין 15:04:05 ל־15:08:10 (זמן מקומי)",
+          "state": "running",
+          "startedAt": 1791984521543
+        }
+      }
+    },
+    {
+      "elapsedMs": 77822.166458,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 51 רשומות; הוחזרו 50 לבדיקה. קיימות רשומות נוספות.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01KJrfw7cLRF535wTvNmYLDW",
+          "title": "בודק את רצף האירועים",
+          "detail": "נמצאו 51 רשומות; הוחזרו 50 לבדיקה. קיימות רשומות נוספות.",
+          "state": "complete",
+          "startedAt": 1791984521543,
+          "completedAt": 1791984521543,
+          "citations": [],
+          "completionOrder": 28
+        }
+      }
+    },
+    {
+      "elapsedMs": 84531.199792,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+        "tool": "delegate_investigation",
+        "step": {
+          "id": "tool:toolu_016eAoXCdQLUrAGkUSHWt5wc",
+          "title": "בודק כיוון חקירה 3",
+          "detail": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791984508003,
+          "completedAt": 1791984528252,
+          "citations": [],
+          "completionOrder": 29
+        }
+      }
+    },
+    {
+      "elapsedMs": 89400.962042,
+      "event": {
+        "type": "tool_call",
+        "text": "משווה הסבר נוסף מול המקורות.",
+        "tool": "delegate_investigation",
+        "step": {
+          "id": "tool:toolu_01DFGeJ8iy9QeRkQNZ4rHxR2",
+          "title": "בודק כיוון חקירה 4",
+          "detail": "משווה הסבר נוסף מול המקורות.",
+          "state": "running",
+          "startedAt": 1791984533122
+        }
+      }
+    },
+    {
+      "elapsedMs": 91145.858333,
+      "event": {
+        "type": "tool_call",
+        "text": "קורא גם את דיווחי המפעיל.",
+        "tool": "get_case_overview",
+        "step": {
+          "id": "tool:toolu_016pLdzR8anFHCxi1n896eVN",
+          "title": "בודק מקורות וכיסוי קליטה",
+          "detail": "קורא גם את דיווחי המפעיל.",
+          "state": "running",
+          "startedAt": 1791984534867
+        }
+      }
+    },
+    {
+      "elapsedMs": 91146.067542,
+      "event": {
+        "type": "tool_result",
+        "text": "5 מקורות זמינים לבדיקה.",
+        "tool": "get_case_overview",
+        "step": {
+          "id": "tool:toolu_016pLdzR8anFHCxi1n896eVN",
+          "title": "בודק מקורות וכיסוי קליטה",
+          "detail": "5 מקורות זמינים לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791984534867,
+          "completedAt": 1791984534867,
+          "citations": [],
+          "completionOrder": 30
+        }
+      }
+    },
+    {
+      "elapsedMs": 95139.701875,
+      "event": {
+        "type": "tool_call",
+        "text": "בין 15:03:55 ל־15:04:25 (זמן מקומי)",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_018tGfy6VwDuXMNDfkrSAPqZ",
+          "title": "בודק אירועים מתוך המקורות שנבחרו",
+          "detail": "בין 15:03:55 ל־15:04:25 (זמן מקומי)",
+          "state": "running",
+          "startedAt": 1791984538861
+        }
+      }
+    },
+    {
+      "elapsedMs": 95139.955625,
+      "event": {
+        "type": "tool_call",
+        "text": "בין 15:03:55 ל־15:04:25 (זמן מקומי)",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_0144gnatHYpZPb9EiyQEN9RY",
+          "title": "בודק אירועים מתוך המקורות שנבחרו",
+          "detail": "בין 15:03:55 ל־15:04:25 (זמן מקומי)",
+          "state": "running",
+          "startedAt": 1791984538861
+        }
+      }
+    },
+    {
+      "elapsedMs": 95140.049792,
+      "event": {
+        "type": "tool_call",
+        "text": "בין 15:08:00 ל־15:08:10 (זמן מקומי)",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01RvBMSWTW1abPBZZVSdKsTy",
+          "title": "בודק אירועים מתוך המקורות שנבחרו",
+          "detail": "בין 15:08:00 ל־15:08:10 (זמן מקומי)",
+          "state": "running",
+          "startedAt": 1791984538861
+        }
+      }
+    },
+    {
+      "elapsedMs": 95140.118042,
+      "event": {
+        "type": "tool_call",
+        "text": "בין 15:08:00 ל־15:08:10 (זמן מקומי)",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01W5BhKhe9TSXUvf2fqwBoKo",
+          "title": "בודק אירועים מתוך המקורות שנבחרו",
+          "detail": "בין 15:08:00 ל־15:08:10 (זמן מקומי)",
+          "state": "running",
+          "startedAt": 1791984538861
+        }
+      }
+    },
+    {
+      "elapsedMs": 95140.341667,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 6 רשומות; הוחזרו 6 לבדיקה.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_018tGfy6VwDuXMNDfkrSAPqZ",
+          "title": "בודק אירועים מתוך המקורות שנבחרו",
+          "detail": "נמצאו 6 רשומות; הוחזרו 6 לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791984538861,
+          "completedAt": 1791984538862,
+          "citations": [],
+          "completionOrder": 31
+        }
+      }
+    },
+    {
+      "elapsedMs": 95140.400708,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 6 רשומות; הוחזרו 6 לבדיקה.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_0144gnatHYpZPb9EiyQEN9RY",
+          "title": "בודק אירועים מתוך המקורות שנבחרו",
+          "detail": "נמצאו 6 רשומות; הוחזרו 6 לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791984538861,
+          "completedAt": 1791984538862,
+          "citations": [],
+          "completionOrder": 32
+        }
+      }
+    },
+    {
+      "elapsedMs": 95140.41166700001,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 4 רשומות; הוחזרו 4 לבדיקה.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01RvBMSWTW1abPBZZVSdKsTy",
+          "title": "בודק אירועים מתוך המקורות שנבחרו",
+          "detail": "נמצאו 4 רשומות; הוחזרו 4 לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791984538861,
+          "completedAt": 1791984538862,
+          "citations": [],
+          "completionOrder": 33
+        }
+      }
+    },
+    {
+      "elapsedMs": 95140.419875,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 4 רשומות; הוחזרו 4 לבדיקה.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01W5BhKhe9TSXUvf2fqwBoKo",
+          "title": "בודק אירועים מתוך המקורות שנבחרו",
+          "detail": "נמצאו 4 רשומות; הוחזרו 4 לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791984538861,
+          "completedAt": 1791984538862,
+          "citations": [],
+          "completionOrder": 34
+        }
+      }
+    },
+    {
+      "elapsedMs": 101230.020417,
+      "event": {
+        "type": "tool_call",
+        "text": "בין 15:03:55 ל־15:10:05 (זמן מקומי)",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_016KK3nfLJzReYZkmzM3KzRF",
+          "title": "בודק אירועים מתוך המקורות שנבחרו",
+          "detail": "בין 15:03:55 ל־15:10:05 (זמן מקומי)",
+          "state": "running",
+          "startedAt": 1791984544951
+        }
+      }
+    },
+    {
+      "elapsedMs": 101230.228833,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 75 רשומות; הוחזרו 50 לבדיקה. קיימות רשומות נוספות.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_016KK3nfLJzReYZkmzM3KzRF",
+          "title": "בודק אירועים מתוך המקורות שנבחרו",
+          "detail": "נמצאו 75 רשומות; הוחזרו 50 לבדיקה. קיימות רשומות נוספות.",
+          "state": "complete",
+          "startedAt": 1791984544951,
+          "completedAt": 1791984544951,
+          "citations": [],
+          "completionOrder": 35
+        }
+      }
+    },
+    {
+      "elapsedMs": 110482.124417,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+        "tool": "delegate_investigation",
+        "step": {
+          "id": "tool:toolu_01DFGeJ8iy9QeRkQNZ4rHxR2",
+          "title": "בודק כיוון חקירה 4",
+          "detail": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791984533122,
+          "completedAt": 1791984554203,
+          "citations": [],
+          "completionOrder": 36
+        }
+      }
+    },
+    {
+      "elapsedMs": 136579.571333,
+      "event": {
+        "type": "tool_call",
+        "text": "מצרף אסמכתאות ומגבלות לבדיקה.",
+        "tool": "submit_findings",
+        "step": {
+          "id": "tool:toolu_01WMvYPpGDej249fcL5g797f",
+          "title": "מסכם ממצאים ושאלות פתוחות",
+          "detail": "מצרף אסמכתאות ומגבלות לבדיקה.",
+          "state": "running",
+          "startedAt": 1791984580301
+        }
+      }
+    },
+    {
+      "elapsedMs": 136580.873792,
+      "event": {
+        "type": "status",
+        "text": "הבדיקות הבאות יחפשו גם ראיות תומכות וגם ראיות סותרות.",
+        "step": {
+          "id": "phase:2",
+          "title": "משווה בין הסברים אפשריים לאירוע",
+          "detail": "הבדיקות הבאות יחפשו גם ראיות תומכות וגם ראיות סותרות.",
+          "state": "complete",
+          "startedAt": 1791984449725,
+          "completedAt": 1791984580302,
+          "completionOrder": 37
+        }
+      }
+    },
+    {
+      "elapsedMs": 136580.876625,
+      "event": {
+        "type": "status",
+        "text": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "step": {
+          "id": "phase:3",
+          "title": "בודק שהטענות נתמכות בראיות",
+          "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+          "state": "running",
+          "startedAt": 1791984580302
+        }
+      }
+    },
+    {
+      "elapsedMs": 162374.670542,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "tool": "submit_findings",
+        "step": {
+          "id": "tool:toolu_01WMvYPpGDej249fcL5g797f",
+          "title": "מסכם ממצאים ושאלות פתוחות",
+          "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+          "state": "error",
+          "startedAt": 1791984580301,
+          "completedAt": 1791984606096,
+          "citations": [],
+          "completionOrder": 38
+        }
+      }
+    },
+    {
+      "elapsedMs": 184153.044458,
+      "event": {
+        "type": "tool_call",
+        "text": "מצרף אסמכתאות ומגבלות לבדיקה.",
+        "tool": "submit_findings",
+        "step": {
+          "id": "tool:toolu_01MxTTWBCUqnBYWDjo98EhsN",
+          "title": "מסכם ממצאים ושאלות פתוחות",
+          "detail": "מצרף אסמכתאות ומגבלות לבדיקה.",
+          "state": "running",
+          "startedAt": 1791984627874
+        }
+      }
+    },
+    {
+      "elapsedMs": 184154.070292,
+      "event": {
+        "type": "status",
+        "text": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "step": {
+          "id": "phase:3",
+          "title": "בודק שהטענות נתמכות בראיות",
+          "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+          "state": "complete",
+          "startedAt": 1791984580302,
+          "completedAt": 1791984627875,
+          "completionOrder": 39
+        }
+      }
+    },
+    {
+      "elapsedMs": 184154.073917,
+      "event": {
+        "type": "status",
+        "text": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "step": {
+          "id": "phase:4",
+          "title": "בודק שהטענות נתמכות בראיות",
+          "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+          "state": "running",
+          "startedAt": 1791984627875
+        }
+      }
+    },
+    {
+      "elapsedMs": 206203.487625,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "tool": "submit_findings",
+        "step": {
+          "id": "tool:toolu_01MxTTWBCUqnBYWDjo98EhsN",
+          "title": "מסכם ממצאים ושאלות פתוחות",
+          "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+          "state": "error",
+          "startedAt": 1791984627874,
+          "completedAt": 1791984649924,
+          "citations": [],
+          "completionOrder": 40
+        }
+      }
+    },
+    {
+      "elapsedMs": 227834.838333,
+      "event": {
+        "type": "tool_call",
+        "text": "מצרף אסמכתאות ומגבלות לבדיקה.",
+        "tool": "submit_findings",
+        "step": {
+          "id": "tool:toolu_01Xr6zczPnXh4Ha5rAzyocKf",
+          "title": "מסכם ממצאים ושאלות פתוחות",
+          "detail": "מצרף אסמכתאות ומגבלות לבדיקה.",
+          "state": "running",
+          "startedAt": 1791984671555
+        }
+      }
+    },
+    {
+      "elapsedMs": 227835.8255,
+      "event": {
+        "type": "status",
+        "text": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "step": {
+          "id": "phase:4",
+          "title": "בודק שהטענות נתמכות בראיות",
+          "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+          "state": "complete",
+          "startedAt": 1791984627875,
+          "completedAt": 1791984671556,
+          "completionOrder": 41
+        }
+      }
+    },
+    {
+      "elapsedMs": 227835.828292,
+      "event": {
+        "type": "status",
+        "text": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "step": {
+          "id": "phase:5",
+          "title": "בודק שהטענות נתמכות בראיות",
+          "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+          "state": "running",
+          "startedAt": 1791984671556
+        }
+      }
+    },
+    {
+      "elapsedMs": 249817.76629200001,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "tool": "submit_findings",
+        "step": {
+          "id": "tool:toolu_01Xr6zczPnXh4Ha5rAzyocKf",
+          "title": "מסכם ממצאים ושאלות פתוחות",
+          "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+          "state": "error",
+          "startedAt": 1791984671555,
+          "completedAt": 1791984693556,
+          "citations": [],
+          "completionOrder": 42
+        }
+      }
+    },
+    {
+      "elapsedMs": 261195.448458,
+      "event": {
+        "type": "tool_call",
+        "text": "מצרף אסמכתאות ומגבלות לבדיקה.",
+        "tool": "submit_findings",
+        "step": {
+          "id": "tool:toolu_01Vc5qWYsCfFck9eynMZSpxC",
+          "title": "מסכם ממצאים ושאלות פתוחות",
+          "detail": "מצרף אסמכתאות ומגבלות לבדיקה.",
+          "state": "running",
+          "startedAt": 1791984704939
+        }
+      }
+    },
+    {
+      "elapsedMs": 261196.361917,
+      "event": {
+        "type": "status",
+        "text": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "step": {
+          "id": "phase:5",
+          "title": "בודק שהטענות נתמכות בראיות",
+          "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+          "state": "complete",
+          "startedAt": 1791984671556,
+          "completedAt": 1791984704940,
+          "completionOrder": 43
+        }
+      }
+    },
+    {
+      "elapsedMs": 261196.364708,
+      "event": {
+        "type": "status",
+        "text": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "step": {
+          "id": "phase:6",
+          "title": "בודק שהטענות נתמכות בראיות",
+          "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+          "state": "running",
+          "startedAt": 1791984704940
+        }
+      }
+    },
+    {
+      "elapsedMs": 298683.759042,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "tool": "submit_findings",
+        "step": {
+          "id": "tool:toolu_01Vc5qWYsCfFck9eynMZSpxC",
+          "title": "מסכם ממצאים ושאלות פתוחות",
+          "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+          "state": "error",
+          "startedAt": 1791984704939,
+          "completedAt": 1791984742432,
+          "citations": [],
+          "completionOrder": 44
+        }
+      }
+    },
+    {
+      "elapsedMs": 310691.517042,
+      "event": {
+        "type": "tool_call",
+        "text": "מצרף אסמכתאות ומגבלות לבדיקה.",
+        "tool": "submit_findings",
+        "step": {
+          "id": "tool:toolu_01Ew2rgYdvWxf1cnhCCvJ1nK",
+          "title": "מסכם ממצאים ושאלות פתוחות",
+          "detail": "מצרף אסמכתאות ומגבלות לבדיקה.",
+          "state": "running",
+          "startedAt": 1791984754440
+        }
+      }
+    },
+    {
+      "elapsedMs": 310692.737875,
+      "event": {
+        "type": "status",
+        "text": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "step": {
+          "id": "phase:6",
+          "title": "בודק שהטענות נתמכות בראיות",
+          "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+          "state": "complete",
+          "startedAt": 1791984704940,
+          "completedAt": 1791984754441,
+          "completionOrder": 45
+        }
+      }
+    },
+    {
+      "elapsedMs": 310692.742333,
+      "event": {
+        "type": "status",
+        "text": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "step": {
+          "id": "phase:7",
+          "title": "בודק שהטענות נתמכות בראיות",
+          "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+          "state": "running",
+          "startedAt": 1791984754441
+        }
+      }
+    },
+    {
+      "elapsedMs": 339417.067292,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "tool": "submit_findings",
+        "step": {
+          "id": "tool:toolu_01Ew2rgYdvWxf1cnhCCvJ1nK",
+          "title": "מסכם ממצאים ושאלות פתוחות",
+          "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+          "state": "error",
+          "startedAt": 1791984754440,
+          "completedAt": 1791984783165,
+          "citations": [],
+          "completionOrder": 46
+        }
+      }
+    },
+    {
+      "elapsedMs": 349762.362208,
+      "event": {
+        "type": "tool_call",
+        "text": "מצרף אסמכתאות ומגבלות לבדיקה.",
+        "tool": "submit_findings",
+        "step": {
+          "id": "tool:toolu_013333zzxegxNRn2LsmH4uGs",
+          "title": "מסכם ממצאים ושאלות פתוחות",
+          "detail": "מצרף אסמכתאות ומגבלות לבדיקה.",
+          "state": "running",
+          "startedAt": 1791984793511
+        }
+      }
+    },
+    {
+      "elapsedMs": 349763.429917,
+      "event": {
+        "type": "status",
+        "text": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "step": {
+          "id": "phase:7",
+          "title": "בודק שהטענות נתמכות בראיות",
+          "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+          "state": "complete",
+          "startedAt": 1791984754441,
+          "completedAt": 1791984793512,
+          "completionOrder": 47
+        }
+      }
+    },
+    {
+      "elapsedMs": 349763.434083,
+      "event": {
+        "type": "status",
+        "text": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "step": {
+          "id": "phase:8",
+          "title": "בודק שהטענות נתמכות בראיות",
+          "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+          "state": "running",
+          "startedAt": 1791984793512
+        }
+      }
+    },
+    {
+      "elapsedMs": 378317.808625,
+      "event": {
+        "type": "tool_result",
+        "text": "הוגשו 3 ממצאים. בודק את האסמכתאות.",
+        "tool": "submit_findings",
+        "step": {
+          "id": "tool:toolu_013333zzxegxNRn2LsmH4uGs",
+          "title": "מסכם ממצאים ושאלות פתוחות",
+          "detail": "הוגשו 3 ממצאים. בודק את האסמכתאות.",
+          "state": "complete",
+          "startedAt": 1791984793511,
+          "completedAt": 1791984822066,
+          "citations": [],
+          "completionOrder": 48
+        }
+      }
+    },
+    {
+      "elapsedMs": 378318.419042,
+      "event": {
+        "type": "status",
+        "text": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "step": {
+          "id": "phase:8",
+          "title": "בודק שהטענות נתמכות בראיות",
+          "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+          "state": "complete",
+          "startedAt": 1791984793512,
+          "completedAt": 1791984822067,
+          "completionOrder": 49
+        }
+      }
+    },
+    {
+      "elapsedMs": 378318.421708,
+      "event": {
+        "type": "status",
+        "text": "28 אסמכתאות נפתחו ונבדקו מול קובצי המקור.",
+        "step": {
+          "id": "phase:9",
+          "title": "התשובה והאסמכתאות נבדקו",
+          "detail": "28 אסמכתאות נפתחו ונבדקו מול קובצי המקור.",
+          "state": "running",
+          "startedAt": 1791984822067
+        }
+      }
+    },
+    {
+      "elapsedMs": 378318.623833,
+      "event": {
+        "type": "status",
+        "text": "28 אסמכתאות נפתחו ונבדקו מול קובצי המקור.",
+        "step": {
+          "id": "phase:9",
+          "title": "התשובה והאסמכתאות נבדקו",
+          "detail": "28 אסמכתאות נפתחו ונבדקו מול קובצי המקור.",
+          "state": "complete",
+          "startedAt": 1791984822067,
+          "completedAt": 1791984822067,
+          "completionOrder": 50
+        }
+      }
+    }
+  ]
+}

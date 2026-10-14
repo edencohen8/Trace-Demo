@@ -17,7 +17,8 @@ Live AI requires a configured Claude, Gemini or LiteLLM key. Switch providers us
 
 The local adapter uses memory for event queries and JSON for sessions and approved
 answers. It does not need a database or a LiteLLM server when using native Claude
-or Gemini. It is scoped to the four bundled fictional evidence packages.
+or Gemini. It is scoped to five bundled fictional evidence packages, including
+the T015I radar investigation.
 
 Run `npm run typecheck`, `npm test`, and `npm run build` from `trace-main/`.
 Run `npm run check:ai` after setting a key to verify a live provider response.

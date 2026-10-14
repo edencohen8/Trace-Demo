@@ -7,7 +7,7 @@ export function visibleInvestigationSteps(steps: InvestigationStep[], running: b
   const pending = steps.filter((step) => step.state === 'running')
     .sort((a, b) => a.startedAt - b.startedAt);
   // Canceled steps remain visible as unfinished, never as completed checks.
-  if (!running) return [...completed, ...pending];
+  if (!running) return [...(expanded ? completed : completed.slice(-3)), ...pending];
   const activeTools = pending.filter((step) => step.id.startsWith('tool:'));
   const current = (activeTools.length ? activeTools : pending).at(-1);
   // One live row stays below the history. Outer phases do not add spinners.

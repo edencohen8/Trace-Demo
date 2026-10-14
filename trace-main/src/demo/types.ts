@@ -20,6 +20,7 @@ export interface EvidenceEvent {
 export interface CaseSummary {
   id: string;
   title: string;
+  description?: string;
   start: string;
   end: string;
   eventCount: number;
@@ -113,7 +114,8 @@ export interface TimelineGroupDetail {
   seriesId?: string;
 }
 
-export interface ResolvedSource {
+export interface RawSource {
+  kind?: 'source';
   badge: string;
   sourceFile: string;
   sha256: string;
@@ -122,6 +124,24 @@ export interface ResolvedSource {
   event?: EvidenceEvent;
   lines: { number: number; content: string; highlight: boolean }[];
 }
+
+export interface ResolvedCalculation {
+  kind: 'calculation';
+  badge: string;
+  operation: 'region';
+  title: string;
+  result: ReturnType<typeof import('../server/radar-analysis.ts').inspectRegion>;
+  inputs: string[];
+  inputHashes: { name: string; sha256: string }[];
+  fingerprint: string;
+  event?: never;
+  sourceFile?: never;
+  line?: never;
+  lines?: never;
+  sha256?: never;
+  sheet?: never;
+}
+export type ResolvedSource = RawSource | ResolvedCalculation;
 
 export interface ChatTimeRange { start: string; end: string }
 
@@ -137,6 +157,7 @@ export interface ChatMessage {
   validation?: string;
   details?: { title: string; explanation: string; citations: string[] }[];
   activity?: InvestigationStep[];
+  computations?: { tool: string; result: unknown }[];
 }
 
 export interface CaseSession {

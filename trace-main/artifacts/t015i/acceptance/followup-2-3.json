@@ -1,0 +1,1411 @@
+{
+  "id": "followup-2",
+  "turn": 3,
+  "question": "האם פקודות נוספות נפגעו?",
+  "provider": {
+    "provider": "anthropic",
+    "model": "claude-haiku-5-5",
+    "configured": true
+  },
+  "elapsedMs": 67423.9118329999,
+  "calls": {
+    "model": 10,
+    "tools": 6
+  },
+  "requests": [
+    {
+      "name": "query_events",
+      "arguments": {
+        "source_system": "control_gateway.txt",
+        "limit": 50
+      }
+    },
+    {
+      "name": "query_events",
+      "arguments": {
+        "source_system": "config_service.txt",
+        "limit": 50
+      }
+    },
+    {
+      "name": "search_text",
+      "arguments": {
+        "query": "NOT_APPLIED",
+        "limit": 50
+      }
+    },
+    {
+      "name": "search_text",
+      "arguments": {
+        "query": "req-",
+        "source_system": "ui_client.txt",
+        "limit": 50
+      }
+    },
+    {
+      "name": "query_events",
+      "arguments": {
+        "message_type": "RequestSent",
+        "time_start_utc": "2026-10-14T12:00:00Z",
+        "time_end_utc": "2026-10-14T12:10:05Z",
+        "limit": 50
+      }
+    },
+    {
+      "name": "query_events",
+      "arguments": {
+        "message_type": "ReceiptAcknowledgement",
+        "time_start_utc": "2026-10-14T12:00:00Z",
+        "time_end_utc": "2026-10-14T12:10:05Z",
+        "limit": 50
+      }
+    }
+  ],
+  "toolErrors": [],
+  "reviews": [
+    "{\"supported\":false,\"issues\":[\"Finding-level answer: the claim that the listed requests are the complete set of commands sent in the window (\\\"מתוך הפקודות שנשלחו בחלון\\\") has no supporting citation. None of the cited records is a RequestSent or ReceiptAcknowledgement record, and no request count or enumeration is cited. The manifest marks RequestSent and ReceiptAcknowledgement as complete, but the answer does not cite that coverage or any sent-request records. Add RequestSent (and ReceiptAcknowledgement) records, or a trace_request result, to establish the sent set before concluding that no other commands were affected.\"]}",
+    "{\"supported\":false,\"issues\":[\"Answer (main conclusion 'לא'): the claim that no other commands were affected rests only on ReceiptAcknowledgement records (ui_client L6/L27/L41/L73/L97 and control_gateway L1/L3/L5/L7/L9). system_catalog.txt:L4 says a receipt means accepted into a queue only. The answer cites no ApplicationAcknowledgement APPLIED record and no RequestApplied record for req-101, req-202, req-404 or req-505, so it does not establish that those commands were applied or unaffected. Add the application records for each of those requests, or qualify the conclusion as 'no rejection recorded; application not verified for these requests'.\",\"Answer: 'רק req-303 נדחה ונרשם כ-NOT_APPLIED' is supported for req-303 by config_service.txt:L7 and control_gateway.txt:L6, and the complete-coverage manifest reference (capture_manifest.json:L46) supports the absence of other RequestRejected records. However, the answer should say that this absence covers only rejections, not successful application, so the 'not affected' wording overstates what the cited records show.\"]}",
+    "{\"supported\":true,\"issues\":[]}"
+  ],
+  "answer": {
+    "id": "7a0fd9d6-e7c7-46dd-b2ce-bc1b81af9a3b",
+    "role": "assistant",
+    "text": "**לא נרשמה דחייה של פקודות אחרות, אבל זה לא מוכיח שכולן יושמו.** נשלחו חמש פקודות: req-101, req-202, req-303, req-404 ו-req-505 [ui_client.txt:L6] [ui_client.txt:L27] [ui_client.txt:L41] [ui_client.txt:L73] [ui_client.txt:L97]. קבלה בתור בלבד אינה אישור יישום [system_catalog.txt:L4]. לארבע הפקודות האחרות נרשם יישום בשער הבקרה ובשירות התצורה: req-101 [control_gateway.txt:L2] [config_service.txt:L3], req-202 [control_gateway.txt:L4] [config_service.txt:L5], req-404 [control_gateway.txt:L8] [config_service.txt:L11], ו-req-505 [control_gateway.txt:L10] [config_service.txt:L15].\n\nרק req-303 (ביטול חסימת SEC-7 בשעה 15:03 מקומית) נדחה ונרשם כ-NOT_APPLIED [config_service.txt:L7] [control_gateway.txt:L6]. הכיסוי המלא של הרשומות [capture_manifest.json:L46] תומך בכך שאין רשומות דחייה נוספות, אך הוא לא מכסה הצלחה: את היישום של כל פקודה יש לקרוא מהרשומות שצוינו לעיל.",
+    "createdAt": "2026-10-14T14:01:51.585Z",
+    "citations": [
+      "[ui_client.txt:L6]",
+      "[ui_client.txt:L27]",
+      "[ui_client.txt:L41]",
+      "[ui_client.txt:L73]",
+      "[ui_client.txt:L97]",
+      "[system_catalog.txt:L4]",
+      "[control_gateway.txt:L2]",
+      "[config_service.txt:L3]",
+      "[control_gateway.txt:L4]",
+      "[config_service.txt:L5]",
+      "[control_gateway.txt:L8]",
+      "[config_service.txt:L11]",
+      "[control_gateway.txt:L10]",
+      "[config_service.txt:L15]",
+      "[config_service.txt:L7]",
+      "[control_gateway.txt:L6]",
+      "[capture_manifest.json:L46]"
+    ],
+    "mode": "evidence_followup",
+    "model": "anthropic/claude-haiku-5-5",
+    "validation": "satisfied",
+    "activity": [
+      {
+        "id": "phase:1",
+        "title": "מתאים את הבדיקה לשאלה שלך",
+        "detail": "קורא את ההקשר ואת המקורות הזמינים בתחקיר.",
+        "state": "complete",
+        "startedAt": 1791986444162,
+        "completedAt": 1791986451880,
+        "completionOrder": 1
+      },
+      {
+        "id": "phase:2",
+        "title": "חוזר למקורות שעליהם מבוססת התשובה",
+        "detail": "אציג את הבדיקות ואת התוצאות שהן מחזירות כאן.",
+        "state": "complete",
+        "startedAt": 1791986451880,
+        "completedAt": 1791986479058,
+        "completionOrder": 6
+      },
+      {
+        "id": "tool:toolu_01DSxijEWVLk7FJHyZZ75Qrw",
+        "title": "בודק אירועים מתוך לוג שער הבקרה",
+        "detail": "נמצאו 10 רשומות; הוחזרו 10 לבדיקה.",
+        "state": "complete",
+        "startedAt": 1791986456480,
+        "completedAt": 1791986456481,
+        "citations": [],
+        "completionOrder": 2
+      },
+      {
+        "id": "tool:toolu_0147vRQzKctpYby7T7zS97my",
+        "title": "בודק אירועים מתוך לוג שירות התצורה",
+        "detail": "נמצאו 18 רשומות; הוחזרו 18 לבדיקה.",
+        "state": "complete",
+        "startedAt": 1791986456480,
+        "completedAt": 1791986456482,
+        "citations": [],
+        "completionOrder": 3
+      },
+      {
+        "id": "tool:toolu_01MPxKr5vx44Gu2bpNirBGmB",
+        "title": "מחפש דיווחים מתוך המקורות שנבחרו",
+        "detail": "נמצאו 2 רשומות; הוחזרו 2 לבדיקה.",
+        "state": "complete",
+        "startedAt": 1791986456481,
+        "completedAt": 1791986456482,
+        "citations": [],
+        "completionOrder": 4
+      },
+      {
+        "id": "tool:toolu_01LajPU1aBkHL3nQPryLBiDm",
+        "title": "מחפש דיווחים מתוך לוג תוכנת הממשק",
+        "detail": "נמצאו 7 רשומות; הוחזרו 7 לבדיקה.",
+        "state": "complete",
+        "startedAt": 1791986460227,
+        "completedAt": 1791986460227,
+        "citations": [],
+        "completionOrder": 5
+      },
+      {
+        "id": "phase:3",
+        "title": "משלים את הבדיקה לפני הצגת התשובה",
+        "detail": "נדרשת בדיקה נוספת של ההיקף או של האסמכתאות.",
+        "state": "complete",
+        "startedAt": 1791986479058,
+        "completedAt": 1791986497606,
+        "completionOrder": 9
+      },
+      {
+        "id": "tool:toolu_01XnocVW8cWML41TxFssUX5E",
+        "title": "בודק את רצף האירועים",
+        "detail": "נמצאו 5 רשומות; הוחזרו 5 לבדיקה.",
+        "state": "complete",
+        "startedAt": 1791986484883,
+        "completedAt": 1791986484884,
+        "citations": [],
+        "completionOrder": 7
+      },
+      {
+        "id": "tool:toolu_01RSdHRFXGHU5a86tPchUtt8",
+        "title": "בודק את רצף האירועים",
+        "detail": "נמצאו 5 רשומות; הוחזרו 5 לבדיקה.",
+        "state": "complete",
+        "startedAt": 1791986484884,
+        "completedAt": 1791986484884,
+        "citations": [],
+        "completionOrder": 8
+      },
+      {
+        "id": "phase:4",
+        "title": "משלים את הבדיקה לפני הצגת התשובה",
+        "detail": "נדרשת בדיקה נוספת של ההיקף או של האסמכתאות.",
+        "state": "complete",
+        "startedAt": 1791986497606,
+        "completedAt": 1791986511585,
+        "completionOrder": 10
+      },
+      {
+        "id": "phase:5",
+        "title": "התשובה והאסמכתאות נבדקו",
+        "detail": "17 אסמכתאות נפתחו ונבדקו מול קובצי המקור.",
+        "state": "complete",
+        "startedAt": 1791986511585,
+        "completedAt": 1791986511585,
+        "completionOrder": 11
+      }
+    ]
+  },
+  "sources": [
+    {
+      "badge": "[ui_client.txt:L6]",
+      "sourceFile": "ui_client.txt",
+      "line": 6,
+      "event": {
+        "family": "component_log",
+        "source": "operator-ui",
+        "time": "2026-10-14T12:00:20.000Z",
+        "type": "RequestSent",
+        "severity": "INFO",
+        "text": "Control request sent",
+        "fields": {
+          "request_id": "req-101",
+          "schema_id": "sector.v1",
+          "operation": "SET",
+          "sector_id": "SEC-7",
+          "enabled": "true"
+        },
+        "id": "ui_client.txt:6",
+        "badge": "[ui_client.txt:L6]",
+        "caseId": "case_005",
+        "sourceFile": "ui_client.txt",
+        "line": 6
+      },
+      "sha256": "3eea6727ff2b184ad28954bac42ac79dc7cc3f11b19347fd536b49cb8d75690e",
+      "lines": [
+        {
+          "number": 4,
+          "content": "{\"timestamp\":\"2026-10-14T12:00:10.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:00:15.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 5,
+          "content": "{\"timestamp\":\"2026-10-14T12:00:15.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:00:20.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 6,
+          "content": "{\"timestamp\":\"2026-10-14T12:00:20.000Z\",\"source\":\"operator-ui\",\"type\":\"RequestSent\",\"severity\":\"INFO\",\"message\":\"Control request sent\",\"fields\":{\"request_id\":\"req-101\",\"schema_id\":\"sector.v1\",\"operation\":\"SET\",\"sector_id\":\"SEC-7\",\"enabled\":\"true\"}}",
+          "highlight": true
+        },
+        {
+          "number": 7,
+          "content": "{\"timestamp\":\"2026-10-14T12:00:20.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:00:25.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 8,
+          "content": "{\"timestamp\":\"2026-10-14T12:00:25.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"true\",\"valid_until\":\"2026-10-14T12:00:30.000Z\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[ui_client.txt:L27]",
+      "sourceFile": "ui_client.txt",
+      "line": 27,
+      "event": {
+        "family": "component_log",
+        "source": "operator-ui",
+        "time": "2026-10-14T12:01:55.000Z",
+        "type": "RequestSent",
+        "severity": "INFO",
+        "text": "Control request sent",
+        "fields": {
+          "request_id": "req-202",
+          "schema_id": "search.v1",
+          "operation": "SET_SEARCH",
+          "azimuth_start_deg": 30,
+          "azimuth_end_deg": 65,
+          "pattern": "SEARCH_WIDE"
+        },
+        "id": "ui_client.txt:27",
+        "badge": "[ui_client.txt:L27]",
+        "caseId": "case_005",
+        "sourceFile": "ui_client.txt",
+        "line": 27
+      },
+      "sha256": "3eea6727ff2b184ad28954bac42ac79dc7cc3f11b19347fd536b49cb8d75690e",
+      "lines": [
+        {
+          "number": 25,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:45.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"true\",\"valid_until\":\"2026-10-14T12:01:50.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 26,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:50.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"true\",\"valid_until\":\"2026-10-14T12:01:55.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 27,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:55.000Z\",\"source\":\"operator-ui\",\"type\":\"RequestSent\",\"severity\":\"INFO\",\"message\":\"Control request sent\",\"fields\":{\"request_id\":\"req-202\",\"schema_id\":\"search.v1\",\"operation\":\"SET_SEARCH\",\"azimuth_start_deg\":30,\"azimuth_end_deg\":65,\"pattern\":\"SEARCH_WIDE\"}}",
+          "highlight": true
+        },
+        {
+          "number": 28,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:55.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"true\",\"valid_until\":\"2026-10-14T12:02:00.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 29,
+          "content": "{\"timestamp\":\"2026-10-14T12:02:00.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"true\",\"valid_until\":\"2026-10-14T12:02:05.000Z\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[ui_client.txt:L41]",
+      "sourceFile": "ui_client.txt",
+      "line": 41,
+      "event": {
+        "family": "component_log",
+        "source": "operator-ui",
+        "time": "2026-10-14T12:03:00.000Z",
+        "type": "RequestSent",
+        "severity": "INFO",
+        "text": "Control request sent",
+        "fields": {
+          "request_id": "req-303",
+          "schema_id": "sector.v2",
+          "operation": "REMOVE",
+          "sector_id": "SEC-7",
+          "ui_version": "2.1.0",
+          "payload_field": "sector_action",
+          "payload_value": "remove"
+        },
+        "id": "ui_client.txt:41",
+        "badge": "[ui_client.txt:L41]",
+        "caseId": "case_005",
+        "sourceFile": "ui_client.txt",
+        "line": 41
+      },
+      "sha256": "3eea6727ff2b184ad28954bac42ac79dc7cc3f11b19347fd536b49cb8d75690e",
+      "lines": [
+        {
+          "number": 39,
+          "content": "{\"timestamp\":\"2026-10-14T12:02:50.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"true\",\"valid_until\":\"2026-10-14T12:02:55.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 40,
+          "content": "{\"timestamp\":\"2026-10-14T12:02:55.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"true\",\"valid_until\":\"2026-10-14T12:03:00.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 41,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.000Z\",\"source\":\"operator-ui\",\"type\":\"RequestSent\",\"severity\":\"INFO\",\"message\":\"Control request sent\",\"fields\":{\"request_id\":\"req-303\",\"schema_id\":\"sector.v2\",\"operation\":\"REMOVE\",\"sector_id\":\"SEC-7\",\"ui_version\":\"2.1.0\",\"payload_field\":\"sector_action\",\"payload_value\":\"remove\"}}",
+          "highlight": true
+        },
+        {
+          "number": 42,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"true\",\"valid_until\":\"2026-10-14T12:03:00.030Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 43,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.030Z\",\"source\":\"operator-ui\",\"type\":\"DisplayChanged\",\"severity\":\"INFO\",\"message\":\"Sector overlay removed after queue receipt\",\"fields\":{\"request_id\":\"req-303\",\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"applied_state_verified\":\"false\",\"trigger\":\"RECEIPT\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[ui_client.txt:L73]",
+      "sourceFile": "ui_client.txt",
+      "line": 73,
+      "event": {
+        "family": "component_log",
+        "source": "operator-ui",
+        "time": "2026-10-14T12:05:20.000Z",
+        "type": "RequestSent",
+        "severity": "INFO",
+        "text": "Control request sent",
+        "fields": {
+          "request_id": "req-404",
+          "schema_id": "search.v1",
+          "operation": "SET_SEARCH",
+          "pattern": "SEARCH_WIDE",
+          "azimuth_start_deg": 30,
+          "azimuth_end_deg": 65
+        },
+        "id": "ui_client.txt:73",
+        "badge": "[ui_client.txt:L73]",
+        "caseId": "case_005",
+        "sourceFile": "ui_client.txt",
+        "line": 73
+      },
+      "sha256": "3eea6727ff2b184ad28954bac42ac79dc7cc3f11b19347fd536b49cb8d75690e",
+      "lines": [
+        {
+          "number": 71,
+          "content": "{\"timestamp\":\"2026-10-14T12:05:10.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:05:15.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 72,
+          "content": "{\"timestamp\":\"2026-10-14T12:05:15.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:05:20.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 73,
+          "content": "{\"timestamp\":\"2026-10-14T12:05:20.000Z\",\"source\":\"operator-ui\",\"type\":\"RequestSent\",\"severity\":\"INFO\",\"message\":\"Control request sent\",\"fields\":{\"request_id\":\"req-404\",\"schema_id\":\"search.v1\",\"operation\":\"SET_SEARCH\",\"pattern\":\"SEARCH_WIDE\",\"azimuth_start_deg\":30,\"azimuth_end_deg\":65}}",
+          "highlight": true
+        },
+        {
+          "number": 74,
+          "content": "{\"timestamp\":\"2026-10-14T12:05:20.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:05:25.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 75,
+          "content": "{\"timestamp\":\"2026-10-14T12:05:25.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:05:30.000Z\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[ui_client.txt:L97]",
+      "sourceFile": "ui_client.txt",
+      "line": 97,
+      "event": {
+        "family": "component_log",
+        "source": "operator-ui",
+        "time": "2026-10-14T12:07:15.000Z",
+        "type": "RequestSent",
+        "severity": "INFO",
+        "text": "Control request sent",
+        "fields": {
+          "request_id": "req-505",
+          "schema_id": "sector.v2",
+          "operation": "REMOVE",
+          "sector_id": "SEC-7",
+          "payload_field": "sector_action",
+          "payload_value": "remove"
+        },
+        "id": "ui_client.txt:97",
+        "badge": "[ui_client.txt:L97]",
+        "caseId": "case_005",
+        "sourceFile": "ui_client.txt",
+        "line": 97
+      },
+      "sha256": "3eea6727ff2b184ad28954bac42ac79dc7cc3f11b19347fd536b49cb8d75690e",
+      "lines": [
+        {
+          "number": 95,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:05.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:07:10.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 96,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:10.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:07:15.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 97,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:15.000Z\",\"source\":\"operator-ui\",\"type\":\"RequestSent\",\"severity\":\"INFO\",\"message\":\"Control request sent\",\"fields\":{\"request_id\":\"req-505\",\"schema_id\":\"sector.v2\",\"operation\":\"REMOVE\",\"sector_id\":\"SEC-7\",\"payload_field\":\"sector_action\",\"payload_value\":\"remove\"}}",
+          "highlight": true
+        },
+        {
+          "number": 98,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:15.000Z\",\"source\":\"operator-ui\",\"type\":\"DisplayState\",\"severity\":\"INFO\",\"message\":\"Displayed sector state\",\"fields\":{\"sector_id\":\"SEC-7\",\"displayed_enabled\":\"false\",\"valid_until\":\"2026-10-14T12:07:20.000Z\"}}",
+          "highlight": false
+        },
+        {
+          "number": 99,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:15.200Z\",\"source\":\"operator-ui\",\"type\":\"ApplicationResultReceived\",\"severity\":\"INFO\",\"message\":\"Applied result requested and displayed by maintenance verification\",\"fields\":{\"request_id\":\"req-505\",\"result\":\"APPLIED\",\"sector_id\":\"SEC-7\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[system_catalog.txt:L4]",
+      "sourceFile": "system_catalog.txt",
+      "line": 4,
+      "sha256": "15ecb336f065d40e7a127daf143ac1d817decad0c205214a98658188a417cdfe",
+      "lines": [
+        {
+          "number": 2,
+          "content": "InhibitSectorState is effective radar state. An enabled inhibit sector suppresses production of Detection and TargetTrack messages within its angular and range bounds, even if the area is scanned.",
+          "highlight": false
+        },
+        {
+          "number": 3,
+          "content": "Requested state, DisplayState and effective RadarState/InhibitSectorState are separate observations. Display state does not certify applied state.",
+          "highlight": false
+        },
+        {
+          "number": 4,
+          "content": "ReceiptAcknowledgement means accepted into a queue only. ApplicationAcknowledgement with APPLIED means processing and application completed. RequestRejected with NOT_APPLIED is local to that request; it does not mean the service crashed.",
+          "highlight": true
+        },
+        {
+          "number": 5,
+          "content": "SoftwareVersion reports the actual component software version and supported schemas. RequestSent carries schema_id. sector.v1 represents a change with enabled:boolean. sector.v2 uses sector_action:set|remove. search.v1 is a separate request schema.",
+          "highlight": false
+        },
+        {
+          "number": 6,
+          "content": "Angles are degrees clockwise from true north in a fixed radar-site polar frame. Ranges are kilometres. Bounds are inclusive. Increasing azimuth wraps through north (0 degrees). Equal angular endpoints mean zero width.",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[control_gateway.txt:L2]",
+      "sourceFile": "control_gateway.txt",
+      "line": 2,
+      "event": {
+        "family": "component_log",
+        "source": "control-gateway",
+        "time": "2026-10-14T12:00:20.110Z",
+        "type": "ApplicationAcknowledgement",
+        "severity": "INFO",
+        "text": "Applied result forwarded",
+        "fields": {
+          "request_id": "req-101",
+          "acknowledgement": "APPLICATION",
+          "result": "APPLIED",
+          "sector_id": "SEC-7",
+          "enabled": "true"
+        },
+        "id": "control_gateway.txt:2",
+        "badge": "[control_gateway.txt:L2]",
+        "caseId": "case_005",
+        "sourceFile": "control_gateway.txt",
+        "line": 2
+      },
+      "sha256": "8d7e9f154880e56bb1f05ac6ec161797fcd6e186ba9498f603202f9e313ba3a7",
+      "lines": [
+        {
+          "number": 1,
+          "content": "{\"timestamp\":\"2026-10-14T12:00:20.020Z\",\"source\":\"control-gateway\",\"type\":\"ReceiptAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Request accepted into queue\",\"fields\":{\"request_id\":\"req-101\",\"acknowledgement\":\"RECEIPT\",\"queued\":\"true\"}}",
+          "highlight": false
+        },
+        {
+          "number": 2,
+          "content": "{\"timestamp\":\"2026-10-14T12:00:20.110Z\",\"source\":\"control-gateway\",\"type\":\"ApplicationAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Applied result forwarded\",\"fields\":{\"request_id\":\"req-101\",\"acknowledgement\":\"APPLICATION\",\"result\":\"APPLIED\",\"sector_id\":\"SEC-7\",\"enabled\":\"true\"}}",
+          "highlight": true
+        },
+        {
+          "number": 3,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:55.020Z\",\"source\":\"control-gateway\",\"type\":\"ReceiptAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Request accepted into queue\",\"fields\":{\"request_id\":\"req-202\",\"acknowledgement\":\"RECEIPT\",\"queued\":\"true\"}}",
+          "highlight": false
+        },
+        {
+          "number": 4,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:55.110Z\",\"source\":\"control-gateway\",\"type\":\"ApplicationAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Applied result forwarded\",\"fields\":{\"request_id\":\"req-202\",\"acknowledgement\":\"APPLICATION\",\"result\":\"APPLIED\",\"pattern\":\"SEARCH_WIDE\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[config_service.txt:L3]",
+      "sourceFile": "config_service.txt",
+      "line": 3,
+      "event": {
+        "family": "component_log",
+        "source": "config-service",
+        "time": "2026-10-14T12:00:20.100Z",
+        "type": "RequestApplied",
+        "severity": "INFO",
+        "text": "Request decoded and applied",
+        "fields": {
+          "request_id": "req-101",
+          "schema_id": "sector.v1",
+          "operation": "SET",
+          "result": "APPLIED",
+          "sector_id": "SEC-7",
+          "enabled": "true"
+        },
+        "id": "config_service.txt:3",
+        "badge": "[config_service.txt:L3]",
+        "caseId": "case_005",
+        "sourceFile": "config_service.txt",
+        "line": 3
+      },
+      "sha256": "7e781beee8b84985aade11c967047a212190666256f3772fd7469adcab1939cb",
+      "lines": [
+        {
+          "number": 1,
+          "content": "{\"timestamp\":\"2026-10-14T12:00:00.000Z\",\"source\":\"config-service\",\"type\":\"SoftwareVersion\",\"severity\":\"INFO\",\"message\":\"Configuration service started\",\"fields\":{\"software_version\":\"1.4.0\",\"supported_schemas\":\"sector.v1,search.v1\"}}",
+          "highlight": false
+        },
+        {
+          "number": 2,
+          "content": "{\"timestamp\":\"2026-10-14T12:00:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":0}}",
+          "highlight": false
+        },
+        {
+          "number": 3,
+          "content": "{\"timestamp\":\"2026-10-14T12:00:20.100Z\",\"source\":\"config-service\",\"type\":\"RequestApplied\",\"severity\":\"INFO\",\"message\":\"Request decoded and applied\",\"fields\":{\"request_id\":\"req-101\",\"schema_id\":\"sector.v1\",\"operation\":\"SET\",\"result\":\"APPLIED\",\"sector_id\":\"SEC-7\",\"enabled\":\"true\"}}",
+          "highlight": true
+        },
+        {
+          "number": 4,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":60}}",
+          "highlight": false
+        },
+        {
+          "number": 5,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:55.100Z\",\"source\":\"config-service\",\"type\":\"RequestApplied\",\"severity\":\"INFO\",\"message\":\"Request decoded and applied\",\"fields\":{\"request_id\":\"req-202\",\"schema_id\":\"search.v1\",\"operation\":\"SET_SEARCH\",\"result\":\"APPLIED\",\"pattern\":\"SEARCH_WIDE\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[control_gateway.txt:L4]",
+      "sourceFile": "control_gateway.txt",
+      "line": 4,
+      "event": {
+        "family": "component_log",
+        "source": "control-gateway",
+        "time": "2026-10-14T12:01:55.110Z",
+        "type": "ApplicationAcknowledgement",
+        "severity": "INFO",
+        "text": "Applied result forwarded",
+        "fields": {
+          "request_id": "req-202",
+          "acknowledgement": "APPLICATION",
+          "result": "APPLIED",
+          "pattern": "SEARCH_WIDE"
+        },
+        "id": "control_gateway.txt:4",
+        "badge": "[control_gateway.txt:L4]",
+        "caseId": "case_005",
+        "sourceFile": "control_gateway.txt",
+        "line": 4
+      },
+      "sha256": "8d7e9f154880e56bb1f05ac6ec161797fcd6e186ba9498f603202f9e313ba3a7",
+      "lines": [
+        {
+          "number": 2,
+          "content": "{\"timestamp\":\"2026-10-14T12:00:20.110Z\",\"source\":\"control-gateway\",\"type\":\"ApplicationAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Applied result forwarded\",\"fields\":{\"request_id\":\"req-101\",\"acknowledgement\":\"APPLICATION\",\"result\":\"APPLIED\",\"sector_id\":\"SEC-7\",\"enabled\":\"true\"}}",
+          "highlight": false
+        },
+        {
+          "number": 3,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:55.020Z\",\"source\":\"control-gateway\",\"type\":\"ReceiptAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Request accepted into queue\",\"fields\":{\"request_id\":\"req-202\",\"acknowledgement\":\"RECEIPT\",\"queued\":\"true\"}}",
+          "highlight": false
+        },
+        {
+          "number": 4,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:55.110Z\",\"source\":\"control-gateway\",\"type\":\"ApplicationAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Applied result forwarded\",\"fields\":{\"request_id\":\"req-202\",\"acknowledgement\":\"APPLICATION\",\"result\":\"APPLIED\",\"pattern\":\"SEARCH_WIDE\"}}",
+          "highlight": true
+        },
+        {
+          "number": 5,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.020Z\",\"source\":\"control-gateway\",\"type\":\"ReceiptAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Request accepted into queue\",\"fields\":{\"request_id\":\"req-303\",\"acknowledgement\":\"RECEIPT\",\"queued\":\"true\"}}",
+          "highlight": false
+        },
+        {
+          "number": 6,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.120Z\",\"source\":\"control-gateway\",\"type\":\"ResultDelivery\",\"severity\":\"WARN\",\"message\":\"Processing result retained on internal result channel\",\"fields\":{\"request_id\":\"req-303\",\"result\":\"NOT_APPLIED\",\"destination\":\"internal-results\",\"ui_subscribed\":\"false\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[config_service.txt:L5]",
+      "sourceFile": "config_service.txt",
+      "line": 5,
+      "event": {
+        "family": "component_log",
+        "source": "config-service",
+        "time": "2026-10-14T12:01:55.100Z",
+        "type": "RequestApplied",
+        "severity": "INFO",
+        "text": "Request decoded and applied",
+        "fields": {
+          "request_id": "req-202",
+          "schema_id": "search.v1",
+          "operation": "SET_SEARCH",
+          "result": "APPLIED",
+          "pattern": "SEARCH_WIDE"
+        },
+        "id": "config_service.txt:5",
+        "badge": "[config_service.txt:L5]",
+        "caseId": "case_005",
+        "sourceFile": "config_service.txt",
+        "line": 5
+      },
+      "sha256": "7e781beee8b84985aade11c967047a212190666256f3772fd7469adcab1939cb",
+      "lines": [
+        {
+          "number": 3,
+          "content": "{\"timestamp\":\"2026-10-14T12:00:20.100Z\",\"source\":\"config-service\",\"type\":\"RequestApplied\",\"severity\":\"INFO\",\"message\":\"Request decoded and applied\",\"fields\":{\"request_id\":\"req-101\",\"schema_id\":\"sector.v1\",\"operation\":\"SET\",\"result\":\"APPLIED\",\"sector_id\":\"SEC-7\",\"enabled\":\"true\"}}",
+          "highlight": false
+        },
+        {
+          "number": 4,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":60}}",
+          "highlight": false
+        },
+        {
+          "number": 5,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:55.100Z\",\"source\":\"config-service\",\"type\":\"RequestApplied\",\"severity\":\"INFO\",\"message\":\"Request decoded and applied\",\"fields\":{\"request_id\":\"req-202\",\"schema_id\":\"search.v1\",\"operation\":\"SET_SEARCH\",\"result\":\"APPLIED\",\"pattern\":\"SEARCH_WIDE\"}}",
+          "highlight": true
+        },
+        {
+          "number": 6,
+          "content": "{\"timestamp\":\"2026-10-14T12:02:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":120}}",
+          "highlight": false
+        },
+        {
+          "number": 7,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.100Z\",\"source\":\"config-service\",\"type\":\"RequestRejected\",\"severity\":\"ERROR\",\"message\":\"Unsupported sector request schema: expected enabled:boolean in sector.v1; sector_action in sector.v2 cannot be decoded\",\"fields\":{\"request_id\":\"req-303\",\"sector_id\":\"SEC-7\",\"software_version\":\"1.4.0\",\"schema_id\":\"sector.v2\",\"supported_schema\":\"sector.v1\",\"error_code\":\"UNSUPPORTED_SCHEMA\",\"result\":\"NOT_APPLIED\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[control_gateway.txt:L8]",
+      "sourceFile": "control_gateway.txt",
+      "line": 8,
+      "event": {
+        "family": "component_log",
+        "source": "control-gateway",
+        "time": "2026-10-14T12:05:20.110Z",
+        "type": "ApplicationAcknowledgement",
+        "severity": "INFO",
+        "text": "Applied result forwarded",
+        "fields": {
+          "request_id": "req-404",
+          "acknowledgement": "APPLICATION",
+          "result": "APPLIED",
+          "pattern": "SEARCH_WIDE"
+        },
+        "id": "control_gateway.txt:8",
+        "badge": "[control_gateway.txt:L8]",
+        "caseId": "case_005",
+        "sourceFile": "control_gateway.txt",
+        "line": 8
+      },
+      "sha256": "8d7e9f154880e56bb1f05ac6ec161797fcd6e186ba9498f603202f9e313ba3a7",
+      "lines": [
+        {
+          "number": 6,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.120Z\",\"source\":\"control-gateway\",\"type\":\"ResultDelivery\",\"severity\":\"WARN\",\"message\":\"Processing result retained on internal result channel\",\"fields\":{\"request_id\":\"req-303\",\"result\":\"NOT_APPLIED\",\"destination\":\"internal-results\",\"ui_subscribed\":\"false\"}}",
+          "highlight": false
+        },
+        {
+          "number": 7,
+          "content": "{\"timestamp\":\"2026-10-14T12:05:20.020Z\",\"source\":\"control-gateway\",\"type\":\"ReceiptAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Request accepted into queue\",\"fields\":{\"request_id\":\"req-404\",\"acknowledgement\":\"RECEIPT\",\"queued\":\"true\"}}",
+          "highlight": false
+        },
+        {
+          "number": 8,
+          "content": "{\"timestamp\":\"2026-10-14T12:05:20.110Z\",\"source\":\"control-gateway\",\"type\":\"ApplicationAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Applied result forwarded\",\"fields\":{\"request_id\":\"req-404\",\"acknowledgement\":\"APPLICATION\",\"result\":\"APPLIED\",\"pattern\":\"SEARCH_WIDE\"}}",
+          "highlight": true
+        },
+        {
+          "number": 9,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:15.020Z\",\"source\":\"control-gateway\",\"type\":\"ReceiptAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Request accepted into queue\",\"fields\":{\"request_id\":\"req-505\",\"acknowledgement\":\"RECEIPT\",\"queued\":\"true\"}}",
+          "highlight": false
+        },
+        {
+          "number": 10,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:15.110Z\",\"source\":\"control-gateway\",\"type\":\"ApplicationAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Applied result forwarded\",\"fields\":{\"request_id\":\"req-505\",\"acknowledgement\":\"APPLICATION\",\"result\":\"APPLIED\",\"sector_id\":\"SEC-7\",\"enabled\":\"false\",\"software_version\":\"1.5.0\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[config_service.txt:L11]",
+      "sourceFile": "config_service.txt",
+      "line": 11,
+      "event": {
+        "family": "component_log",
+        "source": "config-service",
+        "time": "2026-10-14T12:05:20.100Z",
+        "type": "RequestApplied",
+        "severity": "INFO",
+        "text": "Request decoded and applied",
+        "fields": {
+          "request_id": "req-404",
+          "schema_id": "search.v1",
+          "operation": "SET_SEARCH",
+          "result": "APPLIED",
+          "pattern": "SEARCH_WIDE"
+        },
+        "id": "config_service.txt:11",
+        "badge": "[config_service.txt:L11]",
+        "caseId": "case_005",
+        "sourceFile": "config_service.txt",
+        "line": 11
+      },
+      "sha256": "7e781beee8b84985aade11c967047a212190666256f3772fd7469adcab1939cb",
+      "lines": [
+        {
+          "number": 9,
+          "content": "{\"timestamp\":\"2026-10-14T12:04:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":240}}",
+          "highlight": false
+        },
+        {
+          "number": 10,
+          "content": "{\"timestamp\":\"2026-10-14T12:05:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":300}}",
+          "highlight": false
+        },
+        {
+          "number": 11,
+          "content": "{\"timestamp\":\"2026-10-14T12:05:20.100Z\",\"source\":\"config-service\",\"type\":\"RequestApplied\",\"severity\":\"INFO\",\"message\":\"Request decoded and applied\",\"fields\":{\"request_id\":\"req-404\",\"schema_id\":\"search.v1\",\"operation\":\"SET_SEARCH\",\"result\":\"APPLIED\",\"pattern\":\"SEARCH_WIDE\"}}",
+          "highlight": true
+        },
+        {
+          "number": 12,
+          "content": "{\"timestamp\":\"2026-10-14T12:06:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":360}}",
+          "highlight": false
+        },
+        {
+          "number": 13,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:00.000Z\",\"source\":\"config-service\",\"type\":\"SoftwareVersion\",\"severity\":\"INFO\",\"message\":\"Service update complete\",\"fields\":{\"software_version\":\"1.5.0\",\"previous_version\":\"1.4.0\",\"supported_schemas\":\"sector.v1,sector.v2,search.v1\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[control_gateway.txt:L10]",
+      "sourceFile": "control_gateway.txt",
+      "line": 10,
+      "event": {
+        "family": "component_log",
+        "source": "control-gateway",
+        "time": "2026-10-14T12:07:15.110Z",
+        "type": "ApplicationAcknowledgement",
+        "severity": "INFO",
+        "text": "Applied result forwarded",
+        "fields": {
+          "request_id": "req-505",
+          "acknowledgement": "APPLICATION",
+          "result": "APPLIED",
+          "sector_id": "SEC-7",
+          "enabled": "false",
+          "software_version": "1.5.0"
+        },
+        "id": "control_gateway.txt:10",
+        "badge": "[control_gateway.txt:L10]",
+        "caseId": "case_005",
+        "sourceFile": "control_gateway.txt",
+        "line": 10
+      },
+      "sha256": "8d7e9f154880e56bb1f05ac6ec161797fcd6e186ba9498f603202f9e313ba3a7",
+      "lines": [
+        {
+          "number": 8,
+          "content": "{\"timestamp\":\"2026-10-14T12:05:20.110Z\",\"source\":\"control-gateway\",\"type\":\"ApplicationAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Applied result forwarded\",\"fields\":{\"request_id\":\"req-404\",\"acknowledgement\":\"APPLICATION\",\"result\":\"APPLIED\",\"pattern\":\"SEARCH_WIDE\"}}",
+          "highlight": false
+        },
+        {
+          "number": 9,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:15.020Z\",\"source\":\"control-gateway\",\"type\":\"ReceiptAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Request accepted into queue\",\"fields\":{\"request_id\":\"req-505\",\"acknowledgement\":\"RECEIPT\",\"queued\":\"true\"}}",
+          "highlight": false
+        },
+        {
+          "number": 10,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:15.110Z\",\"source\":\"control-gateway\",\"type\":\"ApplicationAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Applied result forwarded\",\"fields\":{\"request_id\":\"req-505\",\"acknowledgement\":\"APPLICATION\",\"result\":\"APPLIED\",\"sector_id\":\"SEC-7\",\"enabled\":\"false\",\"software_version\":\"1.5.0\"}}",
+          "highlight": true
+        }
+      ]
+    },
+    {
+      "badge": "[config_service.txt:L15]",
+      "sourceFile": "config_service.txt",
+      "line": 15,
+      "event": {
+        "family": "component_log",
+        "source": "config-service",
+        "time": "2026-10-14T12:07:15.100Z",
+        "type": "RequestApplied",
+        "severity": "INFO",
+        "text": "Request decoded and applied",
+        "fields": {
+          "request_id": "req-505",
+          "schema_id": "sector.v2",
+          "operation": "REMOVE",
+          "result": "APPLIED",
+          "sector_id": "SEC-7",
+          "enabled": "false",
+          "software_version": "1.5.0"
+        },
+        "id": "config_service.txt:15",
+        "badge": "[config_service.txt:L15]",
+        "caseId": "case_005",
+        "sourceFile": "config_service.txt",
+        "line": 15
+      },
+      "sha256": "7e781beee8b84985aade11c967047a212190666256f3772fd7469adcab1939cb",
+      "lines": [
+        {
+          "number": 13,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:00.000Z\",\"source\":\"config-service\",\"type\":\"SoftwareVersion\",\"severity\":\"INFO\",\"message\":\"Service update complete\",\"fields\":{\"software_version\":\"1.5.0\",\"previous_version\":\"1.4.0\",\"supported_schemas\":\"sector.v1,sector.v2,search.v1\"}}",
+          "highlight": false
+        },
+        {
+          "number": 14,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":0}}",
+          "highlight": false
+        },
+        {
+          "number": 15,
+          "content": "{\"timestamp\":\"2026-10-14T12:07:15.100Z\",\"source\":\"config-service\",\"type\":\"RequestApplied\",\"severity\":\"INFO\",\"message\":\"Request decoded and applied\",\"fields\":{\"request_id\":\"req-505\",\"schema_id\":\"sector.v2\",\"operation\":\"REMOVE\",\"result\":\"APPLIED\",\"sector_id\":\"SEC-7\",\"enabled\":\"false\",\"software_version\":\"1.5.0\"}}",
+          "highlight": true
+        },
+        {
+          "number": 16,
+          "content": "{\"timestamp\":\"2026-10-14T12:08:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":60}}",
+          "highlight": false
+        },
+        {
+          "number": 17,
+          "content": "{\"timestamp\":\"2026-10-14T12:09:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":120}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[config_service.txt:L7]",
+      "sourceFile": "config_service.txt",
+      "line": 7,
+      "event": {
+        "family": "component_log",
+        "source": "config-service",
+        "time": "2026-10-14T12:03:00.100Z",
+        "type": "RequestRejected",
+        "severity": "ERROR",
+        "text": "Unsupported sector request schema: expected enabled:boolean in sector.v1; sector_action in sector.v2 cannot be decoded",
+        "fields": {
+          "request_id": "req-303",
+          "sector_id": "SEC-7",
+          "software_version": "1.4.0",
+          "schema_id": "sector.v2",
+          "supported_schema": "sector.v1",
+          "error_code": "UNSUPPORTED_SCHEMA",
+          "result": "NOT_APPLIED"
+        },
+        "id": "config_service.txt:7",
+        "badge": "[config_service.txt:L7]",
+        "caseId": "case_005",
+        "sourceFile": "config_service.txt",
+        "line": 7
+      },
+      "sha256": "7e781beee8b84985aade11c967047a212190666256f3772fd7469adcab1939cb",
+      "lines": [
+        {
+          "number": 5,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:55.100Z\",\"source\":\"config-service\",\"type\":\"RequestApplied\",\"severity\":\"INFO\",\"message\":\"Request decoded and applied\",\"fields\":{\"request_id\":\"req-202\",\"schema_id\":\"search.v1\",\"operation\":\"SET_SEARCH\",\"result\":\"APPLIED\",\"pattern\":\"SEARCH_WIDE\"}}",
+          "highlight": false
+        },
+        {
+          "number": 6,
+          "content": "{\"timestamp\":\"2026-10-14T12:02:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":120}}",
+          "highlight": false
+        },
+        {
+          "number": 7,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.100Z\",\"source\":\"config-service\",\"type\":\"RequestRejected\",\"severity\":\"ERROR\",\"message\":\"Unsupported sector request schema: expected enabled:boolean in sector.v1; sector_action in sector.v2 cannot be decoded\",\"fields\":{\"request_id\":\"req-303\",\"sector_id\":\"SEC-7\",\"software_version\":\"1.4.0\",\"schema_id\":\"sector.v2\",\"supported_schema\":\"sector.v1\",\"error_code\":\"UNSUPPORTED_SCHEMA\",\"result\":\"NOT_APPLIED\"}}",
+          "highlight": true
+        },
+        {
+          "number": 8,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":180}}",
+          "highlight": false
+        },
+        {
+          "number": 9,
+          "content": "{\"timestamp\":\"2026-10-14T12:04:00.300Z\",\"source\":\"config-service\",\"type\":\"Heartbeat\",\"severity\":\"INFO\",\"message\":\"Service ready; request queue drained\",\"fields\":{\"queue_depth\":0,\"uptime_s\":240}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[control_gateway.txt:L6]",
+      "sourceFile": "control_gateway.txt",
+      "line": 6,
+      "event": {
+        "family": "component_log",
+        "source": "control-gateway",
+        "time": "2026-10-14T12:03:00.120Z",
+        "type": "ResultDelivery",
+        "severity": "WARN",
+        "text": "Processing result retained on internal result channel",
+        "fields": {
+          "request_id": "req-303",
+          "result": "NOT_APPLIED",
+          "destination": "internal-results",
+          "ui_subscribed": "false"
+        },
+        "id": "control_gateway.txt:6",
+        "badge": "[control_gateway.txt:L6]",
+        "caseId": "case_005",
+        "sourceFile": "control_gateway.txt",
+        "line": 6
+      },
+      "sha256": "8d7e9f154880e56bb1f05ac6ec161797fcd6e186ba9498f603202f9e313ba3a7",
+      "lines": [
+        {
+          "number": 4,
+          "content": "{\"timestamp\":\"2026-10-14T12:01:55.110Z\",\"source\":\"control-gateway\",\"type\":\"ApplicationAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Applied result forwarded\",\"fields\":{\"request_id\":\"req-202\",\"acknowledgement\":\"APPLICATION\",\"result\":\"APPLIED\",\"pattern\":\"SEARCH_WIDE\"}}",
+          "highlight": false
+        },
+        {
+          "number": 5,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.020Z\",\"source\":\"control-gateway\",\"type\":\"ReceiptAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Request accepted into queue\",\"fields\":{\"request_id\":\"req-303\",\"acknowledgement\":\"RECEIPT\",\"queued\":\"true\"}}",
+          "highlight": false
+        },
+        {
+          "number": 6,
+          "content": "{\"timestamp\":\"2026-10-14T12:03:00.120Z\",\"source\":\"control-gateway\",\"type\":\"ResultDelivery\",\"severity\":\"WARN\",\"message\":\"Processing result retained on internal result channel\",\"fields\":{\"request_id\":\"req-303\",\"result\":\"NOT_APPLIED\",\"destination\":\"internal-results\",\"ui_subscribed\":\"false\"}}",
+          "highlight": true
+        },
+        {
+          "number": 7,
+          "content": "{\"timestamp\":\"2026-10-14T12:05:20.020Z\",\"source\":\"control-gateway\",\"type\":\"ReceiptAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Request accepted into queue\",\"fields\":{\"request_id\":\"req-404\",\"acknowledgement\":\"RECEIPT\",\"queued\":\"true\"}}",
+          "highlight": false
+        },
+        {
+          "number": 8,
+          "content": "{\"timestamp\":\"2026-10-14T12:05:20.110Z\",\"source\":\"control-gateway\",\"type\":\"ApplicationAcknowledgement\",\"severity\":\"INFO\",\"message\":\"Applied result forwarded\",\"fields\":{\"request_id\":\"req-404\",\"acknowledgement\":\"APPLICATION\",\"result\":\"APPLIED\",\"pattern\":\"SEARCH_WIDE\"}}",
+          "highlight": false
+        }
+      ]
+    },
+    {
+      "badge": "[capture_manifest.json:L46]",
+      "sourceFile": "capture_manifest.json",
+      "line": 46,
+      "sha256": "4ffb8483a0bd0f8691a3b50b9534f1c7c39743a5f8ec08bc61ab495c2242013c",
+      "lines": [
+        {
+          "number": 44,
+          "content": "  },",
+          "highlight": false
+        },
+        {
+          "number": 45,
+          "content": "  \"known_recorder_drops\": 0,",
+          "highlight": false
+        },
+        {
+          "number": 46,
+          "content": "  \"capture_completeness\": \"complete for declared types, all targets and full recording window\",",
+          "highlight": true
+        },
+        {
+          "number": 47,
+          "content": "  \"coverage_by_type\": {",
+          "highlight": false
+        },
+        {
+          "number": 48,
+          "content": "    \"RadarState\": {",
+          "highlight": false
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "elapsedMs": 0.20595799991860986,
+      "event": {
+        "type": "status",
+        "text": "קורא את ההקשר ואת המקורות הזמינים בתחקיר.",
+        "step": {
+          "id": "phase:1",
+          "title": "מתאים את הבדיקה לשאלה שלך",
+          "detail": "קורא את ההקשר ואת המקורות הזמינים בתחקיר.",
+          "state": "running",
+          "startedAt": 1791986444162
+        }
+      }
+    },
+    {
+      "elapsedMs": 7718.043250000104,
+      "event": {
+        "type": "status",
+        "text": "קורא את ההקשר ואת המקורות הזמינים בתחקיר.",
+        "step": {
+          "id": "phase:1",
+          "title": "מתאים את הבדיקה לשאלה שלך",
+          "detail": "קורא את ההקשר ואת המקורות הזמינים בתחקיר.",
+          "state": "complete",
+          "startedAt": 1791986444162,
+          "completedAt": 1791986451880,
+          "completionOrder": 1
+        }
+      }
+    },
+    {
+      "elapsedMs": 7718.046624999959,
+      "event": {
+        "type": "status",
+        "text": "אציג את הבדיקות ואת התוצאות שהן מחזירות כאן.",
+        "step": {
+          "id": "phase:2",
+          "title": "חוזר למקורות שעליהם מבוססת התשובה",
+          "detail": "אציג את הבדיקות ואת התוצאות שהן מחזירות כאן.",
+          "state": "running",
+          "startedAt": 1791986451880
+        }
+      }
+    },
+    {
+      "elapsedMs": 12318.839832999976,
+      "event": {
+        "type": "tool_call",
+        "text": "משווה זמנים ורשומות שנקלטו.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01DSxijEWVLk7FJHyZZ75Qrw",
+          "title": "בודק אירועים מתוך לוג שער הבקרה",
+          "detail": "משווה זמנים ורשומות שנקלטו.",
+          "state": "running",
+          "startedAt": 1791986456480
+        }
+      }
+    },
+    {
+      "elapsedMs": 12318.962999999989,
+      "event": {
+        "type": "tool_call",
+        "text": "משווה זמנים ורשומות שנקלטו.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_0147vRQzKctpYby7T7zS97my",
+          "title": "בודק אירועים מתוך לוג שירות התצורה",
+          "detail": "משווה זמנים ורשומות שנקלטו.",
+          "state": "running",
+          "startedAt": 1791986456480
+        }
+      }
+    },
+    {
+      "elapsedMs": 12318.99783300003,
+      "event": {
+        "type": "tool_call",
+        "text": "חיפוש: ״NOT_APPLIED״",
+        "tool": "search_text",
+        "step": {
+          "id": "tool:toolu_01MPxKr5vx44Gu2bpNirBGmB",
+          "title": "מחפש דיווחים מתוך המקורות שנבחרו",
+          "detail": "חיפוש: ״NOT_APPLIED״",
+          "state": "running",
+          "startedAt": 1791986456481
+        }
+      }
+    },
+    {
+      "elapsedMs": 12319.999916000059,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 10 רשומות; הוחזרו 10 לבדיקה.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01DSxijEWVLk7FJHyZZ75Qrw",
+          "title": "בודק אירועים מתוך לוג שער הבקרה",
+          "detail": "נמצאו 10 רשומות; הוחזרו 10 לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791986456480,
+          "completedAt": 1791986456481,
+          "citations": [],
+          "completionOrder": 2
+        }
+      }
+    },
+    {
+      "elapsedMs": 12320.091290999902,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 18 רשומות; הוחזרו 18 לבדיקה.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_0147vRQzKctpYby7T7zS97my",
+          "title": "בודק אירועים מתוך לוג שירות התצורה",
+          "detail": "נמצאו 18 רשומות; הוחזרו 18 לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791986456480,
+          "completedAt": 1791986456482,
+          "citations": [],
+          "completionOrder": 3
+        }
+      }
+    },
+    {
+      "elapsedMs": 12320.114957999904,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 2 רשומות; הוחזרו 2 לבדיקה.",
+        "tool": "search_text",
+        "step": {
+          "id": "tool:toolu_01MPxKr5vx44Gu2bpNirBGmB",
+          "title": "מחפש דיווחים מתוך המקורות שנבחרו",
+          "detail": "נמצאו 2 רשומות; הוחזרו 2 לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791986456481,
+          "completedAt": 1791986456482,
+          "citations": [],
+          "completionOrder": 4
+        }
+      }
+    },
+    {
+      "elapsedMs": 16065.159665999934,
+      "event": {
+        "type": "tool_call",
+        "text": "חיפוש: ״req-״",
+        "tool": "search_text",
+        "step": {
+          "id": "tool:toolu_01LajPU1aBkHL3nQPryLBiDm",
+          "title": "מחפש דיווחים מתוך לוג תוכנת הממשק",
+          "detail": "חיפוש: ״req-״",
+          "state": "running",
+          "startedAt": 1791986460227
+        }
+      }
+    },
+    {
+      "elapsedMs": 16065.556541000027,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 7 רשומות; הוחזרו 7 לבדיקה.",
+        "tool": "search_text",
+        "step": {
+          "id": "tool:toolu_01LajPU1aBkHL3nQPryLBiDm",
+          "title": "מחפש דיווחים מתוך לוג תוכנת הממשק",
+          "detail": "נמצאו 7 רשומות; הוחזרו 7 לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791986460227,
+          "completedAt": 1791986460227,
+          "citations": [],
+          "completionOrder": 5
+        }
+      }
+    },
+    {
+      "elapsedMs": 34896.630832999945,
+      "event": {
+        "type": "status",
+        "text": "אציג את הבדיקות ואת התוצאות שהן מחזירות כאן.",
+        "step": {
+          "id": "phase:2",
+          "title": "חוזר למקורות שעליהם מבוססת התשובה",
+          "detail": "אציג את הבדיקות ואת התוצאות שהן מחזירות כאן.",
+          "state": "complete",
+          "startedAt": 1791986451880,
+          "completedAt": 1791986479058,
+          "completionOrder": 6
+        }
+      }
+    },
+    {
+      "elapsedMs": 34896.63491600007,
+      "event": {
+        "type": "status",
+        "text": "נדרשת בדיקה נוספת של ההיקף או של האסמכתאות.",
+        "step": {
+          "id": "phase:3",
+          "title": "משלים את הבדיקה לפני הצגת התשובה",
+          "detail": "נדרשת בדיקה נוספת של ההיקף או של האסמכתאות.",
+          "state": "running",
+          "startedAt": 1791986479058
+        }
+      }
+    },
+    {
+      "elapsedMs": 40721.74312500004,
+      "event": {
+        "type": "tool_call",
+        "text": "בין 15:00:00 ל־15:10:05 (זמן מקומי)",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01XnocVW8cWML41TxFssUX5E",
+          "title": "בודק את רצף האירועים",
+          "detail": "בין 15:00:00 ל־15:10:05 (זמן מקומי)",
+          "state": "running",
+          "startedAt": 1791986484883
+        }
+      }
+    },
+    {
+      "elapsedMs": 40722.39779100008,
+      "event": {
+        "type": "tool_call",
+        "text": "בין 15:00:00 ל־15:10:05 (זמן מקומי)",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01RSdHRFXGHU5a86tPchUtt8",
+          "title": "בודק את רצף האירועים",
+          "detail": "בין 15:00:00 ל־15:10:05 (זמן מקומי)",
+          "state": "running",
+          "startedAt": 1791986484884
+        }
+      }
+    },
+    {
+      "elapsedMs": 40722.849958000006,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 5 רשומות; הוחזרו 5 לבדיקה.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01XnocVW8cWML41TxFssUX5E",
+          "title": "בודק את רצף האירועים",
+          "detail": "נמצאו 5 רשומות; הוחזרו 5 לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791986484883,
+          "completedAt": 1791986484884,
+          "citations": [],
+          "completionOrder": 7
+        }
+      }
+    },
+    {
+      "elapsedMs": 40723.037082999945,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 5 רשומות; הוחזרו 5 לבדיקה.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01RSdHRFXGHU5a86tPchUtt8",
+          "title": "בודק את רצף האירועים",
+          "detail": "נמצאו 5 רשומות; הוחזרו 5 לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791986484884,
+          "completedAt": 1791986484884,
+          "citations": [],
+          "completionOrder": 8
+        }
+      }
+    },
+    {
+      "elapsedMs": 53444.94045799994,
+      "event": {
+        "type": "status",
+        "text": "נדרשת בדיקה נוספת של ההיקף או של האסמכתאות.",
+        "step": {
+          "id": "phase:3",
+          "title": "משלים את הבדיקה לפני הצגת התשובה",
+          "detail": "נדרשת בדיקה נוספת של ההיקף או של האסמכתאות.",
+          "state": "complete",
+          "startedAt": 1791986479058,
+          "completedAt": 1791986497606,
+          "completionOrder": 9
+        }
+      }
+    },
+    {
+      "elapsedMs": 53444.94375000009,
+      "event": {
+        "type": "status",
+        "text": "נדרשת בדיקה נוספת של ההיקף או של האסמכתאות.",
+        "step": {
+          "id": "phase:4",
+          "title": "משלים את הבדיקה לפני הצגת התשובה",
+          "detail": "נדרשת בדיקה נוספת של ההיקף או של האסמכתאות.",
+          "state": "running",
+          "startedAt": 1791986497606
+        }
+      }
+    },
+    {
+      "elapsedMs": 67423.75754099991,
+      "event": {
+        "type": "status",
+        "text": "נדרשת בדיקה נוספת של ההיקף או של האסמכתאות.",
+        "step": {
+          "id": "phase:4",
+          "title": "משלים את הבדיקה לפני הצגת התשובה",
+          "detail": "נדרשת בדיקה נוספת של ההיקף או של האסמכתאות.",
+          "state": "complete",
+          "startedAt": 1791986497606,
+          "completedAt": 1791986511585,
+          "completionOrder": 10
+        }
+      }
+    },
+    {
+      "elapsedMs": 67423.76254100003,
+      "event": {
+        "type": "status",
+        "text": "17 אסמכתאות נפתחו ונבדקו מול קובצי המקור.",
+        "step": {
+          "id": "phase:5",
+          "title": "התשובה והאסמכתאות נבדקו",
+          "detail": "17 אסמכתאות נפתחו ונבדקו מול קובצי המקור.",
+          "state": "running",
+          "startedAt": 1791986511585
+        }
+      }
+    },
+    {
+      "elapsedMs": 67423.80133299995,
+      "event": {
+        "type": "status",
+        "text": "17 אסמכתאות נפתחו ונבדקו מול קובצי המקור.",
+        "step": {
+          "id": "phase:5",
+          "title": "התשובה והאסמכתאות נבדקו",
+          "detail": "17 אסמכתאות נפתחו ונבדקו מול קובצי המקור.",
+          "state": "complete",
+          "startedAt": 1791986511585,
+          "completedAt": 1791986511585,
+          "completionOrder": 11
+        }
+      }
+    }
+  ]
+}

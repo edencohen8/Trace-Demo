@@ -32,6 +32,10 @@ The standalone GitHub demo uses [the local demo contract](06-local-demo.md).
 This is the user-requested no-database path. It does not change the historical
 GitLab lane contracts or require messages to those lanes.
 
+[Radar evidence and calculation contract](07-radar-evidence.md) extends the local
+adapter with manifest-declared packages, report regions, request tracing and
+effective state. The first new package is independent of the four legacy cases.
+
 ## Contract Lifecycle & Statuses
 
 - **`PROPOSED`**: Contract is under active grilling or planning; open to feedback from consuming lanes.

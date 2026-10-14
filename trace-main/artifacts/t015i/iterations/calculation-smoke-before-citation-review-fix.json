@@ -1,0 +1,2381 @@
+{
+  "id": "smoke",
+  "turn": 0,
+  "question": "למה T015I לא התגלתה?",
+  "provider": {
+    "provider": "anthropic",
+    "model": "claude-haiku-5-5",
+    "configured": true
+  },
+  "elapsedMs": 240012.461833,
+  "firstUsefulMs": 17520.782875,
+  "calls": {
+    "model": 29,
+    "tools": 39
+  },
+  "requests": [
+    {
+      "name": "get_case_overview",
+      "arguments": {
+        "case_id": "case_005"
+      }
+    },
+    {
+      "name": "get_case_overview",
+      "arguments": {}
+    },
+    {
+      "name": "reconstruct_state",
+      "arguments": {
+        "at_utc": "2026-10-14T12:04:10.000Z"
+      }
+    },
+    {
+      "name": "inspect_region",
+      "arguments": {
+        "report_badge": "[case_report.txt:L1]"
+      }
+    },
+    {
+      "name": "query_events",
+      "arguments": {
+        "query": "req-303",
+        "limit": 20
+      }
+    },
+    {
+      "name": "query_events",
+      "arguments": {
+        "query": "SEC-7",
+        "time_start_utc": "2026-10-14T12:02:50Z",
+        "time_end_utc": "2026-10-14T12:04:30Z",
+        "limit": 30
+      }
+    },
+    {
+      "name": "update_blackboard",
+      "arguments": {
+        "action": "propose_hypothesis",
+        "hypothesis": {
+          "id": "H1",
+          "description": "מגזר החסימה SEC-7 (35°–50°) נשאר פעיל אפקטיבית לאחר הביטול בשעה 15:03 (שעון מקומי), ולכן המכ״ם לא הפיק גילויים בגזרה בחלון הבדיקה.",
+          "status": "PROPOSED"
+        }
+      }
+    },
+    {
+      "name": "update_blackboard",
+      "arguments": {
+        "action": "propose_hypothesis",
+        "hypothesis": {
+          "id": "H2",
+          "description": "בקשת החיפוש SEARCH_WIDE (30°–65°) לא יושמה אפקטיבית בזמן המעבר (דחייה/בקשה בגרסת סכמה לא תואמת או גבולות חיפוש שאינם מכסים את 42°), ולכן המטרה לא נסרקה.",
+          "status": "PROPOSED"
+        }
+      }
+    },
+    {
+      "name": "update_blackboard",
+      "arguments": {
+        "action": "propose_hypothesis",
+        "hypothesis": {
+          "id": "H3",
+          "description": "המכ״ם סרק את האזור כראוי והמטרה לא הופקה כגילוי בגלל מגבלה אחרת (לא מוגדרת עדיין); H3 נבדק רק אם H1 ו-H2 נפסלים.",
+          "status": "PROPOSED"
+        }
+      }
+    },
+    {
+      "name": "delegate_investigation",
+      "arguments": {
+        "task_id": "task_baseline_region",
+        "question": "באמצעות inspect_region עם הבאדג' [case_report.txt:L1] (חלון 2026-10-14T12:03:55Z עד 12:04:25Z, גזרה 42° ±1°, טווח 26 ק״מ ±0.5): החזר את ספירת הגילויים/מסלולים באזור, כיסוי ההקלטה לכל סוגי ההודעות, מספר ה-drops, וה-calculation handle. בנוסף, דווח מה המצב האפקטיבי של InhibitSectorState ו-RadarState (גבולות חיפוש, תבנית, סטטוס מקלט) בזמן 12:04:10Z, והאם SEC-7 פעיל. השתמש ב-reconstruct_state לשעה זו.",
+        "hypothesis": "H1 ו-H2: האם המגזר החסום או גבולות החיפוש הפעילים מסבירים את היעדר הגילוי.",
+        "allowed_tools": [
+          "get_case_overview",
+          "inspect_region",
+          "reconstruct_state",
+          "query_events"
+        ],
+        "budget": {
+          "max_tool_calls": 8,
+          "max_rows": 50,
+          "max_tokens": 4000
+        },
+        "time_window": {
+          "start_utc": "2026-10-14T12:03:55.000Z",
+          "end_utc": "2026-10-14T12:04:25.000Z"
+        }
+      }
+    },
+    {
+      "name": "get_case_overview",
+      "arguments": {}
+    },
+    {
+      "name": "trace_request",
+      "arguments": {
+        "request_id": "req-101"
+      }
+    },
+    {
+      "name": "trace_request",
+      "arguments": {
+        "request_id": "req-303"
+      }
+    },
+    {
+      "name": "trace_request",
+      "arguments": {
+        "request_id": "req-505"
+      }
+    },
+    {
+      "name": "query_events",
+      "arguments": {
+        "source_system": "control-gateway",
+        "query": "SoftwareVersion",
+        "limit": 20
+      }
+    },
+    {
+      "name": "reconstruct_state",
+      "arguments": {
+        "at_utc": "2026-10-14T12:04:40.000Z"
+      }
+    },
+    {
+      "name": "reconstruct_state",
+      "arguments": {
+        "at_utc": "2026-10-14T12:07:30.000Z"
+      }
+    },
+    {
+      "name": "reconstruct_state",
+      "arguments": {
+        "at_utc": "2026-10-14T12:08:05.000Z"
+      }
+    },
+    {
+      "name": "update_blackboard",
+      "arguments": {
+        "action": "add_fact",
+        "fact": {
+          "claim": "בחלון 12:03:55–12:04:25Z אין גילוי ואין מסלול בגזרה/טווח של T015I (0 מתוך 6 רשומות), כיסוי שלם, 0 drops. מצב אפקטיבי ב-12:04:10Z: SEC-7 פעיל (35–50°, 0–80 ק״מ) והחיפוש SEARCH_WIDE 30–65°.",
+          "badge": "[calc:region:case_005:1]",
+          "source": "task_baseline_region"
+        }
+      }
+    },
+    {
+      "name": "update_blackboard",
+      "arguments": {
+        "action": "add_fact",
+        "fact": {
+          "claim": "req-303 (REMOVE, sector.v2) נשלח והתקבל לתור; config-service (גרסה 1.4.0) דחה בשל UNSUPPORTED_SCHEMA ונתמך רק sector.v1 — NOT_APPLIED. התצוגה הסירה את המגזר לפי קבלה בלבד.",
+          "badge": "[config_service.txt:L7]",
+          "source": "task_baseline_region"
+        }
+      }
+    },
+    {
+      "name": "update_blackboard",
+      "arguments": {
+        "action": "update_hypothesis",
+        "hypothesis": {
+          "id": "H1",
+          "status": "SUPPORTED",
+          "evidence_badge": "[calc:region:case_005:1]"
+        }
+      }
+    },
+    {
+      "name": "update_blackboard",
+      "arguments": {
+        "action": "update_hypothesis",
+        "hypothesis": {
+          "id": "H2",
+          "status": "REFUTED",
+          "evidence_badge": "[sniffer.csv:L204]"
+        }
+      }
+    },
+    {
+      "name": "delegate_investigation",
+      "arguments": {
+        "task_id": "task_trace_sector_requests",
+        "question": "בדוק את בקשות המגזר SEC-7: trace_request עבור req-101, req-303 ו-req-505. לכל בקשה דווח: סכמה (schema_id), קבלה (ReceiptAcknowledgement) ו-ApplicationAcknowledgement, תוצאה (APPLIED/NOT_APPLIED) ומזהה הסיבה. בדוק גם SoftwareVersion של config-service ו-control-gateway. לאחר מכן, באמצעות reconstruct_state, דווח מצב InhibitSectorState האפקטיבי ב-12:04:40Z, 12:07:30Z ו-12:08:05Z (לפי הבאדג'ים של המצב), והאם SEC-7 אופשרה או בוטלה בפועל לפני המעבר ב-12:08. ציין גם אם req-505 נוצר בסכמה v1 או v2.",
+        "hypothesis": "H1: הבקשה req-303 לא יושמה כי הסכמה sector.v2 לא נתמכת; המגזר נשאר פעיל. בדיקה אם בקשות אחרות הוחלו בפועל ומתי המצב האפקטיבי השתנה.",
+        "allowed_tools": [
+          "get_case_overview",
+          "trace_request",
+          "reconstruct_state",
+          "query_events",
+          "search_text"
+        ],
+        "budget": {
+          "max_tool_calls": 8,
+          "max_rows": 50,
+          "max_tokens": 4000
+        },
+        "time_window": {
+          "start_utc": "2026-10-14T12:00:00.000Z",
+          "end_utc": "2026-10-14T12:10:05.000Z"
+        }
+      }
+    },
+    {
+      "name": "get_case_overview",
+      "arguments": {}
+    },
+    {
+      "name": "inspect_region",
+      "arguments": {
+        "report_badge": "[operator_diary.csv:L7]"
+      }
+    },
+    {
+      "name": "reconstruct_state",
+      "arguments": {
+        "at_utc": "2026-10-14T12:08:05.000Z"
+      }
+    },
+    {
+      "name": "reconstruct_state",
+      "arguments": {
+        "at_utc": "2026-10-14T12:07:30.000Z"
+      }
+    },
+    {
+      "name": "reconstruct_state",
+      "arguments": {
+        "at_utc": "2026-10-14T12:04:00.000Z"
+      }
+    },
+    {
+      "name": "delegate_investigation",
+      "arguments": {
+        "task_id": "task_recovery_repeat_pass",
+        "question": "באמצעות inspect_region עם הבאדג' [operator_diary.csv:L7] (חלון 2026-10-14T12:08:00Z עד 12:08:10Z, גזרה 42° ±1°, טווח 26 ק״מ ±0.5): החזר ספירת Detection/TargetTrack באזור, כיסוי מלא לכל הסוגים, drops, ו-calculation handle. דווח גם את מצב InhibitSectorState האפקטיבי ב-12:08:05Z (SEC-7) ואת RadarState (תבנית וגבולות) באותו זמן, עם באדג'ים.",
+        "hypothesis": "שחזור: לאחר הסרת SEC-7 האפקטיבית ב-12:07:30Z, המעבר החוזר ב-12:08 נראה במערכת; זה מאשר שהחסימה היא הסיבה ליעדר הגילוי הקודם.",
+        "allowed_tools": [
+          "get_case_overview",
+          "inspect_region",
+          "reconstruct_state"
+        ],
+        "budget": {
+          "max_tool_calls": 5,
+          "max_rows": 30,
+          "max_tokens": 3000
+        },
+        "time_window": {
+          "start_utc": "2026-10-14T12:08:00.000Z",
+          "end_utc": "2026-10-14T12:08:10.000Z"
+        }
+      }
+    },
+    {
+      "name": "submit_findings",
+      "arguments": {
+        "findings": [
+          {
+            "finding_id": "F1",
+            "investigation_id": "case_005",
+            "status": "POSITIVE",
+            "title": "היעדר הגילוי במיקום המדווח",
+            "claim": "השעות מקומיות. ב-15:04:10 המכ״ם לא הפיק גילוי במיקום המדווח של T015I (42°, 26 ק״מ). מגזר החסימה SEC-7 (35°–50°, עד 80 ק״מ) היה פעיל אפקטיבית וכלל את המיקום. בחלון הבדיקה לא נמצאו גילויים או מסלולים באזור, והכיסוי היה שלם.",
+            "confidence": 0.9,
+            "rationale": "החישוב המרחבי לחלון 12:03:55–12:04:25Z הראה 0 גילויים ו-0 מסלולים מתוך 6 רשומות באזור, עם כיסוי מלא ו-0 drops. במצב האפקטיבי ב-12:04:10Z SEC-7 הייתה enabled=true, ובקטלוג מגזר פעיל מדכא גילויים בגבולותיו.",
+            "evidence_citations": [
+              {
+                "badge": "[calc:region:case_005:1]",
+                "kind": "calculation"
+              },
+              {
+                "badge": "[case_report.txt:L1]",
+                "source_file": "case_report.txt",
+                "row": 1,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[sniffer.csv:L205]",
+                "source_file": "sniffer.csv",
+                "row": 205,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[system_catalog.txt:L2]",
+                "source_file": "system_catalog.txt",
+                "row": 2,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[capture_manifest.json:L45]",
+                "source_file": "capture_manifest.json",
+                "row": 45,
+                "kind": "source_locator"
+              }
+            ],
+            "missing_coverage_flag": false
+          },
+          {
+            "finding_id": "F2",
+            "investigation_id": "case_005",
+            "status": "POSITIVE",
+            "title": "הסיבה: ביטול המגזר נדחה בגלל גרסת סכמה",
+            "claim": "ב-15:03:00 נשלח ביטול המגזר SEC-7 בסכמה sector.v2. שירות התצורה בגרסה 1.4.0 תומך רק ב-sector.v1, לכן דחה את הבקשה (UNSUPPORTED_SCHEMA) ולא יישם אותה. שער הבקרה קיבל אותה רק לתור.",
+            "confidence": 0.9,
+            "rationale": "req-303 נשלח בסכמה sector.v2 עם REMOVE, התקבל לתור בשער הבקרה, ולא נרשם לו ApplicationAcknowledgement או RequestApplied. שירות התצורה דיווח NOT_APPLIED, סיבה UNSUPPORTED_SCHEMA, ונתמך sector.v1. לפי הקטלוג, קבלה היא רק כניסה לתור ולא יישום.",
+            "evidence_citations": [
+              {
+                "badge": "[ui_client.txt:L41]",
+                "source_file": "ui_client.txt",
+                "row": 41,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[control_gateway.txt:L5]",
+                "source_file": "control_gateway.txt",
+                "row": 5,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[config_service.txt:L7]",
+                "source_file": "config_service.txt",
+                "row": 7,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[control_gateway.txt:L6]",
+                "source_file": "control_gateway.txt",
+                "row": 6,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[system_catalog.txt:L4]",
+                "source_file": "system_catalog.txt",
+                "row": 4,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[system_catalog.txt:L5]",
+                "source_file": "system_catalog.txt",
+                "row": 5,
+                "kind": "source_locator"
+              }
+            ],
+            "missing_coverage_flag": true
+          },
+          {
+            "finding_id": "F3",
+            "investigation_id": "case_005",
+            "status": "POSITIVE",
+            "title": "התצוגה הציגה ביטול שלא יושם",
+            "claim": "התצוגה הסירה את סימון החסימה לפי קבלה בלבד, בלי אימות יישום. בפועל SEC-7 נשארה פעילה עד סביב 15:07, ולכן המפעיל ראה מסך פתוח בזמן שהמכ״ם המשיך לדכא את האזור.",
+            "confidence": 0.9,
+            "rationale": "ב-12:04:10Z התצוגה הציגה SEC-7 כ-false, אך מצב InhibitSectorState האפקטיבי הראה enabled=true. התצוגה סימנה applied_state_verified=false. המפעיל דיווח ב-15:04:35 שהאזור מוצג פתוח, וזה מתיישב עם הצגה שאינה משקפת את המצב האפקטיבי.",
+            "evidence_citations": [
+              {
+                "badge": "[ui_client.txt:L43]",
+                "source_file": "ui_client.txt",
+                "row": 43,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[ui_client.txt:L59]",
+                "source_file": "ui_client.txt",
+                "row": 59,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[sniffer.csv:L204]",
+                "source_file": "sniffer.csv",
+                "row": 204,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[operator_diary.csv:L5]",
+                "source_file": "operator_diary.csv",
+                "row": 5,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[system_catalog.txt:L3]",
+                "source_file": "system_catalog.txt",
+                "row": 3,
+                "kind": "source_locator"
+              }
+            ],
+            "missing_coverage_flag": false
+          },
+          {
+            "finding_id": "F4",
+            "investigation_id": "case_005",
+            "status": "POSITIVE",
+            "title": "שחזור: ביטול שיושם לאחר עדכון גרסה",
+            "claim": "שירות התצורה עודכן לגרסה 1.5.0 ב-15:07:00. ביטול נוסף בסכמה v2 (req-505) הוחל, וב-15:07:30 SEC-7 כובתה אפקטיבית. הגילויים באזור ב-15:08 שויכו למסלול TRK-781 בלבד, ולכן לא ניתן לאמת שהם T015I.",
+            "confidence": 0.8,
+            "rationale": "שחזור המצב האפקטיבי הראה SEC-7 כבויה ב-12:07:30Z וב-12:08:05Z. בחלון 12:08 נמצאו 2 גילויים ו-2 מסלולים, כולם TRK-781. שיוך זה הוא התאמה מרחבית בלבד ואינו אימות זהות. לא נבדק המועד המדויק של המעבר בין 12:04:40Z ל-12:07:30Z, ולא נבדקה גרסת שער הבקרה.",
+            "evidence_citations": [
+              {
+                "badge": "[config_service.txt:L13]",
+                "source_file": "config_service.txt",
+                "row": 13,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[config_service.txt:L15]",
+                "source_file": "config_service.txt",
+                "row": 15,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[control_gateway.txt:L10]",
+                "source_file": "control_gateway.txt",
+                "row": 10,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[sniffer.csv:L366]",
+                "source_file": "sniffer.csv",
+                "row": 366,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[sniffer.csv:L396]",
+                "source_file": "sniffer.csv",
+                "row": 396,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[calc:region:case_005:2]",
+                "kind": "calculation"
+              },
+              {
+                "badge": "[system_catalog.txt:L9]",
+                "source_file": "system_catalog.txt",
+                "row": 9,
+                "kind": "source_locator"
+              }
+            ],
+            "missing_coverage_flag": true
+          }
+        ],
+        "summary_finding_ids": [
+          "F1",
+          "F2",
+          "F3",
+          "F4"
+        ],
+        "rationale": "Symptom: complete zero-detection window with SEC-7 effectively enabled. Cause: sector.v2 REMOVE rejected by config-service 1.4.0 (supports sector.v1). Display showed removal on receipt only. Recovery: 1.5.0 applied, SEC-7 disabled by 12:07:30Z; the 12:08 detections are attributed only to TRK-781, so T015I identity is unconfirmed."
+      }
+    },
+    {
+      "name": "get_case_overview",
+      "arguments": {}
+    },
+    {
+      "name": "trace_request",
+      "arguments": {
+        "request_id": "req-303"
+      }
+    },
+    {
+      "name": "reconstruct_state",
+      "arguments": {
+        "at_utc": "2026-10-14T12:05:30.000Z"
+      }
+    },
+    {
+      "name": "reconstruct_state",
+      "arguments": {
+        "at_utc": "2026-10-14T12:06:30.000Z"
+      }
+    },
+    {
+      "name": "reconstruct_state",
+      "arguments": {
+        "at_utc": "2026-10-14T12:04:40.000Z"
+      }
+    },
+    {
+      "name": "reconstruct_state",
+      "arguments": {
+        "at_utc": "2026-10-14T12:07:30.000Z"
+      }
+    },
+    {
+      "name": "delegate_investigation",
+      "arguments": {
+        "task_id": "task_req303_handle_gap",
+        "question": "1) הרץ trace_request עבור req-303 בחלון 12:00:00Z–12:10:05Z והחזר את calculation handle של התוצאה המלאה (type_counts, query_complete, recorder_drops) עם הבאדג' של השאילתה. 2) באמצעות reconstruct_state, דווח את מצב InhibitSectorState SEC-7 האפקטיבי ב-12:05:30Z ו-12:06:30Z עם הבאדג' של כל snapshot (enabled, valid_until).",
+        "hypothesis": "אישור ההיעדר של ApplicationAcknowledgement/RequestApplied עבור req-303, ואישור שהמגזר נשאר פעיל בין 12:04:40Z ל-12:07:30Z.",
+        "allowed_tools": [
+          "trace_request",
+          "reconstruct_state",
+          "get_case_overview"
+        ],
+        "budget": {
+          "max_tool_calls": 6,
+          "max_rows": 30,
+          "max_tokens": 3000
+        },
+        "time_window": {
+          "start_utc": "2026-10-14T12:00:00.000Z",
+          "end_utc": "2026-10-14T12:10:05.000Z"
+        }
+      }
+    },
+    {
+      "name": "submit_findings",
+      "arguments": {
+        "corrections": [
+          {
+            "finding_id": "F2",
+            "missing_coverage_flag": true,
+            "rationale": "req-303 נשלח בסכמה sector.v2 עם REMOVE [ui_client.txt:L41]. שער הבקרה קיבל אותו לתור בלבד [control_gateway.txt:L5]. שירות התצורה בגרסה 1.4.0 דחה אותו כ-UNSUPPORTED_SCHEMA ותמך רק ב-sector.v1, NOT_APPLIED [config_service.txt:L7]. לפי trace_request של req-303 (שאילתה מלאה, query_complete=true, recorder_drops=0, בלי calculation handle) לא נרשמו RequestApplied או ApplicationAcknowledgement; הכיסוי השלם מאושר ב-[capture_manifest.json:L45]. לפי הקטלוג, קבלה היא רק כניסה לתור [system_catalog.txt:L4].",
+            "evidence_citations": [
+              {
+                "badge": "[ui_client.txt:L41]",
+                "source_file": "ui_client.txt",
+                "row": 41,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[control_gateway.txt:L5]",
+                "source_file": "control_gateway.txt",
+                "row": 5,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[config_service.txt:L7]",
+                "source_file": "config_service.txt",
+                "row": 7,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[control_gateway.txt:L6]",
+                "source_file": "control_gateway.txt",
+                "row": 6,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[capture_manifest.json:L45]",
+                "source_file": "capture_manifest.json",
+                "row": 45,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[system_catalog.txt:L4]",
+                "source_file": "system_catalog.txt",
+                "row": 4,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[system_catalog.txt:L5]",
+                "source_file": "system_catalog.txt",
+                "row": 5,
+                "kind": "source_locator"
+              }
+            ]
+          },
+          {
+            "finding_id": "F3",
+            "claim": "התצוגה סימנה את SEC-7 כמבוטלת לפי קבלה בלבד, בלי אימות יישום. במצב האפקטיבי המגזר נשאר פעיל לפחות עד 15:06:30 (12:06:30Z), ו-15:07:30 הוא המועד הראשון שבו הוא כבוי במדידה. לכן המפעיל ראה מסך פתוח בזמן שהמכ״ם המשיך לדכא את האזור.",
+            "rationale": "בתצוגה: הוסר לפי קבלה, applied_state_verified=false [ui_client.txt:L43]. ב-12:04:10Z התצוגה מציגה false בזמן ש-enabled=true [sniffer.csv:L205]. ב-12:05:30Z ו-12:06:30Z המצב האפקטיבי true והתצוגה false [sniffer.csv:L269, L317; ui_client.txt:L76, L88]. ב-12:07:30Z false [sniffer.csv:L366]. המעבר עצמו בין 12:06:35Z ל-12:07:30Z לא נדגם. המפעיל דיווח שהסימון נעלם [operator_diary.csv:L4].",
+            "evidence_citations": [
+              {
+                "badge": "[ui_client.txt:L43]",
+                "source_file": "ui_client.txt",
+                "row": 43,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[sniffer.csv:L205]",
+                "source_file": "sniffer.csv",
+                "row": 205,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[sniffer.csv:L317]",
+                "source_file": "sniffer.csv",
+                "row": 317,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[ui_client.txt:L88]",
+                "source_file": "ui_client.txt",
+                "row": 88,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[sniffer.csv:L366]",
+                "source_file": "sniffer.csv",
+                "row": 366,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[operator_diary.csv:L4]",
+                "source_file": "operator_diary.csv",
+                "row": 4,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[system_catalog.txt:L3]",
+                "source_file": "system_catalog.txt",
+                "row": 3,
+                "kind": "source_locator"
+              }
+            ],
+            "missing_coverage_flag": true
+          },
+          {
+            "finding_id": "F4",
+            "claim": "שירות התצורה עודכן לגרסה 1.5.0 ב-15:07:00, וביטול נוסף לפי סכמה v2 (req-505) דווח כמיושם ב-15:07:15. ב-15:07:30 המגזר כבוי אפקטיבית, אך המעבר בין 15:06:35 ל-15:07:30 לא נבדק במלואו. בחלון 15:08 הגילויים באזור שייכים למסלול TRK-781 בלבד, ולכן זהות T015I לא אומתה.",
+            "rationale": "req-505 נוצר בסכמה sector.v2 [ui_client.txt:L97] והתקבל RequestApplied APPLIED בגרסה 1.5.0 [config_service.txt:L15]. עדכון הגרסה לתמיכה ב-v2 [config_service.txt:L13]. הקישור הסיבתי בין req-505 לכיבוי אינו מאומת במדידה רציפה, ולכן מוצג כסביר בלבד. בחלון 12:08:00–12:08:10Z נספרו 2 גילויים ו-2 מסלולים, כולם TRK-781 [calc:region:case_005:2]. דיווח המתאם על גילוי של T015I הוא דיווח אנושי [operator_diary.csv:L7].",
+            "evidence_citations": [
+              {
+                "badge": "[config_service.txt:L13]",
+                "source_file": "config_service.txt",
+                "row": 13,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[config_service.txt:L15]",
+                "source_file": "config_service.txt",
+                "row": 15,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[ui_client.txt:L97]",
+                "source_file": "ui_client.txt",
+                "row": 97,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[control_gateway.txt:L10]",
+                "source_file": "control_gateway.txt",
+                "row": 10,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[sniffer.csv:L366]",
+                "source_file": "sniffer.csv",
+                "row": 366,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[sniffer.csv:L396]",
+                "source_file": "sniffer.csv",
+                "row": 396,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[calc:region:case_005:2]",
+                "kind": "calculation"
+              },
+              {
+                "badge": "[operator_diary.csv:L7]",
+                "source_file": "operator_diary.csv",
+                "row": 7,
+                "kind": "source_locator"
+              }
+            ],
+            "missing_coverage_flag": true
+          }
+        ],
+        "summary_finding_ids": [
+          "F1",
+          "F2",
+          "F3",
+          "F4"
+        ]
+      }
+    },
+    {
+      "name": "submit_findings",
+      "arguments": {
+        "corrections": [
+          {
+            "finding_id": "F2",
+            "claim": "ב-15:03:00 נשלח ביטול המגזר SEC-7 בסכמה sector.v2. שירות התצורה בגרסה 1.4.0 תומך רק ב-sector.v1, לכן דחה את הבקשה (UNSUPPORTED_SCHEMA) ולא יישם אותה. שער הבקרה קיבל אותה רק לתור, והדחייה נשמרה רק בפנים הפנימי של שירות התצורה ללא הגעה למסך המפעיל.",
+            "rationale": "req-303 נשלח בסכמה sector.v2 עם REMOVE [ui_client.txt:L41]. שער הבקרה קיבל אותו לתור בלבד [control_gateway.txt:L5]. שירות התצורה בגרסה 1.4.0 דחה אותו כ-UNSUPPORTED_SCHEMA ותמך רק ב-sector.v1, NOT_APPLIED [config_service.txt:L7]. התוצאה נשמרה בערוץ הפנימי ולא נשלחה חזרה להצגה [control_gateway.txt:L6]. לפי trace_request של req-303 (שאילתה מלאה, query_complete=true, recorder_drops=0, בלי calculation handle) לא נרשמו RequestApplied או ApplicationAcknowledgement; הכיסוי השלם מאושר ב-[capture_manifest.json:L45]. לפי הקטלוג, קבלה היא רק כניסה לתור [system_catalog.txt:L4].",
+            "evidence_citations": [
+              {
+                "badge": "[ui_client.txt:L41]",
+                "source_file": "ui_client.txt",
+                "row": 41,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[control_gateway.txt:L5]",
+                "source_file": "control_gateway.txt",
+                "row": 5,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[config_service.txt:L7]",
+                "source_file": "config_service.txt",
+                "row": 7,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[control_gateway.txt:L6]",
+                "source_file": "control_gateway.txt",
+                "row": 6,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[capture_manifest.json:L45]",
+                "source_file": "capture_manifest.json",
+                "row": 45,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[system_catalog.txt:L4]",
+                "source_file": "system_catalog.txt",
+                "row": 4,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[system_catalog.txt:L5]",
+                "source_file": "system_catalog.txt",
+                "row": 5,
+                "kind": "source_locator"
+              }
+            ]
+          },
+          {
+            "finding_id": "F3",
+            "claim": "התצוגה סימנה את SEC-7 כמבוטלת לפי קבלה בלבד, בלי אימות יישום, ולכן המפעיל ראה מסך פתוח. במצב האפקטיבי המגזר נשאר פעיל לפחות עד 15:06:30 (12:06:30Z), וב-15:07:30 הוא כבוי במדידה רק בנקודות הנדגמות.",
+            "rationale": "בתצוגה: הוסר לפי קבלה, applied_state_verified=false [ui_client.txt:L43]. ב-12:04:10Z התצוגה מציגה false בזמן ש-enabled=true [sniffer.csv:L205]. ב-12:05:30Z ו-12:06:30Z המצב האפקטיבי true והתצוגה false [sniffer.csv:L269, L317; ui_client.txt:L76, L88]. ב-12:07:30Z false [sniffer.csv:L366]. המעבר עצמו בין 12:06:35Z ל-12:07:30Z לא נדגם. המפעיל דיווח שהאזור מוצג פתוח [operator_diary.csv:L5], והדוח שהסימון נעלם [operator_diary.csv:L4].",
+            "evidence_citations": [
+              {
+                "badge": "[ui_client.txt:L43]",
+                "source_file": "ui_client.txt",
+                "row": 43,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[sniffer.csv:L205]",
+                "source_file": "sniffer.csv",
+                "row": 205,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[ui_client.txt:L76]",
+                "source_file": "ui_client.txt",
+                "row": 76,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[sniffer.csv:L269]",
+                "source_file": "sniffer.csv",
+                "row": 269,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[sniffer.csv:L317]",
+                "source_file": "sniffer.csv",
+                "row": 317,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[ui_client.txt:L88]",
+                "source_file": "ui_client.txt",
+                "row": 88,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[sniffer.csv:L366]",
+                "source_file": "sniffer.csv",
+                "row": 366,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[operator_diary.csv:L4]",
+                "source_file": "operator_diary.csv",
+                "row": 4,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[operator_diary.csv:L5]",
+                "source_file": "operator_diary.csv",
+                "row": 5,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[system_catalog.txt:L3]",
+                "source_file": "system_catalog.txt",
+                "row": 3,
+                "kind": "source_locator"
+              }
+            ],
+            "missing_coverage_flag": true
+          },
+          {
+            "finding_id": "F4",
+            "claim": "שירות התצורה עודכן לגרסה 1.5.0 ב-15:07:00, וביטול נוסף לפי סכמה v2 (req-505) דווח כמיושם ב-15:07:15. ב-15:07:30 המגזר כבוי אפקטיבית, אך המעבר בין 15:06:35 ל-15:07:30 לא נבדק במלואו. בחלון 15:08 הגילויים באזור שייכים למסלול TRK-781 בלבד, ולכן זהות T015I לא אומתה.",
+            "rationale": "req-505 נוצר בסכמה sector.v2 [ui_client.txt:L97] והתקבל RequestApplied APPLIED בגרסה 1.5.0 [config_service.txt:L15]. עדכון הגרסה לתמיכה ב-v2 [config_service.txt:L13]. הקישור הסיבתי בין req-505 לכיבוי אינו מאומת במדידה רציפה, ולכן מוצג כסביר בלבד. בחלון 12:08:00–12:08:10Z נספרו 2 גילויים ו-2 מסלולים, כולם TRK-781 [calc:region:case_005:2]. דיווח המתאם על גילוי של T015I הוא דיווח אנושי [operator_diary.csv:L7].",
+            "evidence_citations": [
+              {
+                "badge": "[config_service.txt:L13]",
+                "source_file": "config_service.txt",
+                "row": 13,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[config_service.txt:L15]",
+                "source_file": "config_service.txt",
+                "row": 15,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[ui_client.txt:L97]",
+                "source_file": "ui_client.txt",
+                "row": 97,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[control_gateway.txt:L10]",
+                "source_file": "control_gateway.txt",
+                "row": 10,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[sniffer.csv:L366]",
+                "source_file": "sniffer.csv",
+                "row": 366,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[sniffer.csv:L396]",
+                "source_file": "sniffer.csv",
+                "row": 396,
+                "kind": "source_locator"
+              },
+              {
+                "badge": "[calc:region:case_005:2]",
+                "kind": "calculation"
+              },
+              {
+                "badge": "[operator_diary.csv:L7]",
+                "source_file": "operator_diary.csv",
+                "row": 7,
+                "kind": "source_locator"
+              }
+            ]
+          }
+        ],
+        "summary_finding_ids": [
+          "F1",
+          "F2",
+          "F3",
+          "F4"
+        ]
+      }
+    }
+  ],
+  "toolErrors": [
+    {
+      "tool": "submit_findings",
+      "error": "Claims need correction: F3: The claim that SEC-7 'נשארה פעילה עד סביב 15:07' is not supported. The retrieved records show enabled=true at 12:04:10Z (sniffer.csv:L205), at 12:04:40Z (reconstruct_state, sniffer.csv:L229), and disabled at 12:07:30Z (sniffer.csv:L366). Nothing retrieved covers 12:04:45–12:07:30Z. system_catalog.txt:L8 says not to carry state across a gap, and F4 itself admits this transition was not checked. Restate F3 as enabled at least until 12:04:40Z and disabled by 12:07:30Z, or retrieve the intervening state records. F3: The claim that the radar 'המשיך לדכא את האזור' until a"
+    },
+    {
+      "tool": "submit_findings",
+      "error": "Claims need correction: F3: The claim that the operator saw an open screen relies on operator_diary.csv:L5 (\"לא ראיתי גילוי... האזור מוצג פתוח\"), but that row is not cited in F3's evidence_citations. Add it, or cite another source for the open-screen observation. F2/F3: The causal chain omits whether the rejection reached the operator display. control_gateway.txt:L6 shows NOT_APPLIED was retained on the internal result channel with ui_subscribed=false, so the UI never received the rejection. F2 cites this row but does not state it, and F3 does not connect it to the display removal triggered by"
+    },
+    {
+      "tool": "submit_findings",
+      "error": "This operation was aborted Draft retained. Use submit_findings corrections to change only the affected finding fields. Keep the other findings and their citations."
+    }
+  ],
+  "reviews": [
+    "{\"supported\":false,\"issues\":[\"F3: The claim that SEC-7 'נשארה פעילה עד סביב 15:07' is not supported. The retrieved records show enabled=true at 12:04:10Z (sniffer.csv:L205), at 12:04:40Z (reconstruct_state, sniffer.csv:L229), and disabled at 12:07:30Z (sniffer.csv:L366). Nothing retrieved covers 12:04:45–12:07:30Z. system_catalog.txt:L8 says not to carry state across a gap, and F4 itself admits this transition was not checked. Restate F3 as enabled at least until 12:04:40Z and disabled by 12:07:30Z, or retrieve the intervening state records.\",\"F3: The claim that the radar 'המשיך לדכא את האזור' until about 15:07 depends on the same unverified interval between 12:04:45Z and 12:07:30Z. Limit it to the observed snapshots or retrieve the missing state records.\",\"F2: The absence claim 'לא נרשם לו ApplicationAcknowledgement או RequestApplied' relies on the complete trace_request result for req-303 (type_counts show 0 for both, query_complete=true, recorder_drops=0). That result is not cited in F2's evidence_citations. Add a citation to the req-303 trace query or to the input rows that establish the absence.\"]}",
+    "{\"supported\":false,\"issues\":[\"F3: The claim that the operator saw an open screen relies on operator_diary.csv:L5 (\\\"לא ראיתי גילוי... האזור מוצג פתוח\\\"), but that row is not cited in F3's evidence_citations. Add it, or cite another source for the open-screen observation.\",\"F2/F3: The causal chain omits whether the rejection reached the operator display. control_gateway.txt:L6 shows NOT_APPLIED was retained on the internal result channel with ui_subscribed=false, so the UI never received the rejection. F2 cites this row but does not state it, and F3 does not connect it to the display removal triggered by RECEIPT (ui_client.txt:L43). The finding should state both facts.\",\"F3: The rationale cites ui_client.txt:L76 for the 12:05:30Z display state, but that row is absent from the finding's evidence_citations. Add it or drop the reference.\"]}"
+  ],
+  "events": [
+    {
+      "elapsedMs": 18.216125000000034,
+      "event": {
+        "type": "status",
+        "text": "קורא את ההקשר ואת המקורות הזמינים בתחקיר.",
+        "step": {
+          "id": "phase:1",
+          "title": "מתאים את הבדיקה לשאלה שלך",
+          "detail": "קורא את ההקשר ואת המקורות הזמינים בתחקיר.",
+          "state": "running",
+          "startedAt": 1791983826120
+        }
+      }
+    },
+    {
+      "elapsedMs": 6103.689917,
+      "event": {
+        "type": "status",
+        "text": "קורא את ההקשר ואת המקורות הזמינים בתחקיר.",
+        "step": {
+          "id": "phase:1",
+          "title": "מתאים את הבדיקה לשאלה שלך",
+          "detail": "קורא את ההקשר ואת המקורות הזמינים בתחקיר.",
+          "state": "complete",
+          "startedAt": 1791983826120,
+          "completedAt": 1791983832206,
+          "completionOrder": 1
+        }
+      }
+    },
+    {
+      "elapsedMs": 6103.694208,
+      "event": {
+        "type": "status",
+        "text": "הבדיקות הבאות יחפשו גם ראיות תומכות וגם ראיות סותרות.",
+        "step": {
+          "id": "phase:2",
+          "title": "משווה בין הסברים אפשריים לאירוע",
+          "detail": "הבדיקות הבאות יחפשו גם ראיות תומכות וגם ראיות סותרות.",
+          "state": "running",
+          "startedAt": 1791983832206
+        }
+      }
+    },
+    {
+      "elapsedMs": 7520.024917,
+      "event": {
+        "type": "tool_call",
+        "text": "קורא גם את דיווחי המפעיל.",
+        "tool": "get_case_overview",
+        "step": {
+          "id": "tool:toolu_019uFXqZ1uc87wPFuKKKB3Xg",
+          "title": "בודק מקורות וכיסוי קליטה",
+          "detail": "קורא גם את דיווחי המפעיל.",
+          "state": "running",
+          "startedAt": 1791983833622
+        }
+      }
+    },
+    {
+      "elapsedMs": 7521.687042,
+      "event": {
+        "type": "tool_result",
+        "text": "5 מקורות זמינים לבדיקה.",
+        "tool": "get_case_overview",
+        "step": {
+          "id": "tool:toolu_019uFXqZ1uc87wPFuKKKB3Xg",
+          "title": "בודק מקורות וכיסוי קליטה",
+          "detail": "5 מקורות זמינים לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791983833622,
+          "completedAt": 1791983833623,
+          "citations": [],
+          "completionOrder": 2
+        }
+      }
+    },
+    {
+      "elapsedMs": 14900.079667,
+      "event": {
+        "type": "tool_call",
+        "text": "השערה לבדיקה: מגזר החסימה SEC-7 (35°–50°) נשאר פעיל אפקטיבית לאחר הביטול בשעה 15:03 (שעון מקומי), ולכן המכ״ם לא הפיק גילויים בגזרה בחלון הבדיקה.",
+        "tool": "update_blackboard",
+        "step": {
+          "id": "tool:toolu_01CSwwWoiA34KHVtGzRr4pFU",
+          "title": "מוסיף הסבר אפשרי לבדיקה",
+          "detail": "השערה לבדיקה: מגזר החסימה SEC-7 (35°–50°) נשאר פעיל אפקטיבית לאחר הביטול בשעה 15:03 (שעון מקומי), ולכן המכ״ם לא הפיק גילויים בגזרה בחלון הבדיקה.",
+          "state": "running",
+          "startedAt": 1791983841002
+        }
+      }
+    },
+    {
+      "elapsedMs": 14902.555042,
+      "event": {
+        "type": "tool_call",
+        "text": "השערה לבדיקה: בקשת החיפוש SEARCH_WIDE (30°–65°) לא יושמה אפקטיבית בזמן המעבר (דחייה/בקשה בגרסת סכמה לא תואמת או גבולות חיפוש שאינם מכסים את 42°), ולכן המטרה לא נסרקה.",
+        "tool": "update_blackboard",
+        "step": {
+          "id": "tool:toolu_01QD9iPZDJ4qeq86X9GeopGE",
+          "title": "מוסיף הסבר אפשרי לבדיקה",
+          "detail": "השערה לבדיקה: בקשת החיפוש SEARCH_WIDE (30°–65°) לא יושמה אפקטיבית בזמן המעבר (דחייה/בקשה בגרסת סכמה לא תואמת או גבולות חיפוש שאינם מכסים את 42°), ולכן המטרה לא נסרקה.",
+          "state": "running",
+          "startedAt": 1791983841004
+        }
+      }
+    },
+    {
+      "elapsedMs": 14902.81925,
+      "event": {
+        "type": "tool_call",
+        "text": "השערה לבדיקה: המכ״ם סרק את האזור כראוי והמטרה לא הופקה כגילוי בגלל מגבלה אחרת (לא מוגדרת עדיין); H3 נבדק רק אם H1 ו-H2 נפסלים.",
+        "tool": "update_blackboard",
+        "step": {
+          "id": "tool:toolu_015MMGed7W5MeuHUmnLwvZLg",
+          "title": "מוסיף הסבר אפשרי לבדיקה",
+          "detail": "השערה לבדיקה: המכ״ם סרק את האזור כראוי והמטרה לא הופקה כגילוי בגלל מגבלה אחרת (לא מוגדרת עדיין); H3 נבדק רק אם H1 ו-H2 נפסלים.",
+          "state": "running",
+          "startedAt": 1791983841005
+        }
+      }
+    },
+    {
+      "elapsedMs": 14902.960583,
+      "event": {
+        "type": "tool_call",
+        "text": "באמצעות inspect_region עם הבאדג' [case_report.txt:L1] (חלון 2026-10-14T12:03:55Z עד 12:04:25Z, גזרה 42° ±1°, טווח 26 ק״מ ±0.5): החזר את ספירת הגילויים/מסלולים ב",
+        "tool": "delegate_investigation",
+        "step": {
+          "id": "tool:toolu_01SjMMVsEujW6wa94RYdtwi8",
+          "title": "בודק כיוון חקירה 1",
+          "detail": "באמצעות inspect_region עם הבאדג' [case_report.txt:L1] (חלון 2026-10-14T12:03:55Z עד 12:04:25Z, גזרה 42° ±1°, טווח 26 ק״מ ±0.5): החזר את ספירת הגילויים/מסלולים ב",
+          "state": "running",
+          "startedAt": 1791983841005
+        }
+      }
+    },
+    {
+      "elapsedMs": 14904.709292,
+      "event": {
+        "type": "tool_result",
+        "text": "הממצאים והבדיקות הבאות עודכנו.",
+        "tool": "update_blackboard",
+        "step": {
+          "id": "tool:toolu_01CSwwWoiA34KHVtGzRr4pFU",
+          "title": "מוסיף הסבר אפשרי לבדיקה",
+          "detail": "הממצאים והבדיקות הבאות עודכנו.",
+          "state": "complete",
+          "startedAt": 1791983841002,
+          "completedAt": 1791983841007,
+          "citations": [],
+          "completionOrder": 3
+        }
+      }
+    },
+    {
+      "elapsedMs": 14904.792916999999,
+      "event": {
+        "type": "tool_result",
+        "text": "הממצאים והבדיקות הבאות עודכנו.",
+        "tool": "update_blackboard",
+        "step": {
+          "id": "tool:toolu_01QD9iPZDJ4qeq86X9GeopGE",
+          "title": "מוסיף הסבר אפשרי לבדיקה",
+          "detail": "הממצאים והבדיקות הבאות עודכנו.",
+          "state": "complete",
+          "startedAt": 1791983841004,
+          "completedAt": 1791983841007,
+          "citations": [],
+          "completionOrder": 4
+        }
+      }
+    },
+    {
+      "elapsedMs": 14904.816583,
+      "event": {
+        "type": "tool_result",
+        "text": "הממצאים והבדיקות הבאות עודכנו.",
+        "tool": "update_blackboard",
+        "step": {
+          "id": "tool:toolu_015MMGed7W5MeuHUmnLwvZLg",
+          "title": "מוסיף הסבר אפשרי לבדיקה",
+          "detail": "הממצאים והבדיקות הבאות עודכנו.",
+          "state": "complete",
+          "startedAt": 1791983841005,
+          "completedAt": 1791983841007,
+          "citations": [],
+          "completionOrder": 5
+        }
+      }
+    },
+    {
+      "elapsedMs": 17510.699125000003,
+      "event": {
+        "type": "tool_call",
+        "text": "קורא גם את דיווחי המפעיל.",
+        "tool": "get_case_overview",
+        "step": {
+          "id": "tool:toolu_011pWosDRfU7AdM9H27j7PV4",
+          "title": "בודק מקורות וכיסוי קליטה",
+          "detail": "קורא גם את דיווחי המפעיל.",
+          "state": "running",
+          "startedAt": 1791983843613
+        }
+      }
+    },
+    {
+      "elapsedMs": 17518.968542000002,
+      "event": {
+        "type": "tool_call",
+        "text": "מצב בשעה 15:04:10 (זמן מקומי).",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_01EZaw2Lpt5zn8GpKd1qH6Tw",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב בשעה 15:04:10 (זמן מקומי).",
+          "state": "running",
+          "startedAt": 1791983843621
+        }
+      }
+    },
+    {
+      "elapsedMs": 17520.782875,
+      "event": {
+        "type": "tool_result",
+        "text": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_01EZaw2Lpt5zn8GpKd1qH6Tw",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+          "state": "complete",
+          "startedAt": 1791983843621,
+          "completedAt": 1791983843623,
+          "citations": [
+            "[sniffer.csv:L204]",
+            "[sniffer.csv:L205]",
+            "[ui_client.txt:L59]"
+          ],
+          "completionOrder": 6
+        }
+      }
+    },
+    {
+      "elapsedMs": 17521.015875,
+      "event": {
+        "type": "tool_result",
+        "text": "5 מקורות זמינים לבדיקה.",
+        "tool": "get_case_overview",
+        "step": {
+          "id": "tool:toolu_011pWosDRfU7AdM9H27j7PV4",
+          "title": "בודק מקורות וכיסוי קליטה",
+          "detail": "5 מקורות זמינים לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791983843613,
+          "completedAt": 1791983843623,
+          "citations": [],
+          "completionOrder": 7
+        }
+      }
+    },
+    {
+      "elapsedMs": 19651.135292000003,
+      "event": {
+        "type": "tool_call",
+        "text": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_01DbdUmmtsEMPYmRbyrVVsgr",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+          "state": "running",
+          "startedAt": 1791983845753
+        }
+      }
+    },
+    {
+      "elapsedMs": 19654.672875,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 0 גילויים באזור ובזמן המדווחים, בכיסוי הקלטה מלא. נתוני הסריקה מכסים את האזור לאורך כל החלון. האזור המדווח נמצא בתוך מגזר פעיל לאורך כל החלון.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_01DbdUmmtsEMPYmRbyrVVsgr",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "נמצאו 0 גילויים באזור ובזמן המדווחים, בכיסוי הקלטה מלא. נתוני הסריקה מכסים את האזור לאורך כל החלון. האזור המדווח נמצא בתוך מגזר פעיל לאורך כל החלון.",
+          "state": "complete",
+          "startedAt": 1791983845753,
+          "completedAt": 1791983845757,
+          "citations": [
+            "[calc:region:case_005:1]"
+          ],
+          "completionOrder": 8
+        }
+      }
+    },
+    {
+      "elapsedMs": 22890.41475,
+      "event": {
+        "type": "tool_call",
+        "text": "משווה זמנים ורשומות שנקלטו.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01PUQ8kbZKBs55MNjHfGSAJN",
+          "title": "בודק את רצף האירועים",
+          "detail": "משווה זמנים ורשומות שנקלטו.",
+          "state": "running",
+          "startedAt": 1791983848992
+        }
+      }
+    },
+    {
+      "elapsedMs": 22892.592500000002,
+      "event": {
+        "type": "tool_call",
+        "text": "בין 15:02:50 ל־15:04:30 (זמן מקומי)",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01LWqrPrqYsn3HrCkdaasg5u",
+          "title": "בודק את רצף האירועים",
+          "detail": "בין 15:02:50 ל־15:04:30 (זמן מקומי)",
+          "state": "running",
+          "startedAt": 1791983848994
+        }
+      }
+    },
+    {
+      "elapsedMs": 22898.606458000002,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 6 רשומות; הוחזרו 6 לבדיקה.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01PUQ8kbZKBs55MNjHfGSAJN",
+          "title": "בודק את רצף האירועים",
+          "detail": "נמצאו 6 רשומות; הוחזרו 6 לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791983848992,
+          "completedAt": 1791983848997,
+          "citations": [],
+          "completionOrder": 9
+        }
+      }
+    },
+    {
+      "elapsedMs": 22898.769750000003,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 47 רשומות; הוחזרו 30 לבדיקה. קיימות רשומות נוספות.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_01LWqrPrqYsn3HrCkdaasg5u",
+          "title": "בודק את רצף האירועים",
+          "detail": "נמצאו 47 רשומות; הוחזרו 30 לבדיקה. קיימות רשומות נוספות.",
+          "state": "complete",
+          "startedAt": 1791983848994,
+          "completedAt": 1791983849001,
+          "citations": [],
+          "completionOrder": 10
+        }
+      }
+    },
+    {
+      "elapsedMs": 34516.279292,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+        "tool": "delegate_investigation",
+        "step": {
+          "id": "tool:toolu_01SjMMVsEujW6wa94RYdtwi8",
+          "title": "בודק כיוון חקירה 1",
+          "detail": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791983841005,
+          "completedAt": 1791983860618,
+          "citations": [],
+          "completionOrder": 11
+        }
+      }
+    },
+    {
+      "elapsedMs": 43966.181042,
+      "event": {
+        "type": "tool_call",
+        "text": "מעדכן את ממצאי התחקיר",
+        "tool": "update_blackboard",
+        "step": {
+          "id": "tool:toolu_01EKraLtVUmxXw1xXeaYQewS",
+          "title": "מעדכן את ממצאי התחקיר",
+          "state": "running",
+          "startedAt": 1791983870068
+        }
+      }
+    },
+    {
+      "elapsedMs": 43967.047207999996,
+      "event": {
+        "type": "tool_call",
+        "text": "מעדכן את ממצאי התחקיר",
+        "tool": "update_blackboard",
+        "step": {
+          "id": "tool:toolu_01U5ru1t5UFUwjD5KnM1E18u",
+          "title": "מעדכן את ממצאי התחקיר",
+          "state": "running",
+          "startedAt": 1791983870069
+        }
+      }
+    },
+    {
+      "elapsedMs": 43967.287874999995,
+      "event": {
+        "type": "tool_call",
+        "text": "מעדכן את ההסברים לפי הממצאים",
+        "tool": "update_blackboard",
+        "step": {
+          "id": "tool:toolu_014g3UjBrgJNTDdCrApXvfSJ",
+          "title": "מעדכן את ההסברים לפי הממצאים",
+          "state": "running",
+          "startedAt": 1791983870069
+        }
+      }
+    },
+    {
+      "elapsedMs": 43968.159292,
+      "event": {
+        "type": "tool_call",
+        "text": "מעדכן את ההסברים לפי הממצאים",
+        "tool": "update_blackboard",
+        "step": {
+          "id": "tool:toolu_01JzpGM5W66u9FNSai11977x",
+          "title": "מעדכן את ההסברים לפי הממצאים",
+          "state": "running",
+          "startedAt": 1791983870070
+        }
+      }
+    },
+    {
+      "elapsedMs": 43968.4595,
+      "event": {
+        "type": "tool_call",
+        "text": "בדוק את בקשות המגזר SEC-7: trace_request עבור req-101, req-303 ו-req-505. לכל בקשה דווח: סכמה (schema_id), קבלה (ReceiptAcknowledgement) ו-ApplicationAcknowledg",
+        "tool": "delegate_investigation",
+        "step": {
+          "id": "tool:toolu_01FPM6JJuSpEXWuhjZwr86WL",
+          "title": "בודק כיוון חקירה 2",
+          "detail": "בדוק את בקשות המגזר SEC-7: trace_request עבור req-101, req-303 ו-req-505. לכל בקשה דווח: סכמה (schema_id), קבלה (ReceiptAcknowledgement) ו-ApplicationAcknowledg",
+          "state": "running",
+          "startedAt": 1791983870070
+        }
+      }
+    },
+    {
+      "elapsedMs": 43969.282125,
+      "event": {
+        "type": "tool_result",
+        "text": "הממצאים והבדיקות הבאות עודכנו.",
+        "tool": "update_blackboard",
+        "step": {
+          "id": "tool:toolu_01EKraLtVUmxXw1xXeaYQewS",
+          "title": "מעדכן את ממצאי התחקיר",
+          "detail": "הממצאים והבדיקות הבאות עודכנו.",
+          "state": "complete",
+          "startedAt": 1791983870068,
+          "completedAt": 1791983870071,
+          "citations": [],
+          "completionOrder": 12
+        }
+      }
+    },
+    {
+      "elapsedMs": 43969.351958,
+      "event": {
+        "type": "tool_result",
+        "text": "הממצאים והבדיקות הבאות עודכנו.",
+        "tool": "update_blackboard",
+        "step": {
+          "id": "tool:toolu_01U5ru1t5UFUwjD5KnM1E18u",
+          "title": "מעדכן את ממצאי התחקיר",
+          "detail": "הממצאים והבדיקות הבאות עודכנו.",
+          "state": "complete",
+          "startedAt": 1791983870069,
+          "completedAt": 1791983870071,
+          "citations": [],
+          "completionOrder": 13
+        }
+      }
+    },
+    {
+      "elapsedMs": 43969.372749999995,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאה תמיכה ראשונית; האסמכתאות עדיין בבדיקה.",
+        "tool": "update_blackboard",
+        "step": {
+          "id": "tool:toolu_014g3UjBrgJNTDdCrApXvfSJ",
+          "title": "מעדכן את ההסברים לפי הממצאים",
+          "detail": "נמצאה תמיכה ראשונית; האסמכתאות עדיין בבדיקה.",
+          "state": "complete",
+          "startedAt": 1791983870069,
+          "completedAt": 1791983870071,
+          "citations": [],
+          "completionOrder": 14
+        }
+      }
+    },
+    {
+      "elapsedMs": 43969.387792,
+      "event": {
+        "type": "tool_result",
+        "text": "נרשמה ראיה נגד ההסבר שנבדק.",
+        "tool": "update_blackboard",
+        "step": {
+          "id": "tool:toolu_01JzpGM5W66u9FNSai11977x",
+          "title": "מעדכן את ההסברים לפי הממצאים",
+          "detail": "נרשמה ראיה נגד ההסבר שנבדק.",
+          "state": "complete",
+          "startedAt": 1791983870070,
+          "completedAt": 1791983870071,
+          "citations": [],
+          "completionOrder": 15
+        }
+      }
+    },
+    {
+      "elapsedMs": 47418.874082999995,
+      "event": {
+        "type": "tool_call",
+        "text": "קורא גם את דיווחי המפעיל.",
+        "tool": "get_case_overview",
+        "step": {
+          "id": "tool:toolu_015CVRnkgLq6YJmeBWo5Z8Xk",
+          "title": "בודק מקורות וכיסוי קליטה",
+          "detail": "קורא גם את דיווחי המפעיל.",
+          "state": "running",
+          "startedAt": 1791983873521
+        }
+      }
+    },
+    {
+      "elapsedMs": 47419.0925,
+      "event": {
+        "type": "tool_result",
+        "text": "5 מקורות זמינים לבדיקה.",
+        "tool": "get_case_overview",
+        "step": {
+          "id": "tool:toolu_015CVRnkgLq6YJmeBWo5Z8Xk",
+          "title": "בודק מקורות וכיסוי קליטה",
+          "detail": "5 מקורות זמינים לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791983873521,
+          "completedAt": 1791983873521,
+          "citations": [],
+          "completionOrder": 16
+        }
+      }
+    },
+    {
+      "elapsedMs": 49951.542,
+      "event": {
+        "type": "tool_call",
+        "text": "מזהה בקשה: req-101",
+        "tool": "trace_request",
+        "step": {
+          "id": "tool:toolu_01FWwFk1p4Y1fiFwHu2zQw9p",
+          "title": "עוקב אחר הבקשה בין הרכיבים",
+          "detail": "מזהה בקשה: req-101",
+          "state": "running",
+          "startedAt": 1791983876053
+        }
+      }
+    },
+    {
+      "elapsedMs": 49952.186083,
+      "event": {
+        "type": "tool_call",
+        "text": "מזהה בקשה: req-303",
+        "tool": "trace_request",
+        "step": {
+          "id": "tool:toolu_01G4mikb2a6xvwU9PPENtg11",
+          "title": "עוקב אחר הבקשה בין הרכיבים",
+          "detail": "מזהה בקשה: req-303",
+          "state": "running",
+          "startedAt": 1791983876054
+        }
+      }
+    },
+    {
+      "elapsedMs": 49952.28825,
+      "event": {
+        "type": "tool_call",
+        "text": "מזהה בקשה: req-505",
+        "tool": "trace_request",
+        "step": {
+          "id": "tool:toolu_01C85NGGYo7uqR7eWwLNvnmx",
+          "title": "עוקב אחר הבקשה בין הרכיבים",
+          "detail": "מזהה בקשה: req-505",
+          "state": "running",
+          "startedAt": 1791983876054
+        }
+      }
+    },
+    {
+      "elapsedMs": 49953.645667,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 5 רשומות לבקשה. תועד אישור קבלה. תועד אישור החלה.",
+        "tool": "trace_request",
+        "step": {
+          "id": "tool:toolu_01FWwFk1p4Y1fiFwHu2zQw9p",
+          "title": "עוקב אחר הבקשה בין הרכיבים",
+          "detail": "נמצאו 5 רשומות לבקשה. תועד אישור קבלה. תועד אישור החלה.",
+          "state": "complete",
+          "startedAt": 1791983876053,
+          "completedAt": 1791983876055,
+          "citations": [
+            "[control_gateway.txt:L1]",
+            "[control_gateway.txt:L2]"
+          ],
+          "completionOrder": 17
+        }
+      }
+    },
+    {
+      "elapsedMs": 49953.724541999996,
+      "event": {
+        "type": "tool_result",
+        "text": "בקשת sector.v2 נדחתה בשירות בגרסה 1.4.0; הפורמט הנתמך הוא sector.v1. התצוגה השתנתה לפי אישור קבלה, ללא אימות החלה. ערוץ תוצאת העיבוד לא היה מחובר לממשק.",
+        "tool": "trace_request",
+        "step": {
+          "id": "tool:toolu_01G4mikb2a6xvwU9PPENtg11",
+          "title": "עוקב אחר הבקשה בין הרכיבים",
+          "detail": "בקשת sector.v2 נדחתה בשירות בגרסה 1.4.0; הפורמט הנתמך הוא sector.v1. התצוגה השתנתה לפי אישור קבלה, ללא אימות החלה. ערוץ תוצאת העיבוד לא היה מחובר לממשק.",
+          "state": "complete",
+          "startedAt": 1791983876054,
+          "completedAt": 1791983876055,
+          "citations": [
+            "[control_gateway.txt:L5]",
+            "[ui_client.txt:L43]",
+            "[config_service.txt:L7]",
+            "[control_gateway.txt:L6]"
+          ],
+          "completionOrder": 18
+        }
+      }
+    },
+    {
+      "elapsedMs": 49953.747041999995,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 6 רשומות לבקשה. תועד אישור קבלה. תועד אישור החלה.",
+        "tool": "trace_request",
+        "step": {
+          "id": "tool:toolu_01C85NGGYo7uqR7eWwLNvnmx",
+          "title": "עוקב אחר הבקשה בין הרכיבים",
+          "detail": "נמצאו 6 רשומות לבקשה. תועד אישור קבלה. תועד אישור החלה.",
+          "state": "complete",
+          "startedAt": 1791983876054,
+          "completedAt": 1791983876055,
+          "citations": [
+            "[control_gateway.txt:L9]",
+            "[control_gateway.txt:L10]"
+          ],
+          "completionOrder": 19
+        }
+      }
+    },
+    {
+      "elapsedMs": 53784.734707999996,
+      "event": {
+        "type": "tool_call",
+        "text": "משווה זמנים ורשומות שנקלטו.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_014pVGLHbRoCugpTYFZWnmdu",
+          "title": "בודק אירועים מתוך שער הבקרה",
+          "detail": "משווה זמנים ורשומות שנקלטו.",
+          "state": "running",
+          "startedAt": 1791983879886
+        }
+      }
+    },
+    {
+      "elapsedMs": 53785.133917,
+      "event": {
+        "type": "tool_call",
+        "text": "מצב בשעה 15:04:40 (זמן מקומי).",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_012jFqvFQV66SoqpcdSQD4wJ",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב בשעה 15:04:40 (זמן מקומי).",
+          "state": "running",
+          "startedAt": 1791983879887
+        }
+      }
+    },
+    {
+      "elapsedMs": 53785.272124999996,
+      "event": {
+        "type": "tool_call",
+        "text": "מצב בשעה 15:07:30 (זמן מקומי).",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_016SdPJZLLBpcRoubujoA3QE",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב בשעה 15:07:30 (זמן מקומי).",
+          "state": "running",
+          "startedAt": 1791983879887
+        }
+      }
+    },
+    {
+      "elapsedMs": 53785.33375,
+      "event": {
+        "type": "tool_call",
+        "text": "מצב בשעה 15:08:05 (זמן מקומי).",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_011rikvPJDY25Pa42PjKBgUr",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב בשעה 15:08:05 (זמן מקומי).",
+          "state": "running",
+          "startedAt": 1791983879887
+        }
+      }
+    },
+    {
+      "elapsedMs": 53786.214875,
+      "event": {
+        "type": "tool_result",
+        "text": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_012jFqvFQV66SoqpcdSQD4wJ",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+          "state": "complete",
+          "startedAt": 1791983879887,
+          "completedAt": 1791983879888,
+          "citations": [
+            "[sniffer.csv:L228]",
+            "[sniffer.csv:L229]",
+            "[ui_client.txt:L65]"
+          ],
+          "completionOrder": 20
+        }
+      }
+    },
+    {
+      "elapsedMs": 53786.277041999994,
+      "event": {
+        "type": "tool_result",
+        "text": "מצב מגזר בפועל: כבוי. מצב בתצוגה: כבוי.",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_016SdPJZLLBpcRoubujoA3QE",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב מגזר בפועל: כבוי. מצב בתצוגה: כבוי.",
+          "state": "complete",
+          "startedAt": 1791983879887,
+          "completedAt": 1791983879888,
+          "citations": [
+            "[sniffer.csv:L365]",
+            "[sniffer.csv:L366]",
+            "[ui_client.txt:L102]"
+          ],
+          "completionOrder": 21
+        }
+      }
+    },
+    {
+      "elapsedMs": 53786.288917,
+      "event": {
+        "type": "tool_result",
+        "text": "מצב מגזר בפועל: כבוי. מצב בתצוגה: כבוי.",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_011rikvPJDY25Pa42PjKBgUr",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב מגזר בפועל: כבוי. מצב בתצוגה: כבוי.",
+          "state": "complete",
+          "startedAt": 1791983879887,
+          "completedAt": 1791983879888,
+          "citations": [
+            "[sniffer.csv:L395]",
+            "[sniffer.csv:L396]",
+            "[ui_client.txt:L109]"
+          ],
+          "completionOrder": 22
+        }
+      }
+    },
+    {
+      "elapsedMs": 53786.298542,
+      "event": {
+        "type": "tool_result",
+        "text": "לא נמצאו רשומות תואמות. אין בכך הוכחה שהאירוע לא התרחש.",
+        "tool": "query_events",
+        "step": {
+          "id": "tool:toolu_014pVGLHbRoCugpTYFZWnmdu",
+          "title": "בודק אירועים מתוך שער הבקרה",
+          "detail": "לא נמצאו רשומות תואמות. אין בכך הוכחה שהאירוע לא התרחש.",
+          "state": "complete",
+          "startedAt": 1791983879886,
+          "completedAt": 1791983879888,
+          "citations": [],
+          "completionOrder": 23
+        }
+      }
+    },
+    {
+      "elapsedMs": 66606.17970800001,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+        "tool": "delegate_investigation",
+        "step": {
+          "id": "tool:toolu_01FPM6JJuSpEXWuhjZwr86WL",
+          "title": "בודק כיוון חקירה 2",
+          "detail": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791983870070,
+          "completedAt": 1791983892708,
+          "citations": [],
+          "completionOrder": 24
+        }
+      }
+    },
+    {
+      "elapsedMs": 70798.421375,
+      "event": {
+        "type": "tool_call",
+        "text": "באמצעות inspect_region עם הבאדג' [operator_diary.csv:L7] (חלון 2026-10-14T12:08:00Z עד 12:08:10Z, גזרה 42° ±1°, טווח 26 ק״מ ±0.5): החזר ספירת Detection/TargetTr",
+        "tool": "delegate_investigation",
+        "step": {
+          "id": "tool:toolu_01JsZGHWpuHHZfM9ixxjwaFs",
+          "title": "בודק כיוון חקירה 3",
+          "detail": "באמצעות inspect_region עם הבאדג' [operator_diary.csv:L7] (חלון 2026-10-14T12:08:00Z עד 12:08:10Z, גזרה 42° ±1°, טווח 26 ק״מ ±0.5): החזר ספירת Detection/TargetTr",
+          "state": "running",
+          "startedAt": 1791983896900
+        }
+      }
+    },
+    {
+      "elapsedMs": 75080.487917,
+      "event": {
+        "type": "tool_call",
+        "text": "קורא גם את דיווחי המפעיל.",
+        "tool": "get_case_overview",
+        "step": {
+          "id": "tool:toolu_01MAUw2Au8GMGcjUpmw3mHua",
+          "title": "בודק מקורות וכיסוי קליטה",
+          "detail": "קורא גם את דיווחי המפעיל.",
+          "state": "running",
+          "startedAt": 1791983901182
+        }
+      }
+    },
+    {
+      "elapsedMs": 75080.73062500001,
+      "event": {
+        "type": "tool_result",
+        "text": "5 מקורות זמינים לבדיקה.",
+        "tool": "get_case_overview",
+        "step": {
+          "id": "tool:toolu_01MAUw2Au8GMGcjUpmw3mHua",
+          "title": "בודק מקורות וכיסוי קליטה",
+          "detail": "5 מקורות זמינים לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791983901182,
+          "completedAt": 1791983901182,
+          "citations": [],
+          "completionOrder": 25
+        }
+      }
+    },
+    {
+      "elapsedMs": 77032.958,
+      "event": {
+        "type": "tool_call",
+        "text": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_01X5hrLvP2khZahMBBQZuWxW",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.",
+          "state": "running",
+          "startedAt": 1791983903135
+        }
+      }
+    },
+    {
+      "elapsedMs": 77033.59216700001,
+      "event": {
+        "type": "tool_call",
+        "text": "מצב בשעה 15:08:05 (זמן מקומי).",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_01GGcLgbYTptUV6JwRE1EZvT",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב בשעה 15:08:05 (זמן מקומי).",
+          "state": "running",
+          "startedAt": 1791983903135
+        }
+      }
+    },
+    {
+      "elapsedMs": 77035.59875,
+      "event": {
+        "type": "tool_result",
+        "text": "נמצאו 2 גילויים באזור ובזמן המדווחים, בכיסוי הקלטה מלא. נתוני הסריקה מכסים את האזור לאורך כל החלון. לא נמצאה חסימה של כל האזור לאורך כל החלון.",
+        "tool": "inspect_region",
+        "step": {
+          "id": "tool:toolu_01X5hrLvP2khZahMBBQZuWxW",
+          "title": "בודק גילויים, כיסוי ומצב בפועל באזור המדווח",
+          "detail": "נמצאו 2 גילויים באזור ובזמן המדווחים, בכיסוי הקלטה מלא. נתוני הסריקה מכסים את האזור לאורך כל החלון. לא נמצאה חסימה של כל האזור לאורך כל החלון.",
+          "state": "complete",
+          "startedAt": 1791983903135,
+          "completedAt": 1791983903137,
+          "citations": [
+            "[calc:region:case_005:2]"
+          ],
+          "completionOrder": 26
+        }
+      }
+    },
+    {
+      "elapsedMs": 77035.733542,
+      "event": {
+        "type": "tool_result",
+        "text": "מצב מגזר בפועל: כבוי. מצב בתצוגה: כבוי.",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_01GGcLgbYTptUV6JwRE1EZvT",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב מגזר בפועל: כבוי. מצב בתצוגה: כבוי.",
+          "state": "complete",
+          "startedAt": 1791983903135,
+          "completedAt": 1791983903137,
+          "citations": [
+            "[sniffer.csv:L395]",
+            "[sniffer.csv:L396]",
+            "[ui_client.txt:L109]"
+          ],
+          "completionOrder": 27
+        }
+      }
+    },
+    {
+      "elapsedMs": 83564.170167,
+      "event": {
+        "type": "tool_call",
+        "text": "מצב בשעה 15:07:30 (זמן מקומי).",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_01GowQa4i1qiroSVRu8aeQiw",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב בשעה 15:07:30 (זמן מקומי).",
+          "state": "running",
+          "startedAt": 1791983909666
+        }
+      }
+    },
+    {
+      "elapsedMs": 83564.85437500001,
+      "event": {
+        "type": "tool_result",
+        "text": "מצב מגזר בפועל: כבוי. מצב בתצוגה: כבוי.",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_01GowQa4i1qiroSVRu8aeQiw",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב מגזר בפועל: כבוי. מצב בתצוגה: כבוי.",
+          "state": "complete",
+          "startedAt": 1791983909666,
+          "completedAt": 1791983909666,
+          "citations": [
+            "[sniffer.csv:L365]",
+            "[sniffer.csv:L366]",
+            "[ui_client.txt:L102]"
+          ],
+          "completionOrder": 28
+        }
+      }
+    },
+    {
+      "elapsedMs": 90259.112792,
+      "event": {
+        "type": "tool_call",
+        "text": "מצב בשעה 15:04:00 (זמן מקומי).",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_011DNaCcFenwo1JjwUbbJe8f",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב בשעה 15:04:00 (זמן מקומי).",
+          "state": "running",
+          "startedAt": 1791983916361
+        }
+      }
+    },
+    {
+      "elapsedMs": 90259.418833,
+      "event": {
+        "type": "tool_result",
+        "text": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_011DNaCcFenwo1JjwUbbJe8f",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+          "state": "complete",
+          "startedAt": 1791983916361,
+          "completedAt": 1791983916361,
+          "citations": [
+            "[sniffer.csv:L196]",
+            "[sniffer.csv:L197]",
+            "[ui_client.txt:L57]"
+          ],
+          "completionOrder": 29
+        }
+      }
+    },
+    {
+      "elapsedMs": 100707.138708,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+        "tool": "delegate_investigation",
+        "step": {
+          "id": "tool:toolu_01JsZGHWpuHHZfM9ixxjwaFs",
+          "title": "בודק כיוון חקירה 3",
+          "detail": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791983896900,
+          "completedAt": 1791983926809,
+          "citations": [],
+          "completionOrder": 30
+        }
+      }
+    },
+    {
+      "elapsedMs": 121097.553958,
+      "event": {
+        "type": "tool_call",
+        "text": "מצרף אסמכתאות ומגבלות לבדיקה.",
+        "tool": "submit_findings",
+        "step": {
+          "id": "tool:toolu_01Uag241zCCDfmDVFcZNQ5qk",
+          "title": "מסכם ממצאים ושאלות פתוחות",
+          "detail": "מצרף אסמכתאות ומגבלות לבדיקה.",
+          "state": "running",
+          "startedAt": 1791983947199
+        }
+      }
+    },
+    {
+      "elapsedMs": 121109.00812500001,
+      "event": {
+        "type": "status",
+        "text": "הבדיקות הבאות יחפשו גם ראיות תומכות וגם ראיות סותרות.",
+        "step": {
+          "id": "phase:2",
+          "title": "משווה בין הסברים אפשריים לאירוע",
+          "detail": "הבדיקות הבאות יחפשו גם ראיות תומכות וגם ראיות סותרות.",
+          "state": "complete",
+          "startedAt": 1791983832206,
+          "completedAt": 1791983947210,
+          "completionOrder": 31
+        }
+      }
+    },
+    {
+      "elapsedMs": 121109.02137500001,
+      "event": {
+        "type": "status",
+        "text": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "step": {
+          "id": "phase:3",
+          "title": "בודק שהטענות נתמכות בראיות",
+          "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+          "state": "running",
+          "startedAt": 1791983947210
+        }
+      }
+    },
+    {
+      "elapsedMs": 143270.824125,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "tool": "submit_findings",
+        "step": {
+          "id": "tool:toolu_01Uag241zCCDfmDVFcZNQ5qk",
+          "title": "מסכם ממצאים ושאלות פתוחות",
+          "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+          "state": "error",
+          "startedAt": 1791983947199,
+          "completedAt": 1791983969372,
+          "citations": [],
+          "completionOrder": 32
+        }
+      }
+    },
+    {
+      "elapsedMs": 148076.829625,
+      "event": {
+        "type": "tool_call",
+        "text": "1) הרץ trace_request עבור req-303 בחלון 12:00:00Z–12:10:05Z והחזר את calculation handle של התוצאה המלאה (type_counts, query_complete, recorder_drops) עם הבאדג' ",
+        "tool": "delegate_investigation",
+        "step": {
+          "id": "tool:toolu_01YAffspqhR1nfsjMKZv9mgC",
+          "title": "בודק כיוון חקירה 4",
+          "detail": "1) הרץ trace_request עבור req-303 בחלון 12:00:00Z–12:10:05Z והחזר את calculation handle של התוצאה המלאה (type_counts, query_complete, recorder_drops) עם הבאדג' ",
+          "state": "running",
+          "startedAt": 1791983974178
+        }
+      }
+    },
+    {
+      "elapsedMs": 152043.78350000002,
+      "event": {
+        "type": "tool_call",
+        "text": "קורא גם את דיווחי המפעיל.",
+        "tool": "get_case_overview",
+        "step": {
+          "id": "tool:toolu_013eeJi64vqXhqVQtLNs9VzK",
+          "title": "בודק מקורות וכיסוי קליטה",
+          "detail": "קורא גם את דיווחי המפעיל.",
+          "state": "running",
+          "startedAt": 1791983978145
+        }
+      }
+    },
+    {
+      "elapsedMs": 152043.940833,
+      "event": {
+        "type": "tool_call",
+        "text": "מזהה בקשה: req-303",
+        "tool": "trace_request",
+        "step": {
+          "id": "tool:toolu_016DbhCaxXLBE3wuBM9F63Ng",
+          "title": "עוקב אחר הבקשה בין הרכיבים",
+          "detail": "מזהה בקשה: req-303",
+          "state": "running",
+          "startedAt": 1791983978145
+        }
+      }
+    },
+    {
+      "elapsedMs": 152044.40683300002,
+      "event": {
+        "type": "tool_call",
+        "text": "מצב בשעה 15:05:30 (זמן מקומי).",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_01Xv5oHSLx58xmUGQedhW4uw",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב בשעה 15:05:30 (זמן מקומי).",
+          "state": "running",
+          "startedAt": 1791983978146
+        }
+      }
+    },
+    {
+      "elapsedMs": 152044.617375,
+      "event": {
+        "type": "tool_call",
+        "text": "מצב בשעה 15:06:30 (זמן מקומי).",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_0199QQaoK3FWyxegjq5WEY2b",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב בשעה 15:06:30 (זמן מקומי).",
+          "state": "running",
+          "startedAt": 1791983978146
+        }
+      }
+    },
+    {
+      "elapsedMs": 152045.849333,
+      "event": {
+        "type": "tool_result",
+        "text": "בקשת sector.v2 נדחתה בשירות בגרסה 1.4.0; הפורמט הנתמך הוא sector.v1. התצוגה השתנתה לפי אישור קבלה, ללא אימות החלה. ערוץ תוצאת העיבוד לא היה מחובר לממשק.",
+        "tool": "trace_request",
+        "step": {
+          "id": "tool:toolu_016DbhCaxXLBE3wuBM9F63Ng",
+          "title": "עוקב אחר הבקשה בין הרכיבים",
+          "detail": "בקשת sector.v2 נדחתה בשירות בגרסה 1.4.0; הפורמט הנתמך הוא sector.v1. התצוגה השתנתה לפי אישור קבלה, ללא אימות החלה. ערוץ תוצאת העיבוד לא היה מחובר לממשק.",
+          "state": "complete",
+          "startedAt": 1791983978145,
+          "completedAt": 1791983978147,
+          "citations": [
+            "[control_gateway.txt:L5]",
+            "[ui_client.txt:L43]",
+            "[config_service.txt:L7]",
+            "[control_gateway.txt:L6]"
+          ],
+          "completionOrder": 33
+        }
+      }
+    },
+    {
+      "elapsedMs": 152046.031792,
+      "event": {
+        "type": "tool_result",
+        "text": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_01Xv5oHSLx58xmUGQedhW4uw",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+          "state": "complete",
+          "startedAt": 1791983978146,
+          "completedAt": 1791983978147,
+          "citations": [
+            "[sniffer.csv:L268]",
+            "[sniffer.csv:L269]",
+            "[ui_client.txt:L76]"
+          ],
+          "completionOrder": 34
+        }
+      }
+    },
+    {
+      "elapsedMs": 152046.048,
+      "event": {
+        "type": "tool_result",
+        "text": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_0199QQaoK3FWyxegjq5WEY2b",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+          "state": "complete",
+          "startedAt": 1791983978146,
+          "completedAt": 1791983978147,
+          "citations": [
+            "[sniffer.csv:L316]",
+            "[sniffer.csv:L317]",
+            "[ui_client.txt:L88]"
+          ],
+          "completionOrder": 35
+        }
+      }
+    },
+    {
+      "elapsedMs": 152046.196333,
+      "event": {
+        "type": "tool_result",
+        "text": "5 מקורות זמינים לבדיקה.",
+        "tool": "get_case_overview",
+        "step": {
+          "id": "tool:toolu_013eeJi64vqXhqVQtLNs9VzK",
+          "title": "בודק מקורות וכיסוי קליטה",
+          "detail": "5 מקורות זמינים לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791983978145,
+          "completedAt": 1791983978148,
+          "citations": [],
+          "completionOrder": 36
+        }
+      }
+    },
+    {
+      "elapsedMs": 158491.571542,
+      "event": {
+        "type": "tool_call",
+        "text": "מצב בשעה 15:04:40 (זמן מקומי).",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_01C6sEym8M6cxBNscBbW4VgK",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב בשעה 15:04:40 (זמן מקומי).",
+          "state": "running",
+          "startedAt": 1791983984593
+        }
+      }
+    },
+    {
+      "elapsedMs": 158491.82329200002,
+      "event": {
+        "type": "tool_call",
+        "text": "מצב בשעה 15:07:30 (זמן מקומי).",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_01CzzQYDMiDwuZarY75euErF",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב בשעה 15:07:30 (זמן מקומי).",
+          "state": "running",
+          "startedAt": 1791983984593
+        }
+      }
+    },
+    {
+      "elapsedMs": 158492.406083,
+      "event": {
+        "type": "tool_result",
+        "text": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_01C6sEym8M6cxBNscBbW4VgK",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב מגזר בפועל: פעיל. מצב בתצוגה: כבוי.",
+          "state": "complete",
+          "startedAt": 1791983984593,
+          "completedAt": 1791983984594,
+          "citations": [
+            "[sniffer.csv:L228]",
+            "[sniffer.csv:L229]",
+            "[ui_client.txt:L65]"
+          ],
+          "completionOrder": 37
+        }
+      }
+    },
+    {
+      "elapsedMs": 158492.478833,
+      "event": {
+        "type": "tool_result",
+        "text": "מצב מגזר בפועל: כבוי. מצב בתצוגה: כבוי.",
+        "tool": "reconstruct_state",
+        "step": {
+          "id": "tool:toolu_01CzzQYDMiDwuZarY75euErF",
+          "title": "משווה מצב תצוגה למצב בפועל",
+          "detail": "מצב מגזר בפועל: כבוי. מצב בתצוגה: כבוי.",
+          "state": "complete",
+          "startedAt": 1791983984593,
+          "completedAt": 1791983984594,
+          "citations": [
+            "[sniffer.csv:L365]",
+            "[sniffer.csv:L366]",
+            "[ui_client.txt:L102]"
+          ],
+          "completionOrder": 38
+        }
+      }
+    },
+    {
+      "elapsedMs": 167699.389792,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+        "tool": "delegate_investigation",
+        "step": {
+          "id": "tool:toolu_01YAffspqhR1nfsjMKZv9mgC",
+          "title": "בודק כיוון חקירה 4",
+          "detail": "הבדיקה הסתיימה: 1 ממצאים לבדיקה.",
+          "state": "complete",
+          "startedAt": 1791983974178,
+          "completedAt": 1791983993801,
+          "citations": [],
+          "completionOrder": 39
+        }
+      }
+    },
+    {
+      "elapsedMs": 181458.966667,
+      "event": {
+        "type": "tool_call",
+        "text": "מצרף אסמכתאות ומגבלות לבדיקה.",
+        "tool": "submit_findings",
+        "step": {
+          "id": "tool:toolu_017uCMRNTeLYo38Cj2HQTvyL",
+          "title": "מסכם ממצאים ושאלות פתוחות",
+          "detail": "מצרף אסמכתאות ומגבלות לבדיקה.",
+          "state": "running",
+          "startedAt": 1791984007560
+        }
+      }
+    },
+    {
+      "elapsedMs": 181465.797,
+      "event": {
+        "type": "status",
+        "text": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "step": {
+          "id": "phase:3",
+          "title": "בודק שהטענות נתמכות בראיות",
+          "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+          "state": "complete",
+          "startedAt": 1791983947210,
+          "completedAt": 1791984007567,
+          "completionOrder": 40
+        }
+      }
+    },
+    {
+      "elapsedMs": 181465.80375,
+      "event": {
+        "type": "status",
+        "text": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "step": {
+          "id": "phase:4",
+          "title": "בודק שהטענות נתמכות בראיות",
+          "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+          "state": "running",
+          "startedAt": 1791984007567
+        }
+      }
+    },
+    {
+      "elapsedMs": 204650.027167,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "tool": "submit_findings",
+        "step": {
+          "id": "tool:toolu_017uCMRNTeLYo38Cj2HQTvyL",
+          "title": "מסכם ממצאים ושאלות פתוחות",
+          "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+          "state": "error",
+          "startedAt": 1791984007560,
+          "completedAt": 1791984030751,
+          "citations": [],
+          "completionOrder": 41
+        }
+      }
+    },
+    {
+      "elapsedMs": 228876.210292,
+      "event": {
+        "type": "tool_call",
+        "text": "מצרף אסמכתאות ומגבלות לבדיקה.",
+        "tool": "submit_findings",
+        "step": {
+          "id": "tool:toolu_01UTgYY4yabnHqsf2325fygz",
+          "title": "מסכם ממצאים ושאלות פתוחות",
+          "detail": "מצרף אסמכתאות ומגבלות לבדיקה.",
+          "state": "running",
+          "startedAt": 1791984054977
+        }
+      }
+    },
+    {
+      "elapsedMs": 228884.568708,
+      "event": {
+        "type": "status",
+        "text": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "step": {
+          "id": "phase:4",
+          "title": "בודק שהטענות נתמכות בראיות",
+          "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+          "state": "complete",
+          "startedAt": 1791984007567,
+          "completedAt": 1791984054986,
+          "completionOrder": 42
+        }
+      }
+    },
+    {
+      "elapsedMs": 228884.581917,
+      "event": {
+        "type": "status",
+        "text": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+        "step": {
+          "id": "phase:5",
+          "title": "בודק שהטענות נתמכות בראיות",
+          "detail": "משווה את ההסבר לרשומות המקור ולתוצאות החישובים.",
+          "state": "running",
+          "startedAt": 1791984054986
+        }
+      }
+    },
+    {
+      "elapsedMs": 240011.582417,
+      "event": {
+        "type": "tool_result",
+        "text": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+        "tool": "submit_findings",
+        "step": {
+          "id": "tool:toolu_01UTgYY4yabnHqsf2325fygz",
+          "title": "מסכם ממצאים ושאלות פתוחות",
+          "detail": "הבדיקה לא הצליחה. התוצאה הזו לא תשמש ראיה למסקנה.",
+          "state": "error",
+          "startedAt": 1791984054977,
+          "completedAt": 1791984066113,
+          "citations": [],
+          "completionOrder": 43
+        }
+      }
+    }
+  ],
+  "error": "The operation was aborted due to timeout"
+}

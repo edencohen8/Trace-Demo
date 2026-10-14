@@ -3,9 +3,10 @@ import { computed, ref, watch } from 'vue';
 import { ChevronLeft, ChevronRight, FileText, Link2, X } from 'lucide-vue-next';
 import type { ResolvedSource } from './types.ts';
 import { TIMELINE_SYSTEMS } from './systems.ts';
+import CalculationDock from './CalculationDock.vue';
 
 const props = defineProps<{ evidence: ResolvedSource; position: string; previous: boolean; next: boolean; loading: boolean; grouped?: boolean }>();
-const emit = defineEmits<{ attach: [badge: string]; close: []; navigate: [direction: number]; group: [] }>();
+const emit = defineEmits<{ attach: [badge: string]; citation: [badge: string]; close: []; navigate: [direction: number]; group: [] }>();
 const tab = ref<'summary' | 'fields' | 'source'>('summary');
 const tabs = [{ id: 'summary', label: 'תקציר' }, { id: 'fields', label: 'שדות' }, { id: 'source', label: 'מקור' }] as const;
 const pane = ref<HTMLElement>();
@@ -22,7 +23,8 @@ function tabKey(event: KeyboardEvent, index: number) {
 </script>
 
 <template>
-  <section class="source-inspector bottom-dock" aria-label="מציג רשומות מקור">
+  <CalculationDock v-if="evidence.kind === 'calculation'" :key="evidence.badge" :evidence="evidence" @citation="emit('citation', $event)" @attach="emit('attach', $event)" @close="emit('close')"/>
+  <section v-else class="source-inspector bottom-dock" aria-label="מציג רשומות מקור">
     <header class="dock-header">
       <div class="dock-identity"><button v-if="grouped" class="back-to-group" @click="emit('group')">חזרה לקבוצה</button><bdi :title="evidence.badge">{{ evidence.sourceFile }}:{{ evidence.line }}</bdi><strong>{{ evidence.event?.type || 'קובץ מקור' }}</strong><time>{{ localTime }}</time></div>
       <div class="record-tabs" role="tablist" aria-label="תוכן הרשומה"><button v-for="(item, index) in tabs" :id="`record-tab-${item.id}`" :key="item.id" role="tab" :aria-selected="tab === item.id" :aria-controls="`record-pane-${item.id}`" :tabindex="tab === item.id ? 0 : -1" @click="tab = item.id" @keydown="tabKey($event, index)">{{ item.label }}</button></div>

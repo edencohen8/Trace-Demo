@@ -1,0 +1,173 @@
+{
+  "investigation_id": "case_005",
+  "title": "כשל בזיהוי מטרה T015I",
+  "description": "דיווח מפעיל: מטרת התרגיל T015I לא התגלתה במעבר הצפוי סביב 15:04:10, זמן מקומי UTC+03:00. חלון הבדיקה כולל אי-ודאות בזמן: 15:03:55–15:04:25. המיקום הצפוי לפי תיאום התרגיל הוא אזימוט 42° מצפון אמיתי, בטווח 26 ק״מ; אי-ודאות ±1° ו־±0.5 ק״מ. זהו דיווח מתיאום התרגיל, לא מדידת מכ״ם. התבקשה סריקה בגזרה 30°–65°, בתבנית SEARCH_WIDE. יש לבדוק גילוי מכ״ם; אין כאן דיווח על כשל IFF.",
+  "synthetic": true,
+  "generator_seed": 15015,
+  "source_clock": "UTC; operator local +0300",
+  "window_utc": {
+    "start": "2026-10-14T12:00:00.000Z",
+    "end": "2026-10-14T12:10:05.000Z"
+  },
+  "export_selection": {
+    "message_types": [
+      "RadarState",
+      "InhibitSectorState",
+      "Detection",
+      "TargetTrack"
+    ],
+    "excluded_message_types": [],
+    "target_filter": "ALL",
+    "spatial_filter": "NONE",
+    "columns": [
+      "capture_time_utc",
+      "producer",
+      "message_type",
+      "target_id",
+      "details",
+      "request_id",
+      "sector_id",
+      "enabled",
+      "pattern",
+      "azimuth_start_deg",
+      "azimuth_end_deg",
+      "range_min_km",
+      "range_max_km",
+      "valid_until",
+      "scan_period_s",
+      "receiver",
+      "azimuth_deg",
+      "range_km",
+      "altitude_km",
+      "scan_id"
+    ]
+  },
+  "known_recorder_drops": 0,
+  "capture_completeness": "complete for declared types, all targets and full recording window",
+  "coverage_by_type": {
+    "RadarState": {
+      "complete": true,
+      "start": "2026-10-14T12:00:00.000Z",
+      "end": "2026-10-14T12:10:05.000Z",
+      "all_targets": true,
+      "spatial_filter": "NONE"
+    },
+    "InhibitSectorState": {
+      "complete": true,
+      "start": "2026-10-14T12:00:00.000Z",
+      "end": "2026-10-14T12:10:05.000Z",
+      "all_targets": true,
+      "spatial_filter": "NONE"
+    },
+    "Detection": {
+      "complete": true,
+      "start": "2026-10-14T12:00:00.000Z",
+      "end": "2026-10-14T12:10:05.000Z",
+      "all_targets": true,
+      "spatial_filter": "NONE"
+    },
+    "TargetTrack": {
+      "complete": true,
+      "start": "2026-10-14T12:00:00.000Z",
+      "end": "2026-10-14T12:10:05.000Z",
+      "all_targets": true,
+      "spatial_filter": "NONE"
+    },
+    "RequestSent": {
+      "complete": true,
+      "start": "2026-10-14T12:00:00.000Z",
+      "end": "2026-10-14T12:10:05.000Z",
+      "all_targets": true,
+      "spatial_filter": "NONE"
+    },
+    "ReceiptAcknowledgement": {
+      "complete": true,
+      "start": "2026-10-14T12:00:00.000Z",
+      "end": "2026-10-14T12:10:05.000Z",
+      "all_targets": true,
+      "spatial_filter": "NONE"
+    },
+    "RequestApplied": {
+      "complete": true,
+      "start": "2026-10-14T12:00:00.000Z",
+      "end": "2026-10-14T12:10:05.000Z",
+      "all_targets": true,
+      "spatial_filter": "NONE"
+    },
+    "ApplicationAcknowledgement": {
+      "complete": true,
+      "start": "2026-10-14T12:00:00.000Z",
+      "end": "2026-10-14T12:10:05.000Z",
+      "all_targets": true,
+      "spatial_filter": "NONE"
+    },
+    "RequestRejected": {
+      "complete": true,
+      "start": "2026-10-14T12:00:00.000Z",
+      "end": "2026-10-14T12:10:05.000Z",
+      "all_targets": true,
+      "spatial_filter": "NONE"
+    },
+    "ResultDelivery": {
+      "complete": true,
+      "start": "2026-10-14T12:00:00.000Z",
+      "end": "2026-10-14T12:10:05.000Z",
+      "all_targets": true,
+      "spatial_filter": "NONE"
+    }
+  },
+  "files": {
+    "case_report.txt": {
+      "format": "event_jsonl",
+      "family": "operator_diary",
+      "source": "operator",
+      "records": 1
+    },
+    "operator_diary.csv": {
+      "format": "diary_csv",
+      "family": "operator_diary",
+      "source": "operator",
+      "records": 6
+    },
+    "ui_client.txt": {
+      "format": "event_jsonl",
+      "family": "component_log",
+      "source": "operator-ui",
+      "records": 132
+    },
+    "config_service.txt": {
+      "format": "event_jsonl",
+      "family": "component_log",
+      "source": "config-service",
+      "records": 18
+    },
+    "control_gateway.txt": {
+      "format": "event_jsonl",
+      "family": "component_log",
+      "source": "control-gateway",
+      "records": 10
+    },
+    "sniffer.csv": {
+      "format": "sniffer_csv",
+      "family": "sniffer",
+      "source": "radar-psr-01",
+      "records": 493
+    },
+    "system_catalog.txt": {
+      "format": "document",
+      "family": "component_log",
+      "source": "catalog",
+      "records": 0
+    }
+  },
+  "exported_sniffer_rows": 493,
+  "file_sha256": {
+    "case_report.txt": "34581c1c25395b0ec72e15bad7a6020170600b0f94b1f375e1db2cbd9cfe3aa3",
+    "operator_diary.csv": "b7fda06e4a27cceaf4f281babeb2bc9cc5eefef22193281e2223773261d977f3",
+    "ui_client.txt": "3eea6727ff2b184ad28954bac42ac79dc7cc3f11b19347fd536b49cb8d75690e",
+    "config_service.txt": "7e781beee8b84985aade11c967047a212190666256f3772fd7469adcab1939cb",
+    "control_gateway.txt": "8d7e9f154880e56bb1f05ac6ec161797fcd6e186ba9498f603202f9e313ba3a7",
+    "sniffer.csv": "6cbc02b7c6b0e00fff7a8b13f5c3805ac54c1080f5b0ca57a7d3df970c2efdd9",
+    "system_catalog.txt": "15ecb336f065d40e7a127daf143ac1d817decad0c205214a98658188a417cdfe"
+  }
+}

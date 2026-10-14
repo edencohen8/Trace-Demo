@@ -374,6 +374,7 @@ async function main(): Promise<void> {
     fauxAssistantMessage(
       [
         fauxToolCall("submit_findings", {
+          answer: 'The position discrepancy is supported by the source records [sniffer.csv:L1420] [external_position_adapter.txt:L88].',
           findings: [
             {
               finding_id: "F-001",

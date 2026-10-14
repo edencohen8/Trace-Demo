@@ -98,7 +98,9 @@ Routing Rules:
    - Use ONLY when user asks for causal explanation, why an anomaly/drop occurred, or root-cause diagnostics.
    - answerKind: "cause"
 
-5. If critical time or target scope is completely missing and makes answering impossible, set "requiresClarification: true" and provide a "clarificationPrompt".
+5. "evidence_followup": Use for a focused question about a prior finding, its evidence, a named causal link, or a concise summary of the recent answer. Set selectedSkillIds to []. It can retrieve the needed original records. Do not restart a full investigation for each why-question about an already established result. Explicit requests for a new full root-cause investigation still use cause.
+
+6. Case context supplies the event, region and window. Ask for clarification only when a missing fact actually prevents the requested check. A reported exercise identifier may not exist in sensor data; this alone is not an ambiguity.
 
 User Inquiry:
 "${trimmed}"

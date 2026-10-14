@@ -4,15 +4,15 @@ import { TIMELINE_SYSTEMS } from '../demo/systems.ts';
 import { timelineLabel } from '../demo/timeline-labels.ts';
 
 // Display rules for the public demo catalog. These are not health/anomaly rules.
-const periodic = new Set(['RadarScan', 'DetectionCandidate', 'SensorHealth', 'TrackUpdate', 'UiTrackPublished', 'IFFReply', 'PositionReport']);
+const periodic = new Set(['RadarScan', 'DetectionCandidate', 'SensorHealth', 'TrackUpdate', 'UiTrackPublished', 'IFFReply', 'PositionReport', 'RadarState', 'InhibitSectorState', 'DisplayState', 'Detection', 'TargetTrack']);
 const measurements = new Set(['confidence', 'range_km', 'bearing_deg', 'x_km', 'y_km',
-  'site_gps_lat', 'site_gps_lon', 'site_manual_lat', 'site_manual_lon', 'site_external_lat', 'site_external_lon']);
-const transport = new Set(['capture_time_utc', 'producer_time_utc', 'bus_sequence', 'message_id']);
-const stateFields = ['track_state', 'filter_revision', 'position_quality', 'delivery_state', 'transponder_mode3a'];
+  'site_gps_lat', 'site_gps_lon', 'site_manual_lat', 'site_manual_lon', 'site_external_lat', 'site_external_lon', 'azimuth_deg', 'altitude_km']);
+const transport = new Set(['capture_time_utc', 'producer_time_utc', 'bus_sequence', 'message_id', 'valid_until', 'scan_id']);
+const stateFields = ['track_state', 'filter_revision', 'position_quality', 'delivery_state', 'transponder_mode3a', 'enabled', 'displayed_enabled', 'pattern', 'azimuth_start_deg', 'azimuth_end_deg', 'range_min_km', 'range_max_km', 'receiver'];
 const systems = new Map(TIMELINE_SYSTEMS.flatMap(system => system.sources.map(source => [source, system.id] as const)));
 const hash = (value: string) => createHash('sha256').update(value).digest('hex').slice(0, 24);
 const order = (a: EvidenceEvent, b: EvidenceEvent) => a.time.localeCompare(b.time) || a.badge.localeCompare(b.badge);
-const streamKey = (event: EvidenceEvent) => JSON.stringify([event.source, event.type, event.target ?? '', event.fields.track_id ?? '', event.fields.sensor_id ?? '']);
+const streamKey = (event: EvidenceEvent) => JSON.stringify([event.source, event.type, event.target ?? '', event.fields.track_id ?? '', event.fields.sensor_id ?? '', event.fields.sector_id ?? '']);
 
 function signature(event: EvidenceEvent): string {
   const fields = Object.entries(event.fields).filter(([key]) => !transport.has(key) && !measurements.has(key))
@@ -28,7 +28,7 @@ export function findTimelineStateChanges(events: readonly EvidenceEvent[]): Set<
   const previous = new Map<string, string>();
   const changed = new Set<string>();
   for (const event of [...events].sort(order)) {
-    if (event.family !== 'sniffer' || !periodic.has(event.type)) continue;
+    if (!periodic.has(event.type)) continue;
     const state = stateFields.map(key => [key, event.fields[key] ?? null]);
     if (event.type === 'SensorHealth') state.push(['health', String(event.fields.details ?? '').split(';').filter(part => !/temperature_c=/.test(part)).join(';')]);
     const key = streamKey(event); const value = JSON.stringify(state);
@@ -51,7 +51,7 @@ export function buildTimelineFocus(events: readonly EvidenceEvent[], start: stri
     const system = systems.get(event.source);
     if (!system) throw new Error(`No timeline system for source: ${event.source}`);
     const kind: TimelineGroup['kind'] = event.family === 'operator_diary' ? 'diary' : event.severity !== 'INFO' ? 'alert'
-      : changes.has(event.badge) ? 'change' : event.family === 'sniffer' && periodic.has(event.type) ? (granular ? 'record' : 'activity') : 'event';
+      : changes.has(event.badge) ? 'change' : periodic.has(event.type) ? (granular ? 'record' : 'activity') : 'event';
     const bucket = Math.floor(Date.parse(event.time) / bucketMs);
     const key = kind === 'activity' ? JSON.stringify([system, bucket, kind])
       : (kind === 'diary' || kind === 'change' || kind === 'record') ? event.badge : JSON.stringify([system, bucket, kind, signature(event)]);

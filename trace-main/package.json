@@ -16,10 +16,13 @@
     "typecheck": "tsc --noEmit && vue-tsc --noEmit -p tsconfig.demo.json",
     "test:demo": "node --import tsx --test scripts/verify-demo.ts",
     "test:quality": "node --import tsx --test scripts/verify-agent-quality.ts",
-    "test": "npm run test:agent && npm run test:skills && npm run test:router && npm run test:validator && npm run test:investigator && npm run test:demo && npm run test:quality && npm run test:progress && npm run test:timeline",
+    "test": "npm run test:agent && npm run test:skills && npm run test:router && npm run test:validator && npm run test:investigator && npm run test:demo && npm run test:quality && npm run test:progress && npm run test:timeline && npm run test:radar",
     "check:ai": "node --import tsx scripts/check-ai.ts",
     "test:progress": "node --import tsx --test scripts/verify-progress-order.ts",
-    "test:timeline": "node --import tsx --test scripts/verify-timeline-points.ts scripts/verify-timeline-focus.ts scripts/verify-chat-timeline.ts"
+    "test:timeline": "node --import tsx --test scripts/verify-timeline-points.ts scripts/verify-timeline-focus.ts scripts/verify-chat-timeline.ts",
+    "generate:radar": "node --import tsx scripts/generate-radar-demo.ts",
+    "test:radar": "node --import tsx --test scripts/verify-radar-demo.ts",
+    "qa:radar": "node --import tsx scripts/qa-radar-live.ts"
   },
   "dependencies": {
     "@earendil-works/pi-agent-core": "^1.2.0",

@@ -47,7 +47,7 @@ for (const scenario of scenarios.filter((entry) => !selected || entry.id === sel
       }, (runtimeConfig, signal) => {
         const runtime = createRuntime(runtimeConfig, signal);
         return { ...runtime,
-          complete: (prompt) => { calls.completion++; return runtime.complete(prompt); },
+          complete: (prompt, reasoning) => { calls.completion++; return runtime.complete(prompt, reasoning); },
           streamFn: (model, context, options) => {
             calls.agent++;
             for (const message of context.messages) {

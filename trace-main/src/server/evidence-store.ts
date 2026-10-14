@@ -4,23 +4,28 @@ import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { parse } from 'csv-parse/sync';
 import readXlsxFile from 'read-excel-file/node';
-import type { CaseSummary, EvidenceEvent, EventFilter, EventPage, ResolvedSource, TimelineBin, TimelinePoints, TimelineFocus, TimelineGroupDetail } from '../demo/types.ts';
+import type { CaseSummary, EvidenceEvent, EventFilter, EventPage, ResolvedSource, ResolvedCalculation, TimelineBin, TimelinePoints, TimelineFocus, TimelineGroupDetail } from '../demo/types.ts';
 import { getTimelineSystem } from '../demo/systems.ts';
 import { decimalDifference } from './decimal.ts';
 import { buildTimelinePoints } from './timeline-points.ts';
 import { buildTimelineFocus, describeTimelineGroup, findTimelineStateChanges } from './timeline-focus.ts';
+import { inspectRegion, reconstructState } from './radar-analysis.ts';
 
 // This is the only data root. No simulator directory or arbitrary upload path is read.
 export const EVIDENCE_ROOT = fileURLToPath(new URL('../radar-simulator/TRACE_v03_investigator_data/', import.meta.url));
-export const CASE_IDS = ['case_001', 'case_002', 'case_003', 'case_004'] as const;
+export const CASE_IDS = ['case_001', 'case_002', 'case_003', 'case_004', 'case_005'] as const;
 const FILES = ['sniffer.csv', 'sensor.txt', 'tracking_service.txt', 'ui_gateway.txt', 'external_position_adapter.txt', 'notification_service.txt', 'operator_diary.xlsx'];
 const LOG_SOURCES: Record<string, string> = {
   'sensor.txt': 'radar-psr-01', 'tracking_service.txt': 'track-core', 'ui_gateway.txt': 'ui-gateway',
   'external_position_adapter.txt': 'position-bridge', 'notification_service.txt': 'alert-router',
 };
 
-interface Manifest {
+export interface Manifest {
   investigation_id: string;
+  title?: string;
+  description?: string;
+  files?: Record<string, { format: 'sniffer_csv' | 'diary_csv' | 'event_jsonl' | 'document'; family: EvidenceEvent['family']; source: string; records: number }>;
+  coverage_by_type?: Record<string, { complete: boolean; start: string; end: string; all_targets: boolean; spatial_filter: string }>;
   source_clock: string;
   window_utc: { start: string; end: string };
   export_selection: { message_types: string[]; excluded_message_types: string[]; target_filter: string; columns: string[] };
@@ -89,9 +94,12 @@ function severity(text: string): EvidenceEvent['severity'] {
 
 export class EvidenceStore {
   private cache = new Map<string, Promise<LoadedCase>>();
+  // Constructor injection is for isolated test packages. HTTP and agent tools
+  // never expose these paths or allow a caller to change the registry.
+  constructor(private root = EVIDENCE_ROOT, private caseIds: readonly string[] = CASE_IDS) {}
 
   assertCase(id: string): void {
-    if (!(CASE_IDS as readonly string[]).includes(id)) throw new Error('Unknown investigation');
+    if (!this.caseIds.includes(id) || !/^case_[a-zA-Z0-9_]+$/.test(id)) throw new Error('Unknown investigation');
   }
 
   private load(id: string): Promise<LoadedCase> {
@@ -105,20 +113,22 @@ export class EvidenceStore {
   }
 
   private async readCase(id: string): Promise<LoadedCase> {
-    const root = join(EVIDENCE_ROOT, 'fixtures', id);
+    const root = join(this.root, 'fixtures', id);
     const manifestText = await readFile(join(root, 'capture_manifest.json'), 'utf8');
     const manifest = JSON.parse(manifestText) as Manifest;
     if (manifest.investigation_id !== id) throw new Error('Manifest case mismatch');
     const events: EvidenceEvent[] = [];
     const originals = new Map<string, string[]>([['capture_manifest.json', manifestText.trimEnd().split(/\r?\n/)]]);
     const summary: CaseSummary = {
-      id, title: `תחקיר ${id.slice(-3)}`, start: manifest.window_utc.start, end: manifest.window_utc.end,
+      id, title: manifest.title ?? `תחקיר ${id.slice(-3)}`, description: manifest.description, start: manifest.window_utc.start, end: manifest.window_utc.end,
       eventCount: 0, sources: [], targets: [], messageTypes: manifest.export_selection.message_types,
       excludedTypes: manifest.export_selection.excluded_message_types,
       recorderDrops: manifest.known_recorder_drops, coverage: manifest.capture_completeness,
       diary: [], files: [], parseErrors: [],
     };
-    for (const file of FILES) {
+    for (const file of manifest.files ? Object.keys(manifest.files) : FILES) {
+      if (!/^[a-zA-Z0-9_]+\.(csv|txt|xlsx|json)$/.test(file)) throw new Error('Invalid evidence filename');
+      const declaration = manifest.files?.[file];
       const bytes = await readFile(join(root, 'raw', file));
       const hash = createHash('sha256').update(bytes).digest('hex');
       if (manifest.file_sha256[file] !== hash) throw new Error(`Evidence hash mismatch: ${id}/${file}`);
@@ -126,7 +136,24 @@ export class EvidenceStore {
       const add = (line: number, entry: Omit<EvidenceEvent, 'id' | 'badge' | 'caseId' | 'sourceFile' | 'line'>) => {
         events.push({ ...entry, id: `${file}:${line}`, badge: `[${file}:L${line}]`, caseId: id, sourceFile: file, line });
       };
-      if (file === 'sniffer.csv') {
+      if (declaration?.format === 'document') {
+        originals.set(file, bytes.toString('utf8').trimEnd().split(/\r?\n/));
+      } else if (declaration?.format === 'event_jsonl' || declaration?.format === 'diary_csv') {
+        const text = bytes.toString('utf8');
+        originals.set(file, text.trimEnd().split(/\r?\n/));
+        const rows = declaration.format === 'event_jsonl'
+          ? text.trimEnd().split(/\r?\n/).map((line, index) => ({ record: JSON.parse(line) as Record<string, unknown>, line: index + 1 }))
+          : (parse(text, { columns: true, skip_empty_lines: true, info: true }) as { record: Record<string, unknown>; info: { lines: number } }[]).map(({ record, info }) => ({ record, line: info.lines }));
+        for (const { record, line } of rows) {
+          const fields = (typeof record.fields === 'string' ? JSON.parse(record.fields) : record.fields) as Record<string, string | number>;
+          if (!fields || Object.values(fields).some((v) => typeof v !== 'number' && typeof v !== 'string')) throw new Error('Invalid event fields');
+          if (record.source !== declaration.source) throw new Error('Event source differs from declared source');
+          add(line, { family: declaration.family, source: declaration.source, time: iso(String(record.timestamp)), type: String(record.type),
+            severity: severity(String(record.severity)), text: String(record.message), fields,
+            precision: declaration.family === 'operator_diary' ? String(fields.reported_precision ?? 'reported by operator') : undefined,
+            target: fields.target_id ? String(fields.target_id) : undefined });
+        }
+      } else if (file === 'sniffer.csv') {
         const text = bytes.toString('utf8');
         originals.set(file, text.trimEnd().split(/\r?\n/));
         const records = parse(text, { columns: true, skip_empty_lines: true, info: true }) as { record: Record<string, string>; info: { lines: number } }[];
@@ -176,6 +203,7 @@ export class EvidenceStore {
           } catch (error) { summary.parseErrors.push({ file, line: index + 1, reason: String(error) }); }
         }
       }
+      if (declaration && events.length - before !== declaration.records) throw new Error(`Evidence count mismatch: ${file}`);
       summary.files.push({ name: file, sha256: hash, records: events.length - before });
     }
     summary.files.push({ name: 'capture_manifest.json', sha256: createHash('sha256').update(manifestText).digest('hex'), records: 1 });
@@ -187,10 +215,29 @@ export class EvidenceStore {
     return { summary, manifest, events, originals, byBadge: new Map(events.map((event) => [event.badge, event])), stateChanges: findTimelineStateChanges(events) };
   }
 
-  async summaries(): Promise<CaseSummary[]> { return Promise.all(CASE_IDS.map((id) => this.summary(id))); }
+  async summaries(): Promise<CaseSummary[]> { return Promise.all(this.caseIds.map((id) => this.summary(id))); }
   async summary(id: string): Promise<CaseSummary> { return (await this.load(id)).summary; }
   async manifest(id: string): Promise<Manifest> { return (await this.load(id)).manifest; }
-  async catalog(): Promise<unknown> { return JSON.parse(await readFile(join(EVIDENCE_ROOT, 'public_system_catalog.json'), 'utf8')); }
+  async coverageCitation(id: string): Promise<string> {
+    const lines = (await this.load(id)).originals.get('capture_manifest.json')!;
+    const index = lines.findIndex((line) => line.includes('"capture_completeness"'));
+    return `[capture_manifest.json:L${index >= 0 ? index + 1 : 1}]`;
+  }
+  async manifestReferences(id: string): Promise<Record<string, string>> {
+    const lines = (await this.load(id)).originals.get('capture_manifest.json')!;
+    return Object.fromEntries(['capture_completeness', 'known_recorder_drops', 'export_selection', 'coverage_by_type', 'files', 'file_sha256'].flatMap((key) => {
+      const index = lines.findIndex((line) => line.includes(`"${key}"`));
+      return index < 0 ? [] : [[key, `[capture_manifest.json:L${index + 1}]`]];
+    }));
+  }
+  async catalog(id?: string): Promise<unknown> {
+    if (id) {
+      const loaded = await this.load(id);
+      const lines = loaded.originals.get('system_catalog.txt');
+      if (lines) return lines.map((text, index) => ({ text, badge: `[system_catalog.txt:L${index + 1}]` }));
+    }
+    return JSON.parse(await readFile(join(this.root, 'public_system_catalog.json'), 'utf8'));
+  }
 
   private async filtered(id: string, filter: EventFilter): Promise<EvidenceEvent[]> {
     const loaded = await this.load(id);
@@ -217,6 +264,54 @@ export class EvidenceStore {
     const offset = Math.max(0, Math.floor(filter.offset ?? 0));
     if (!Number.isFinite(limit) || !Number.isFinite(offset)) throw new Error('Invalid pagination');
     return { rows: rows.slice(offset, offset + limit), total: rows.length, offset, nextOffset: offset + limit < rows.length ? offset + limit : null };
+  }
+
+  async traceRequest(id: string, requestId: string) {
+    if (!requestId || requestId.length > 120) throw new Error('Invalid request ID');
+    const loaded = await this.load(id);
+    const rows = loaded.events.filter((event) => event.fields.request_id === requestId);
+    const sources = new Set(rows.map((row) => row.source));
+    const versions = [...sources].flatMap((source) => {
+      const current = loaded.events.findLast((event) => event.source === source && event.type === 'SoftwareVersion' && event.time <= (rows[0]?.time ?? ''));
+      return current ? [current] : [];
+    });
+    const shownVersions = versions.slice(0, 10);
+    const shownRows = rows.slice(0, 50 - shownVersions.length);
+    const types = new Set([...Object.keys(loaded.manifest.coverage_by_type ?? {}), ...rows.map((row) => row.type)]);
+    return { request_id: requestId, rows: shownRows, total: rows.length, truncated: rows.length > shownRows.length || versions.length > shownVersions.length,
+      type_counts: Object.fromEntries([...types].map((type) => [type, rows.filter((row) => row.type === type).length])),
+      query_complete: true, query_window: loaded.manifest.window_utc, recorder_drops: loaded.manifest.known_recorder_drops,
+      component_versions_at_request: shownVersions,
+      coverage: loaded.manifest.coverage_by_type ?? null, evidence_references: [...shownRows, ...shownVersions].map((r) => r.badge),
+      limitation: 'Receipt is not application. Missing records require type/time coverage; inspect explicit outcomes and effective state.' };
+  }
+
+  async reconstructState(id: string, at: string) { return reconstructState((await this.load(id)).events, at); }
+  async inspectRegion(id: string, reportBadge: string) {
+    const loaded = await this.load(id);
+    const reports = loaded.events.filter((event) => event.family === 'operator_diary' && event.fields.window_start && event.fields.window_end);
+    const match = reportBadge.trim().match(/^\[?([a-zA-Z0-9_]+\.(?:csv|txt|xlsx|json)):L?([1-9]\d*)\]?$/);
+    const report = match ? loaded.byBadge.get(`[${match[1]}:L${match[2]}]`) : undefined;
+    if (!report) throw new Error(`Unknown report citation. Available report citations: ${reports.slice(0, 10).map((event) => event.badge).join(', ') || 'none'}`);
+    const index = reports.findIndex((event) => event.badge === report.badge);
+    if (index < 0) throw new Error('Expected a report with a time window');
+    const result = inspectRegion(loaded.events, loaded.manifest, report, await this.coverageCitation(id));
+    return { ...result, calculation_citation: `[calc:region:${id}:${index + 1}]` };
+  }
+
+  private async resolveCalculation(id: string, badge: string): Promise<ResolvedCalculation> {
+    const match = badge.match(/^\[?calc:region:(case_[a-zA-Z0-9_]+):([1-9]\d*)\]?$/);
+    if (!match) throw new Error('Unknown calculation reference');
+    if (match[1] !== id) throw new Error('Cross-case calculation access denied');
+    const loaded = await this.load(id);
+    const reports = loaded.events.filter((event) => event.family === 'operator_diary' && event.fields.window_start && event.fields.window_end);
+    const report = reports[Number(match[2]) - 1];
+    if (!report) throw new Error('Unknown calculation reference');
+    const result = inspectRegion(loaded.events, loaded.manifest, report, await this.coverageCitation(id));
+    const inputHashes = loaded.summary.files.map(({ name, sha256 }) => ({ name, sha256 }));
+    return { kind: 'calculation', badge: `[calc:region:${id}:${match[2]}]`, operation: 'region', title: 'בדיקת האזור המדווח',
+      result, inputs: result.evidence_references, inputHashes,
+      fingerprint: createHash('sha256').update(JSON.stringify({ method: 'region-v2', report: report.badge, inputHashes })).digest('hex') };
   }
 
   async timelinePoints(id: string, filter: EventFilter = {}): Promise<TimelinePoints> {
@@ -253,6 +348,7 @@ export class EvidenceStore {
   }
 
   async resolve(id: string, badge: string, context = 2): Promise<ResolvedSource> {
+    if (badge.replace(/^\[/, '').startsWith('calc:')) return this.resolveCalculation(id, badge);
     const loaded = await this.load(id);
     const match = badge.match(/^\[?([a-zA-Z0-9_]+\.(?:csv|txt|xlsx|json)):L([1-9]\d*)\]?$/);
     if (!match) throw new Error('Invalid evidence reference');

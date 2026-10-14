@@ -1,6 +1,16 @@
 .message-text.markdown-message{white-space:normal;line-height:1.8;text-align:start;unicode-bidi:isolate}
 .markdown-message p{margin:0 0 .8em;white-space:pre-wrap}
 .markdown-message p:last-child{margin-bottom:0}
+.finding-paragraph{margin-bottom:1em}
+.finding-sources{margin-top:.4em;font-size:11px;color:#adc4d8}
+.finding-sources>summary{cursor:pointer;display:list-item}
+.finding-sources>div{display:flex;flex-wrap:wrap;gap:4px;padding-top:6px}
+.finding-paragraph p{margin-bottom:.3em}
+.calculation-pane{font-size:12px;line-height:1.7;padding:14px 18px}
+.calculation-facts{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0}
+.calculation-facts div{min-width:105px}.calculation-facts dt{color:var(--muted);font-size:11px}.calculation-facts dd{margin:3px 0;font-weight:600}
+.calculation-inputs{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:12px 0}
+.calculation-pane pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;text-align:left}
 .markdown-message strong{font-weight:700;color:#f0f4f8}
 .markdown-message h4{font-size:1em;line-height:1.6;margin:1em 0 .4em;font-weight:700}
 .markdown-message h4:first-child{margin-top:0}

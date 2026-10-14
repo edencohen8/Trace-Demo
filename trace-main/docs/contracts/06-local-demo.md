@@ -6,7 +6,9 @@ Pi agent harness, four skill definitions, tool profiles, and source citations.
 
 ## Storage and evidence
 
-- Read only the four cases under `TRACE_v03_investigator_data/fixtures`.
+- Read only registered cases under `TRACE_v03_investigator_data/fixtures`.
+  Four legacy packages and one manifest-declared radar package are registered.
+  See [radar evidence](07-radar-evidence.md) for the additional formats and tools.
 - Verify each original file against its SHA-256 in the capture manifest.
 - Parse CSV, five TXT log formats, and the single-sheet Excel diary in TypeScript.
 - Preserve identifiers, including four-character Mode 3/A codes, as strings.
@@ -213,9 +215,14 @@ its structured findings. The UI displays that answer and keeps detailed findings
 under an expandable section. Chat messages can include an optional `details`
 array of `{title, explanation, citations}`. Citation validation applies before
 the answer is shown. Existing saved messages remain readable.
-If `answer` is absent, one bounded composition call receives the complete findings,
-including all citations and qualifications, and the original language request.
-The resulting answer passes the same source and scope checks.
+The preferred submission uses `summary_finding_ids` to select 1–4 findings in
+display order. Their concise claims and original evidence lists form the answer.
+The controller does not ask a second model to rewrite those claims. Legacy
+submissions can still provide an explicit cited `answer`. A submission needs one
+of these forms. Syntax, scope and claim support checks run before it is accepted.
+Successful submission ends the coordinator loop without another model call.
+Four or more trailing citations fold into a source disclosure for that paragraph.
+All original source buttons remain available when expanded.
 
 Markdown is parsed into Vue nodes, with bold text, paragraphs and lists. Hebrew
 messages use RTL; citations and code are isolated LTR. Raw HTML is escaped. Model
@@ -231,14 +238,18 @@ the tool call ID so parallel calls update their own row, including failures.
 The UI places completed/error steps in completion order, followed by one loading
 row for the latest active tool (or the current phase when no tool is active).
 Outer phases do not add duplicate spinners. Collapsed mode keeps the last three
-finished steps plus that loading row. Saved steps retain their original timestamps.
+finished steps plus that loading row. Completed history also has an expand control.
+Saved steps retain their original timestamps.
 A completion sequence breaks ties when several checks finish in the same millisecond.
 Human-readable descriptions use the actual source/time filters, record counts,
 numeric results and public investigation goals. They do not stream model reasoning
 or unvalidated assistant text. A completed answer can retain these steps in its
 optional `activity` array, displayed as expandable investigation history.
 Only a `done` answer is saved. Client disconnects abort the
-request. One turn can run per case at a time. The server deadline is three minutes.
+request. One turn can run per case at a time. The server deadline is eight minutes.
+This is a safety cutoff, not a promised completion time. The demo operator accepts
+longer investigations for a sped-up recording; measured latency is still reported.
+This is a cutoff, not a target or a latency promise.
 
 ## AI and validation
 
@@ -248,9 +259,12 @@ local `.env` on each request. Shell values take precedence.
 The default Claude model is `claude-haiku-5-5`.
 
 Routing uses low reasoning effort and a 4,096-token output limit. Agent calls use
-low effort and an 8,192-token output limit. Routing rejects truncated or empty
+medium effort and an 8,192-token output limit. Routing rejects truncated or empty
 responses before JSON parsing. The model does not repeat the question or case
 context in its routing JSON; the server retains those fields.
+Claim review uses medium effort and a 16,384-token ceiling. Adaptive thinking
+shares that ceiling with the verdict. Review input retains cited source records
+and calculations; it does not repeat complete request-trace result bodies.
 
 Normal turns use the existing intent router, one skill profile and bounded tools.
 Causal requests use the existing main investigator and delegated workers.
@@ -264,8 +278,11 @@ explicit filename. Ranges and ambiguous references still fail validation.
 
 Validation checks route shape, required entities, citation format, source existence
 and whether cited evidence was available to the turn. A normal answer gets at most
-one repair attempt. This validation does **not** prove that each causal claim is
-correct. Live model quality still requires a human QA pass. A saved lesson is an
+two correction attempts. Direct answers and causal submissions receive a model review against cited
+original records, capture metadata, catalog definitions and actual calculations.
+Rejected submissions return to the investigator for correction. This review is
+fallible; it does **not** prove causal correctness. Live quality still requires a
+QA pass. A saved lesson is an
 explicit user approval, not an automatic root-cause verdict.
 Health questions about all systems must report every available component. For
 causal questions, inferred candidate components do not create a new health-report

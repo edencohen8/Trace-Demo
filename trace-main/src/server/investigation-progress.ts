@@ -7,7 +7,7 @@ const object = (value: unknown): Values => value && typeof value === 'object' &&
 const string = (value: unknown) => typeof value === 'string' ? value : '';
 const number = (value: unknown) => typeof value === 'number' && Number.isFinite(value) ? value : undefined;
 const count = (value: number) => value.toLocaleString('he-IL');
-const SOURCE_NAMES: Record<string, string> = { 'radar-psr-01': 'המכ״ם', 'track-core': 'מעבד העקיבה', 'position-bridge': 'מתאם המיקום', 'alert-router': 'מערכת ההתראות', 'ui-gateway': 'שרת התצוגה', 'iff-receiver': 'מקלט הזיהוי', operator: 'יומן המפעיל' };
+const SOURCE_NAMES: Record<string, string> = { 'radar-psr-01': 'המכ״ם', 'track-core': 'מעבד העקיבה', 'position-bridge': 'מתאם המיקום', 'alert-router': 'מערכת ההתראות', 'ui-gateway': 'שרת התצוגה', 'operator-ui': 'תוכנת הממשק', 'control-gateway': 'שער הבקרה', 'config-service': 'שירות התצורה', 'iff-receiver': 'מקלט הזיהוי', operator: 'יומן המפעיל' };
 
 function readableSource(value: unknown): string {
   const source = string(value);
@@ -31,6 +31,9 @@ function field(value: unknown): string {
 function startDescription(tool: string, args: Values, delegation: number): { title: string; detail?: string } {
   const window = timeWindow(args);
   switch (tool) {
+    case 'inspect_region': return { title: 'בודק גילויים, כיסוי ומצב בפועל באזור המדווח', detail: 'מחשב חפיפה לפי חלון הזמן ואי־הוודאות שבדיווח.' };
+    case 'trace_request': return { title: 'עוקב אחר הבקשה בין הרכיבים', detail: `מזהה בקשה: ${string(args.request_id)}` };
+    case 'reconstruct_state': return { title: 'משווה מצב תצוגה למצב בפועל', detail: `מצב בשעה ${clock(args.at_utc)} (זמן מקומי).` };
     case 'get_case_overview': return { title: 'בודק מקורות וכיסוי קליטה', detail: 'קורא גם את דיווחי המפעיל.' };
     case 'query_events': return { title: args.source_system ? `בודק אירועים מתוך ${readableSource(args.source_system)}` : 'בודק את רצף האירועים', detail: [window, number(args.offset) ? `ממשיך מרשומה ${count(Number(args.offset) + 1)}` : !window ? 'משווה זמנים ורשומות שנקלטו.' : ''].filter(Boolean).join(' · ') };
     case 'search_text': return { title: `מחפש דיווחים מתוך ${readableSource(args.source_system)}`, detail: [window, string(args.query) ? `חיפוש: ״${string(args.query).slice(0, 70)}״` : !window ? 'מחפש דיווחים רלוונטיים במקור.' : ''].filter(Boolean).join(' · ') };
@@ -49,12 +52,45 @@ function startDescription(tool: string, args: Values, delegation: number): { tit
 
 function resultDescription(tool: string, args: Values, result: unknown): string {
   const details = object(object(result).details);
+  if (tool === 'inspect_region') {
+    const detections = object(details.detections); const search = object(details.search); const inhibit = object(details.inhibit);
+    return [
+      `נמצאו ${number(detections.count) ?? 0} גילויים באזור ובזמן המדווחים${detections.coverage_complete ? ', בכיסוי הקלטה מלא' : '; כיסוי ההקלטה אינו מספיק לקביעת היעדר'}.`,
+      search.covers_report_throughout === true ? 'נתוני הסריקה מכסים את האזור לאורך כל החלון.' : search.covers_report_throughout === null ? 'חסר מידע על הסריקה בחלק מהחלון.' : 'הסריקה אינה מכסה את כל האזור לאורך כל החלון.',
+      inhibit.blocks_report_throughout === true ? 'האזור המדווח נמצא בתוך מגזר פעיל לאורך כל החלון.' : inhibit.blocks_report_throughout === null ? 'חסר דיווח מצב שמאפשר לקבוע אם החסימה הייתה פעילה.' : 'לא נמצאה חסימה של כל האזור לאורך כל החלון.',
+    ].join(' ');
+  }
+  if (tool === 'trace_request') {
+    const rows = Array.isArray(details.rows) ? details.rows.map(object) : [];
+    const kinds = rows.map((row) => string(row.type));
+    const rejected = object(rows.find((r) => r.type === 'RequestRejected')?.fields);
+    const display = object(rows.find((r) => r.type === 'DisplayChanged')?.fields);
+    const delivery = object(rows.find((r) => r.type === 'ResultDelivery')?.fields);
+    if (rejected.error_code === 'UNSUPPORTED_SCHEMA') return [
+      `בקשת ${string(rejected.schema_id)} נדחתה בשירות בגרסה ${string(rejected.software_version)}; הפורמט הנתמך הוא ${string(rejected.supported_schema)}.`,
+      display.trigger === 'RECEIPT' && display.applied_state_verified === 'false' ? 'התצוגה השתנתה לפי אישור קבלה, ללא אימות החלה.' : '',
+      delivery.ui_subscribed === 'false' ? 'ערוץ תוצאת העיבוד לא היה מחובר לממשק.' : '',
+    ].filter(Boolean).join(' ');
+    return [`נמצאו ${number(details.total) ?? rows.length} רשומות לבקשה.`,
+      kinds.includes('ReceiptAcknowledgement') ? 'תועד אישור קבלה.' : '',
+      kinds.includes('RequestRejected') ? 'תועד כשל בעיבוד הבקשה.' : '',
+      kinds.includes('ApplicationAcknowledgement') ? 'תועד אישור החלה.' : 'לא הוחזר אישור החלה; יש לבדוק את כיסוי המקור ואת המצב בפועל.',
+    ].filter(Boolean).join(' ');
+  }
+  if (tool === 'reconstruct_state') {
+    const rows = Array.isArray(details.snapshots) ? details.snapshots.map(object) : [];
+    const effective = rows.find((r) => r.type === 'InhibitSectorState');
+    const displayed = rows.find((r) => r.type === 'DisplayState');
+    const label = (value: unknown) => value === 'true' ? 'פעיל' : value === 'false' ? 'כבוי' : 'לא ידוע';
+    return [effective?.state ? `מצב מגזר בפועל: ${label(object(effective.state).enabled)}.` : 'אין דיווח מגזר תקף בשעה זו.',
+      displayed?.state ? `מצב בתצוגה: ${label(object(displayed.state).displayed_enabled)}.` : 'אין דיווח תצוגה תקף בשעה זו.'].join(' ');
+  }
   if (tool === 'query_events' || tool === 'search_text') {
     const total = number(details.total); const rows = Array.isArray(details.rows) ? details.rows.length : 0;
     if (total === 0) return 'לא נמצאו רשומות תואמות. אין בכך הוכחה שהאירוע לא התרחש.';
     if (total !== undefined) return `נמצאו ${count(total)} רשומות; הוחזרו ${count(rows)} לבדיקה${details.nextOffset != null ? '. קיימות רשומות נוספות' : ''}.`;
   }
-  if (tool === 'get_evidence') return clock(object(details.event).time) ? `נפתחה הרשומה משעה ${clock(object(details.event).time)} וההקשר שלה.` : 'נפתחו הרשומה המקורית ושורות סמוכות.';
+  if (tool === 'get_evidence') return details.kind === 'calculation' ? 'נפתחה תוצאת החישוב, שיטת החישוב וקישורים למקורות.' : clock(object(details.event).time) ? `נפתחה הרשומה משעה ${clock(object(details.event).time)} וההקשר שלה.` : 'נפתחו הרשומה המקורית ושורות סמוכות.';
   if (tool === 'analyze_fields') {
     const samples = number(details.count);
     if (samples === 0) return 'לא נמצאו דגימות מספריות מתאימות.';
@@ -86,7 +122,9 @@ function resultCitations(tool: string, result: unknown): string[] {
   const details = object(object(result).details);
   if (tool === 'get_evidence') return string(details.badge) ? [string(details.badge)] : [];
   if (tool === 'analyze_fields') return Array.isArray(details.evidence_references) ? details.evidence_references.filter((entry): entry is string => typeof entry === 'string').slice(0, 2) : [];
-  if (tool === 'query_events' || tool === 'search_text') return Array.isArray(details.rows) ? details.rows.slice(0, 2).flatMap((row) => string(object(row).badge) ? [string(object(row).badge)] : []) : [];
+  if (tool === 'inspect_region' && string(details.calculation_citation)) return [string(details.calculation_citation)];
+  if (tool === 'inspect_region' || tool === 'reconstruct_state') return Array.isArray(details.evidence_references) ? details.evidence_references.filter((v): v is string => typeof v === 'string') : [];
+  if (tool === 'trace_request') return Array.isArray(details.rows) ? details.rows.filter((row) => ['ReceiptAcknowledgement', 'RequestRejected', 'ApplicationAcknowledgement', 'DisplayChanged', 'ResultDelivery'].includes(string(object(row).type))).flatMap((row) => string(object(row).badge) ? [string(object(row).badge)] : []) : [];
   return [];
 }
 

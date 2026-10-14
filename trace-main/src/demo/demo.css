@@ -30,7 +30,7 @@ summary { cursor: pointer; }
 .trace-wordmark svg { color: var(--accent); }
 .header-divider { height: 17px; width: 1px; background: var(--line); }
 .case-picker { display: flex; gap: 6px; align-items: center; font-size: 10px; color: var(--muted); direction: rtl; }
-.case-picker select { background: none; border: 0; appearance: none; padding: 5px; font-size: 11px; color: var(--text); direction: ltr; }
+.case-picker select { background: none; border: 0; appearance: none; padding: 5px; font-size: 11px; color: var(--text); direction: rtl; max-width: min(34vw, 340px); text-overflow: ellipsis; }
 .header-end { margin-left: auto; display: flex; align-items: center; gap: 22px; font-size: 10px; color: var(--muted); }
 .provider-state { display: flex; align-items: center; gap: 6px; direction: rtl; }
 .provider-state i, .status-dot { display: inline-block; height: 5px; width: 5px; border-radius: 50%; background: var(--warning); }

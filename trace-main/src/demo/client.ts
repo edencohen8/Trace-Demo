@@ -1,4 +1,5 @@
 import type { ChatMessage, ChatTimeRange, ProgressEvent } from './types.ts';
+import { EVIDENCE_BADGE_PATTERN } from './evidence-badges.ts';
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, init);
@@ -38,6 +39,6 @@ export async function streamChat(caseId: string, text: string, evidence: string[
 }
 
 export function splitCitations(text: string): { text: string; citation: boolean }[] {
-  return text.split(/(\[[a-zA-Z0-9_]+\.(?:csv|txt|xlsx|json):L[1-9]\d*\])/g)
-    .filter(Boolean).map((part) => ({ text: part, citation: /^\[.*:L\d+\]$/.test(part) }));
+  return text.split(new RegExp(`(${EVIDENCE_BADGE_PATTERN})`, 'g'))
+    .filter(Boolean).map((part) => ({ text: part, citation: new RegExp(`^${EVIDENCE_BADGE_PATTERN}$`).test(part) }));
 }

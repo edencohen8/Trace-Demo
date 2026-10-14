@@ -11,6 +11,7 @@ import { AgentTool, StreamFn, type AgentEvent } from "@earendil-works/pi-agent-c
 import { DelegatedInvestigationTask, SubAgentResult, Finding } from "./types.js";
 import { createInvestigationAgent, InvestigationAgentController } from "./harness.js";
 import { EvidenceResolver } from "./evidence-resolver.js";
+import { evidenceBadges } from '../demo/evidence-badges.ts';
 
 export interface DelegationControllerOptions {
   signal?: AbortSignal;
@@ -226,9 +227,13 @@ Testing Hypothesis: "${task.hypothesis}"
 Constraints:
 1. Tool Call Budget: You may make at most ${maxCalls} tool calls.
 2. Row Limit: You may inspect at most ${maxRows} rows per call.
-3. Citations: Every factual observation MUST cite the source locator badge (e.g. [sniffer.csv:L1420] or [adapter.txt:L88]).
+3. Citations: Every factual observation MUST cite its exact returned source badge (e.g. [sniffer.csv:L1420]) or calculation_citation. Calculated claims use the calculation handle; individual events use original rows.
 4. Zero Hallucination: If data shows no anomaly or is empty, report that fact explicitly (do not invent causes).
-5. Ground Truth Isolation: You are strictly forbidden from referencing private_ground_truth.`;
+5. Ground Truth Isolation: You are strictly forbidden from referencing private_ground_truth.
+6. Read get_case_overview for report badges, catalog and coverage. An operator report supplies context, not verified causality.
+7. For a reported missing observation, inspect_region computes all spatial matches and state across the report window. This is a complete deterministic query, not a sample of the first rows. Use it for geometry and absence; do not infer either from a truncated page.
+8. Use trace_request for each relevant request ID and reconstruct_state for effective/display state. Receipt is not application. Follow documented recovery when relevant to your task.
+9. Report concise observations with the exact supporting citations. State what was checked, what is inferred, and what remains unknown. Preserve tool-computed results and coverage. Cite a returned calculation_citation for computed counts, geometry and continuous intervals; keep that exact handle in your summary. Return at most 250 words; avoid repeated source dumps. Preserve exact report bounds instead of rounding them into a different query region.`;
   }
 
   private extractFindings(
@@ -249,6 +254,7 @@ Constraints:
         kind: "source_locator",
       });
     }
+    for (const badge of evidenceBadges(text).filter((badge) => badge.startsWith('[calc:'))) citations.push({ badge, kind: 'calculation' });
 
     if (citations.length > 0) {
       const isRefuted =

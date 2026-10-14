@@ -53,12 +53,18 @@ export function useEvidenceFocus(caseId: Ref<string>) {
   async function focus(badges: string[], id = ''): Promise<EvidenceEvent[] | undefined> {
     const ticket = ++request; leave(); pending.value = true; notice.value = '';
     const unique = [...new Set(badges)];
+    const queued = new Set(unique);
     const resolved: ResolvedSource[] = []; let next = 0; let failures = 0;
     // Keep source resolution bounded even for a long investigation answer.
     await Promise.all(Array.from({ length: Math.min(6, unique.length) }, async () => {
       while (next < unique.length && ticket === request) {
         const badge = unique[next++]!;
-        try { resolved.push(await resolve(badge)); } catch { failures++; }
+        try {
+          const source = await resolve(badge); resolved.push(source);
+          if (source.kind === 'calculation') for (const input of source.inputs) {
+            if (!queued.has(input)) { queued.add(input); unique.push(input); }
+          }
+        } catch { failures++; }
       }
     }));
     if (ticket !== request) return;

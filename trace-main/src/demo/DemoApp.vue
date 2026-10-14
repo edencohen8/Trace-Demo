@@ -23,6 +23,7 @@ import type { CaseSession, CaseSummary, ChatMessage, EventPage, EvidenceEvent, I
 const cases = ref<CaseSummary[]>([]);
 const caseId = ref(new URLSearchParams(location.search).get('case') || 'case_001');
 const selectedCase = computed(() => cases.value.find((item) => item.id === caseId.value));
+const incidentObservation = computed(() => selectedCase.value?.diary.find((event) => event.type === 'InitialReport') ?? selectedCase.value?.diary.find((event) => event.fields.entry_id === 'D-099') ?? selectedCase.value?.diary[0]);
 const provider = ref<ProviderStatus>();
 const session = ref<CaseSession>({ caseId: caseId.value, messages: [], lessons: [] });
 const overview = ref<TimelineBin[]>([]);
@@ -168,11 +169,12 @@ async function focusReferences(badges: string[], messageId = '', automatic = fal
 }
 async function focusCitation(badge: string) {
   const activeCase = caseId.value;
-  navigationRevision++;
+  const navigation = ++navigationRevision;
   await Promise.all([focusReferences([badge]), openEvidence(badge, false)]);
-  if (activeCase === caseId.value) {
+  if (activeCase === caseId.value && navigation === navigationRevision && evidence.value?.badge === badge) {
     mobileView.value = 'timeline';
-    if (matchMedia('(max-width: 700px)').matches) dockView.value = null;
+    if (badge.startsWith('[calc:')) dockView.value = 'evidence';
+    else if (matchMedia('(max-width: 700px)').matches) dockView.value = null;
   }
 }
 function showReferences(message: ChatMessage) { navigationRevision++; void focusReferences(messageReferences(message), message.id); }
@@ -304,6 +306,7 @@ function zoom(factor: number) { manualNavigation(); setWindow((Date.parse(start.
 function pan(direction: number) { manualNavigation(); setWindow((Date.parse(start.value) + Date.parse(end.value)) / 2 + direction * span.value / 2, span.value); }
 function fullWindow() { manualNavigation(); if (selectedCase.value) setWindow((Date.parse(selectedCase.value.start) + Date.parse(selectedCase.value.end)) / 2, Date.parse(selectedCase.value.end) - Date.parse(selectedCase.value.start)); }
 async function openEvidence(badge: string, scroll = true, selection?: RecordSelection) {
+  if (scroll) manualNavigation();
   groupLoading.value = false;
   const ticket = ++evidenceRequest; const activeCase = caseId.value;
   try {
@@ -410,7 +413,7 @@ async function selectCase() {
     const [saved, bins] = await Promise.all([api<CaseSession>(`/cases/${caseId.value}/session`), api<TimelineBin[]>(`/cases/${caseId.value}/timeline`)]);
     if (ticket !== caseRequest) return;
     session.value = saved; overview.value = bins;
-    const observation = current.diary.find((event) => event.fields.entry_id === 'D-099') ?? current.diary[0];
+    const observation = incidentObservation.value;
     focusTime(observation?.time ?? current.start);
     if (observation) void openEvidence(observation.badge, false);
   } catch (failure) { error.value = String(failure); loading.value = false; }
@@ -503,7 +506,7 @@ onUnmounted(() => { window.removeEventListener('keydown', handleEscape); finishT
     <header class="demo-header">
       <a class="trace-wordmark" href="/" aria-label="TRACE home"><Activity :size="22"/><span>TRACE</span></a>
       <span class="header-divider"></span>
-      <label class="case-picker"><span>תחקיר</span><select v-model="caseId" aria-label="בחירת תחקיר" @change="selectCase"><option v-for="item in cases" :key="item.id" :value="item.id">{{ item.id }}</option></select><ChevronDown :size="13"/></label>
+      <label class="case-picker"><span>תחקיר</span><select v-model="caseId" aria-label="בחירת תחקיר" :title="selectedCase?.title" dir="auto" @change="selectCase"><option v-for="item in cases" :key="item.id" :value="item.id" dir="auto">{{ item.title }}</option></select><ChevronDown :size="13"/></label>
       <div class="header-end"><span class="synthetic-label">נתוני סימולציה</span><span class="provider-state" :class="{ ready: provider?.configured }" :title="provider?.model"><i></i>{{ provider?.configured ? 'AI מחובר' : 'נדרש מפתח AI' }}</span><a :href="`/api/cases/${caseId}/export`" class="icon-button" title="ייצוא התחקיר" aria-label="ייצוא התחקיר"><Download :size="16"/></a></div>
     </header>
     <div v-if="error" class="error-banner" role="alert">{{ error }}<button @click="loadWindow">נסה שוב</button><button aria-label="סגירת הודעת שגיאה" @click="error = ''"><X :size="14"/></button></div>
@@ -513,7 +516,7 @@ onUnmounted(() => { window.removeEventListener('keydown', handleEscape); finishT
       <div class="workbench">
         <main class="investigation-main">
           <section class="overview-section" aria-label="סקירת כל התחקיר">
-            <div class="section-line"><h1>מבט על ההקלטה</h1><div class="overview-meta"><span v-if="selectedCase" dir="ltr">{{ clock(selectedCase.start) }} — {{ clock(selectedCase.end) }}</span><button @click="focusTime(selectedCase?.diary.find(note => note.fields.entry_id === 'D-099')?.time ?? selectedCase?.diary[0]?.time ?? selectedCase?.start ?? start)">מיקוד באירוע</button></div></div>
+            <div class="section-line"><h1>מבט על ההקלטה</h1><div class="overview-meta"><span v-if="selectedCase" dir="ltr">{{ clock(selectedCase.start) }} — {{ clock(selectedCase.end) }}</span><button @click="focusTime(incidentObservation?.time ?? selectedCase?.start ?? start)">מיקוד באירוע</button></div></div>
             <div class="overview-chart" dir="ltr"><button v-for="bin in overview" :key="bin.start" :title="`${clock(bin.start)} · ${count(bin.count)} רשומות`" :aria-label="`התמקדות בשעה ${clock(bin.start)}`" :class="{ active: bin.end >= start && bin.start <= end, alert: bin.alerts > 0 }" @click="focusTime(bin.start)"><span :style="{ height: `${Math.max(3, bin.count / maxBin * 100)}%` }"></span></button></div>
             <div class="time-edges" dir="ltr"><span v-for="(tick, index) in overviewTicks" :key="index">{{ tick }}</span></div>
           </section>
@@ -553,7 +556,7 @@ onUnmounted(() => { window.removeEventListener('keydown', handleEscape); finishT
           </section>
           <TimelineTooltip ref="timelineTooltip" :disabled="loading || draggingTimeline || cameraMoving"/>
           <TimelineGroupDock v-if="dockView === 'group' && groupSelection" :detail="groupSelection.detail" :loading="groupLoading" @close="dockView = null" @open="openGroupEvidence" @page="loadGroupPage($event)" @series="loadGroupPage(0, $event || '')"/>
-          <EvidenceDock v-else-if="dockView === 'evidence' && evidence" :evidence="evidence" :position="evidencePosition" :previous="canPrevious" :next="canNext" :loading="loading" :grouped="pointSelection?.endpoint === 'timeline-group'" @group="dockView = 'group'" @attach="attach" @close="dockView = null" @navigate="moveEvidence"/>
+          <EvidenceDock v-else-if="dockView === 'evidence' && evidence" :evidence="evidence" :position="evidencePosition" :previous="canPrevious" :next="canNext" :loading="loading" :grouped="pointSelection?.endpoint === 'timeline-group'" @group="dockView = 'group'" @attach="attach" @citation="focusCitation" @close="dockView = null" @navigate="moveEvidence"/>
           <section v-else-if="dockView && dockView !== 'evidence' && dockView !== 'group'" class="bottom-dock data-dock" :aria-label="dockView === 'records' ? 'רשומות המקור' : dockView === 'diary' ? 'יומן המפעיל' : 'כיסוי הקליטה'">
             <header class="dock-header"><h2>{{ dockView === 'records' ? 'רשומות המקור' : dockView === 'diary' ? 'יומן המפעיל' : 'כיסוי הקליטה וקובצי המקור' }}</h2><div v-if="dockView === 'records'" class="pagination"><span>{{ loading ? 'טוען…' : page.total ? `${count(offset + 1)}–${count(offset + page.rows.length)} / ${count(page.total)}` : 'אין תוצאות' }}</span><button :disabled="loading || offset === 0" @click="offset = Math.max(0, offset - 80); loadWindow()">הקודם</button><button :disabled="loading || page.nextOffset === null" @click="offset = page.nextOffset ?? 0; loadWindow()">הבא</button></div><span v-else-if="dockView === 'diary'" class="subtle">זמני דיווח משוערים</span><button class="icon-button" aria-label="סגירת החלונית" @click="dockView = null"><X :size="16"/></button></header>
             <div class="record-pane" tabindex="0">

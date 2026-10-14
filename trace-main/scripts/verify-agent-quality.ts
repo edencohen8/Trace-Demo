@@ -11,6 +11,79 @@ import { decimalDifference } from '../src/server/decimal.ts';
 
 const store = new EvidenceStore();
 
+test('a narrow search question cannot treat suppressed detections as missing scan coverage', async () => {
+  const runtime = initModelRegistry({ useFaux: true, fauxOptions: { tokensPerSecond: 100_000 } });
+  const correct = 'כן, הסריקה כיסתה את האזור המדווח לאורך החלון. [case_report.txt:L1] [sniffer.csv:L192] [sniffer.csv:L212]';
+  runtime.fauxInstance!.setResponses([
+    fauxAssistantMessage([fauxToolCall('inspect_region', { report_badge: '[case_report.txt:L1]' })], { stopReason: 'toolUse' }),
+    fauxAssistantMessage([fauxText('לא, חסימה פעילה אומרת שהאזור לא נסרק. [sniffer.csv:L193]')], { stopReason: 'stop' }),
+    fauxAssistantMessage([fauxText(correct)], { stopReason: 'stop' }),
+  ]);
+  let reviews = 0;
+  const answer = await runChat({ caseId: 'case_005', text: 'האם המכ״ם חיפש במקום הנכון?', evidence: [] }, { caseId: 'case_005', messages: [], lessons: [] }, store,
+    { provider: 'anthropic', model: 'test', apiKey: 'test-only', baseUrl: '' }, new AbortController().signal, () => {},
+    () => ({ model: runtime.getModel()!, streamFn: runtime.streamFn, complete: async (prompt) => {
+      if (!prompt.startsWith('Review whether')) return JSON.stringify({ entityScope: 'single', answerKind: 'signal', selectedSkillIds: ['signal-analysis'], mustCover: [], requiresClarification: false, confidence: 1 });
+      assert.match(prompt, /Review scope: focused/);
+      assert.ok(prompt.includes('"covers_report_throughout":true'));
+      return JSON.stringify(++reviews === 1 ? { supported: false, issues: ['Search coverage is true. Detection suppression does not negate scan coverage. Answer the requested property.'] } : { supported: true, issues: [] });
+    } }));
+  assert.equal(answer.text, correct);
+  assert.equal(reviews, 2);
+});
+
+test('follow-ups can cite input rows from a saved calculation supplied in their context', async () => {
+  const runtime = initModelRegistry({ useFaux: true, fauxOptions: { tokensPerSecond: 100_000 } });
+  runtime.fauxInstance!.setResponses([fauxAssistantMessage([fauxText('המגזר היה פעיל בסוף החלון. [sniffer.csv:L213]')], { stopReason: 'stop' })]);
+  const calculation = await store.inspectRegion('case_005', '[case_report.txt:L1]');
+  const answer = await runChat({ caseId: 'case_005', text: 'איך יודעים שהמגזר היה פעיל?', evidence: [] },
+    { caseId: 'case_005', lessons: [], messages: [{ id: 'previous', role: 'assistant', text: 'The reported region was inhibited.', citations: ['[case_report.txt:L1]'], createdAt: new Date().toISOString(), validation: 'satisfied', computations: [{ tool: 'inspect_region', result: calculation }] }] },
+    store, { provider: 'anthropic', model: 'test', apiKey: 'test-only', baseUrl: '' }, new AbortController().signal, () => {},
+    () => ({ model: runtime.getModel()!, streamFn: runtime.streamFn, complete: async (prompt) => JSON.stringify(prompt.startsWith('Review whether') ? { supported: true, issues: [] } : { entityScope: 'single', answerKind: 'evidence_followup', selectedSkillIds: [], mustCover: [], requiresClarification: false, confidence: 1 }) }));
+  assert.deepEqual(answer.citations, ['[sniffer.csv:L213]']);
+});
+
+test('a follow-up cannot turn a receipt into application and repairs the unsupported claim', async () => {
+  const registry = initModelRegistry({ useFaux: true, fauxOptions: { tokensPerSecond: 100_000 } });
+  const corrected = 'זהו אישור קבלה בלבד. הוא אינו מאשר שהביטול הוחל. [control_gateway.txt:L5]';
+  registry.fauxInstance!.setResponses([
+    fauxAssistantMessage([fauxText('בקשת הביטול הוחלה בהצלחה והמגזר כבוי. [control_gateway.txt:L5]')], { stopReason: 'stop' }),
+    fauxAssistantMessage([fauxText(corrected)], { stopReason: 'stop' }),
+  ]);
+  let reviews = 0;
+  const answer = await runChat({ caseId: 'case_005', text: 'האם הביטול הוחל?', evidence: ['[control_gateway.txt:L5]'] },
+    { caseId: 'case_005', messages: [], lessons: [] }, store,
+    { provider: 'anthropic', model: 'test', apiKey: 'test-only', baseUrl: '' }, new AbortController().signal, () => {},
+    () => ({ model: registry.getModel()!, streamFn: registry.streamFn, complete: async (prompt) => {
+      if (!prompt.startsWith('Review whether')) return JSON.stringify({ entityScope: 'single', answerKind: 'evidence_followup', mustCover: [], selectedSkillIds: [], requiresClarification: false, confidence: 1 });
+      assert.match(prompt, /ReceiptAcknowledgement/);
+      return JSON.stringify(++reviews === 1 ? { supported: false, issues: ['Receipt does not establish application.'] } : { supported: true, issues: [] });
+    } }));
+  assert.equal(reviews, 2);
+  assert.equal(answer.text, corrected);
+});
+
+test('a second bounded follow-up correction can remove a new unsupported duration', async () => {
+  const registry = initModelRegistry({ useFaux: true, fauxOptions: { tokensPerSecond: 100_000 } });
+  const corrected = 'הסימון הוסר לפי אישור קבלה בלבד, בלי אימות החלה. [ui_client.txt:L43]';
+  registry.fauxInstance!.setResponses([
+    fauxAssistantMessage([fauxText('הממשק הסיר את הסימון אחרי החלה. [ui_client.txt:L43]')], { stopReason: 'stop' }),
+    fauxAssistantMessage([fauxText('הממשק הסיר את הסימון על קבלה ונשאר כך עד סוף ההקלטה. [ui_client.txt:L43]')], { stopReason: 'stop' }),
+    fauxAssistantMessage([fauxText(corrected)], { stopReason: 'stop' }),
+  ]);
+  let reviews = 0;
+  const answer = await runChat({ caseId: 'case_005', text: 'למה הסימון נעלם?', evidence: ['[ui_client.txt:L43]'] },
+    { caseId: 'case_005', messages: [], lessons: [] }, store,
+    { provider: 'anthropic', model: 'test', apiKey: 'test-only', baseUrl: '' }, new AbortController().signal, () => {},
+    () => ({ model: registry.getModel()!, streamFn: registry.streamFn, complete: async (prompt) => {
+      if (!prompt.startsWith('Review whether')) return JSON.stringify({ entityScope: 'single', answerKind: 'evidence_followup', mustCover: [], selectedSkillIds: [], requiresClarification: false, confidence: 1 });
+      const issue = ['Receipt is not application.', 'The record does not establish a duration.'][reviews++];
+      return JSON.stringify(issue ? { supported: false, issues: [issue] } : { supported: true, issues: [] });
+    } }));
+  assert.equal(reviews, 3);
+  assert.equal(answer.text, corrected);
+});
+
 test('JSON component logs retain numeric fields at the end of the decoded message', async () => {
   const evidence = await store.resolve('case_003', '[notification_service.txt:L2]');
   assert.equal(evidence.event?.fields.backlog, 0);
@@ -28,6 +101,7 @@ test('Mode 3/A identifiers keep their four-character source representation', asy
     assert.equal(typeof code, 'string', 'An octal identifier is not a numeric measurement');
     assert.match(String(code), /^[0-7]{4}$/);
     const evidence = await store.resolve('case_003', event.badge, 0);
+    assert.ok(evidence.kind !== 'calculation');
     assert.ok(evidence.lines[0]!.content.includes(`,${code},`));
   }
 });
@@ -55,7 +129,7 @@ for (const attached of [false, true]) {
       () => ({ model: registry.getModel()!, streamFn: (model, context, options) => {
         assert.ok(++calls <= (attached ? 1 : 2), 'Valid context evidence must not trigger a repair call');
         return registry.streamFn(model, context, options);
-      }, complete: async () => JSON.stringify({
+      }, complete: async (prompt) => prompt.startsWith('Review whether') ? JSON.stringify({ supported: true, issues: [] }) : JSON.stringify({
         entityScope: 'single', answerKind: 'evidence_followup', mustCover: [], selectedSkillIds: [],
         requiresClarification: false, confidence: 1,
       }) }));
@@ -95,6 +169,7 @@ test('query and timeline filters reject timestamps without an explicit timezone'
 
 test('diary source inspection labels Excel wall-clock cells with their real timezone', async () => {
   const evidence = await store.resolve('case_001', '[operator_diary.xlsx:L4]', 0);
+  assert.ok(evidence.kind !== 'calculation');
   const cells = JSON.parse(evidence.lines[0]!.content) as unknown[];
   assert.equal(cells[1], '2026-10-08T14:03:00.000+03:00');
   assert.equal(cells[2], '2026-10-08T14:08:10.000+03:00');
@@ -140,7 +215,7 @@ test('coverage follow-ups can inspect the complete manifest in one tool call', a
     { caseId: 'case_004', messages: [], lessons: [] }, store,
     { provider: 'anthropic', model: 'test', apiKey: 'test-only', baseUrl: '' }, new AbortController().signal,
     (event) => { if (event.type === 'tool_result' && event.tool === 'get_case_overview' && event.step?.state === 'complete') overviewRead = true; },
-    () => ({ model: registry.getModel()!, streamFn: registry.streamFn, complete: async () => JSON.stringify({
+    () => ({ model: registry.getModel()!, streamFn: registry.streamFn, complete: async (prompt) => prompt.startsWith('Review whether') ? JSON.stringify({ supported: true, issues: [] }) : JSON.stringify({
       entityScope: 'single', answerKind: 'evidence_followup', mustCover: [], selectedSkillIds: [], requiresClarification: false, confidence: 1,
     }) }));
   assert.equal(overviewRead, true, 'The agent must be able to inspect coverage without paging through manifest lines');
@@ -154,6 +229,7 @@ test('grouped citations are formatted without a model repair, while unread group
     registry.fauxInstance!.setResponses([
       fauxAssistantMessage([fauxText(text)], { stopReason: 'stop' }),
       fauxAssistantMessage([fauxText(text)], { stopReason: 'stop' }),
+      fauxAssistantMessage([fauxText(text)], { stopReason: 'stop' }),
     ]);
     let calls = 0;
     const answer = runChat({ caseId: 'case_001', text: 'Summarize the attached source lines.', evidence: ['[sensor.txt:L2]', ...(format === 'mixed' ? ['[notification_service.txt:L2]'] : [])] },
@@ -161,7 +237,7 @@ test('grouped citations are formatted without a model repair, while unread group
       { provider: 'anthropic', model: 'test', apiKey: 'test-only', baseUrl: '' }, new AbortController().signal, () => {},
       () => ({ model: registry.getModel()!, streamFn: (model, context, options) => {
         calls++; return registry.streamFn(model, context, options);
-      }, complete: async () => JSON.stringify({ entityScope: 'single', answerKind: 'evidence_followup',
+      }, complete: async (prompt) => prompt.startsWith('Review whether') ? JSON.stringify({ supported: true, issues: [] }) : JSON.stringify({ entityScope: 'single', answerKind: 'evidence_followup',
         mustCover: [], selectedSkillIds: [], requiresClarification: false, confidence: 1 }) }));
     if (unread) await assert.rejects(answer, /not read during this investigation/);
     else {
@@ -171,23 +247,29 @@ test('grouped citations are formatted without a model repair, while unread group
   }
 });
 
-test('causal fallback composes from all findings and limitations in the requested language', async () => {
+test('causal submission delivers the reviewed answer without a second composition', async () => {
   const registry = initModelRegistry({ useFaux: true, fauxOptions: { tokensPerSecond: 100_000 } });
   const finding = { finding_id: 'F-qa', investigation_id: 'case_001', status: 'ABSTENTION',
     title: 'מצב החיישן', claim: 'החיישן דיווח שהוא פעיל.', confidence: 0,
     rationale: 'The cause is unknown because the transport was not checked.', missing_coverage_flag: true,
     evidence_citations: [1, 2, 3].map((line) => ({ badge: `[sensor.txt:L${line}]`, source_file: 'sensor.txt', kind: 'source_locator' })),
   };
+  const expected = 'The sensor reported ACTIVE [sensor.txt:L2] [sensor.txt:L3]. The cause is unknown because the transport was not checked [sensor.txt:L1].';
   registry.fauxInstance!.setResponses([
-    fauxAssistantMessage([fauxToolCall('submit_findings', { findings: [finding], rationale: 'Only the attached records were checked.' })], { stopReason: 'toolUse' }),
+    fauxAssistantMessage([fauxToolCall('submit_findings', { answer: expected, findings: [finding], rationale: 'Only the attached records were checked.' })], { stopReason: 'toolUse' }),
     fauxAssistantMessage([fauxText('Done')], { stopReason: 'stop' }),
   ]);
   let completions = 0;
-  const expected = 'The sensor reported ACTIVE [sensor.txt:L2] [sensor.txt:L3]. The cause is unknown because the transport was not checked [sensor.txt:L1].';
   const answer = await runChat({ caseId: 'case_001', text: 'Use English. Why did this happen?', evidence: ['[sensor.txt:L2]'] },
     { caseId: 'case_001', messages: [], lessons: [] }, store,
     { provider: 'anthropic', model: 'test', apiKey: 'test-only', baseUrl: '' }, new AbortController().signal, () => {},
     () => ({ model: registry.getModel()!, streamFn: registry.streamFn, complete: async (prompt) => {
+      if (prompt.startsWith('Review whether')) {
+        assert.match(prompt, /Use English/);
+        assert.match(prompt, /transport was not checked/);
+        for (const citation of finding.evidence_citations) assert.ok(prompt.includes(citation.badge));
+        return JSON.stringify({ supported: true, issues: [] });
+      }
       if (++completions === 1) return JSON.stringify({ entityScope: 'single', answerKind: 'cause', mustCover: [],
         selectedSkillIds: ['root-cause-investigation'], requiresClarification: false, confidence: 1 });
       assert.match(prompt, /Use English/);
@@ -195,8 +277,30 @@ test('causal fallback composes from all findings and limitations in the requeste
       for (const citation of finding.evidence_citations) assert.ok(prompt.includes(citation.badge));
       return expected;
     } }));
-  assert.equal(completions, 2, 'Missing user-facing answers must be composed from the full findings');
+  assert.equal(completions, 1, 'Only routing needs a prose completion; the submitted answer is reviewed, not rewritten');
   assert.equal(answer.text, expected);
+});
+
+test('Hebrew wording edits are reviewed and cannot replace a supported answer with a false claim', async () => {
+  for (const falseEdit of [false, true]) {
+    const registry = initModelRegistry({ useFaux: true, fauxOptions: { tokensPerSecond: 100_000 } });
+    const original = 'החיישן פעיל דיווח. [sensor.txt:L2]';
+    const polished = falseEdit ? 'החיישן קרס. [sensor.txt:L2]' : 'החיישן דיווח שהוא פעיל. [sensor.txt:L2]';
+    const finding = { finding_id: 'F', investigation_id: 'case_001', status: 'ABSTENTION', title: 'מצב החיישן', claim: original, confidence: 0.5, rationale: 'Only this observation was checked.', missing_coverage_flag: true, evidence_citations: [{ badge: '[sensor.txt:L2]', source_file: 'sensor.txt' }] };
+    registry.fauxInstance!.setResponses([fauxAssistantMessage([fauxToolCall('submit_findings', { findings: [finding], summary_finding_ids: ['F'], rationale: 'Only the observation is supported.' })], { stopReason: 'toolUse' })]);
+    let edits = 0; let reviews = 0;
+    const answer = await runChat({ caseId: 'case_001', text: 'חקור את האירוע.', evidence: ['[sensor.txt:L2]'] }, { caseId: 'case_001', messages: [], lessons: [] }, store,
+      { provider: 'anthropic', model: 'test', apiKey: 'test-only', baseUrl: '' }, new AbortController().signal, () => {},
+      () => ({ model: registry.getModel()!, streamFn: registry.streamFn, complete: async (prompt) => {
+        if (prompt.startsWith('Polish the Hebrew')) { edits++; assert.ok(prompt.includes(original)); return polished; }
+        if (prompt.startsWith('Review whether')) { reviews++; return JSON.stringify({ supported: !(falseEdit && reviews === 2), issues: falseEdit && reviews === 2 ? ['The source does not show a crash.'] : [] }); }
+        return JSON.stringify({ entityScope: 'single', answerKind: 'cause', mustCover: [], selectedSkillIds: ['root-cause-investigation'], requiresClarification: false, confidence: 1 });
+      } }));
+    assert.equal(edits, 1);
+    assert.equal(reviews, 2);
+    assert.equal(answer.text, falseEdit ? original : polished);
+    assert.deepEqual(answer.citations, ['[sensor.txt:L2]']);
+  }
 });
 
 test('an explicit English request corrects a Hebrew draft without changing evidence', async () => {
@@ -210,6 +314,7 @@ test('an explicit English request corrects a Hebrew draft without changing evide
     { caseId: 'case_001', messages: [], lessons: [] }, store,
     { provider: 'anthropic', model: 'test', apiKey: 'test-only', baseUrl: '' }, new AbortController().signal, () => {},
     () => ({ model: registry.getModel()!, streamFn: registry.streamFn, complete: async (prompt) => {
+      if (prompt.startsWith('Review whether')) return JSON.stringify({ supported: true, issues: [] });
       if (++completions === 1) return JSON.stringify({ entityScope: 'single', answerKind: 'evidence_followup', mustCover: [],
         selectedSkillIds: [], requiresClarification: false, confidence: 1 });
       assert.match(prompt, /English/);
@@ -228,7 +333,8 @@ test('numeric answers preserve requested measurements without an automatic editi
   const answer = await runChat({ caseId: 'case_002', text: 'Use English. Give the maximum latitude difference, sample count and exact peak time.', evidence: ['[sniffer.csv:L17852]'] },
     { caseId: 'case_002', messages: [], lessons: [] }, store,
     { provider: 'anthropic', model: 'test', apiKey: 'test-only', baseUrl: '' }, new AbortController().signal, () => {},
-    () => ({ model: registry.getModel()!, streamFn: registry.streamFn, complete: async () => {
+    () => ({ model: registry.getModel()!, streamFn: registry.streamFn, complete: async (prompt) => {
+      if (prompt.startsWith('Review whether')) return JSON.stringify({ supported: true, issues: [] });
       if (++completions === 1) return JSON.stringify({ entityScope: 'single', answerKind: 'signal', mustCover: [],
         selectedSkillIds: ['signal-analysis'], requiresClarification: false, confidence: 1 });
       return 'The largest latitude difference was about 0.0108 degrees [sniffer.csv:L17852]. Its cause is unknown.';
@@ -253,7 +359,8 @@ test('causal answers retain source links and qualifications without a second rew
   const answer = await runChat({ caseId: 'case_003', text: 'Use English. Why was the alert delayed?', evidence: ['[notification_service.txt:L58]'] },
     { caseId: 'case_003', messages: [], lessons: [] }, store,
     { provider: 'anthropic', model: 'test', apiKey: 'test-only', baseUrl: '' }, new AbortController().signal, () => {},
-    () => ({ model: registry.getModel()!, streamFn: registry.streamFn, complete: async () => {
+    () => ({ model: registry.getModel()!, streamFn: registry.streamFn, complete: async (prompt) => {
+      if (prompt.startsWith('Review whether')) return JSON.stringify({ supported: true, issues: [] });
       if (++completions === 1) return JSON.stringify({ entityScope: 'single', answerKind: 'cause', mustCover: [],
         selectedSkillIds: ['root-cause-investigation'], requiresClarification: false, confidence: 1 });
       return 'The operator saw the alert after a retry [notification_service.txt:L56].';
@@ -270,7 +377,8 @@ test('optional prose editing cannot discard original supporting citations', asyn
   const answer = await runChat({ caseId: 'case_001', text: 'Describe the sensor status.', evidence: ['[sensor.txt:L2]'] },
     { caseId: 'case_001', messages: [], lessons: [] }, store,
     { provider: 'anthropic', model: 'test', apiKey: 'test-only', baseUrl: '' }, new AbortController().signal, () => {},
-    () => ({ model: registry.getModel()!, streamFn: registry.streamFn, complete: async () => {
+    () => ({ model: registry.getModel()!, streamFn: registry.streamFn, complete: async (prompt) => {
+      if (prompt.startsWith('Review whether')) return JSON.stringify({ supported: true, issues: [] });
       if (++completions === 1) return JSON.stringify({ entityScope: 'single', answerKind: 'health', mustCover: [],
         selectedSkillIds: ['health-status'], requiresClarification: false, confidence: 1 });
       return 'The radar and receiver were online [sensor.txt:L2]. Later operation was not checked.';

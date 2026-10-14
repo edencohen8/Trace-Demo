@@ -8,8 +8,8 @@ export interface TimelineSystem {
 export const TIMELINE_SYSTEMS: readonly TimelineSystem[] = [
   { id: 'iff', name: 'IFF System', sources: ['iff-receiver'] },
   { id: 'sensor', name: 'Sensor Controller', sources: ['radar-psr-01'] },
-  { id: 'operator', name: 'Operator Station', sources: ['ui-gateway', 'operator'] },
-  { id: 'services', name: 'Services Server', sources: ['track-core', 'position-bridge', 'alert-router'] },
+  { id: 'operator', name: 'Operator Station', sources: ['ui-gateway', 'operator-ui', 'operator'] },
+  { id: 'services', name: 'Services Server', sources: ['track-core', 'position-bridge', 'alert-router', 'control-gateway', 'config-service'] },
   { id: 'radio', name: 'Radio System', sources: [] },
 ];
 

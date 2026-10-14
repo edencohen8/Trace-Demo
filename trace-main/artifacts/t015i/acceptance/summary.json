@@ -1,0 +1,39 @@
+{
+  "provider": {
+    "provider": "anthropic",
+    "model": "claude-haiku-5-5",
+    "configured": true
+  },
+  "reports": 29,
+  "completed": 27,
+  "failed": 2,
+  "baseline": {
+    "runs": 15,
+    "completed": 14
+  },
+  "firstUsefulMs": {
+    "min": 8296.938624999952,
+    "median": 16628.18975000002,
+    "max": 27230.965208000038
+  },
+  "conclusionMs": {
+    "min": 28271.428209000034,
+    "median": 177343.2753339999,
+    "max": 425570.6155000001
+  },
+  "fullInvestigationMs": {
+    "min": 148919.819167,
+    "median": 223443.99158299994,
+    "max": 425570.6155000001
+  },
+  "modelCalls": {
+    "min": 4,
+    "median": 20,
+    "max": 29
+  },
+  "toolCalls": {
+    "min": 3,
+    "median": 23,
+    "max": 38
+  }
+}

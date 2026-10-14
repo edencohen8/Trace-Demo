@@ -165,7 +165,7 @@ test('selected interval overrides a router time guess and reaches the actual age
   let routerPrompt = ''; const contexts: string[] = [];
   const runtime: typeof createRuntime = () => ({ model: registry.getModel()!,
     streamFn: (model, context, options) => { contexts.push(JSON.stringify(context)); return registry.streamFn(model, context, options); },
-    complete: async prompt => { routerPrompt = prompt; return JSON.stringify({ entityScope: 'single', answerKind: 'health', mustCover: [],
+    complete: async prompt => { if (prompt.startsWith('Review whether')) return JSON.stringify({ supported: true, issues: [] }); routerPrompt = prompt; return JSON.stringify({ entityScope: 'single', answerKind: 'health', mustCover: [],
       selectedSkillIds: ['health-status'], requiresClarification: false, confidence: .99,
       requestedTime: { start: '2026-10-08T11:00:00Z', end: '2026-10-08T11:05:00Z' } }); } });
   await runChat({ caseId: 'case_001', text: 'מה מצב המכ״ם בטווח שנבחר?', evidence: [], timeRange: range },

@@ -15,6 +15,7 @@ import { createInvestigationAgent } from "./harness.js";
 import { InvestigationBlackboard, InvestigationBlackboardState, HypothesisStatus } from "./blackboard.js";
 import { DelegationController } from "./delegation-controller.js";
 import { SkillRegistry } from "./skills/registry.js";
+import { EvidenceResolver } from './evidence-resolver.ts';
 
 export interface CaseOverview {
   caseId: string;
@@ -24,13 +25,14 @@ export interface CaseOverview {
   anomalyHint: string;
   recorderDrops: number;
   missingFeeds?: string[];
+  catalog?: unknown;
 }
 
 export interface RootCauseOrchestratorOptions {
   responseInstructions?: string;
   signal?: AbortSignal;
   onEvent?: (event: AgentEvent) => void;
-  validateFindings?: (findings: Finding[]) => Promise<void>;
+  validateFindings?: (findings: Finding[], answer?: string) => Promise<void>;
   investigationId: string;
   goal: string;
   model: Model<any>;
@@ -61,7 +63,7 @@ const DelegateInvestigationParamsSchema = Type.Object({
     })
   ),
   allowed_tools: Type.Array(Type.String(), {
-    description: "Data tools the worker may use: 'analyze_fields', 'search_text', 'query_events', 'get_evidence'",
+    description: "Data tools the worker may use: get_case_overview (catalog/coverage), analyze_fields, search_text, query_events, get_evidence, trace_request (cross-source request ID), reconstruct_state (effective/display at time), inspect_region (report geometry, detection counts and coverage).",
   }),
   budget: Type.Optional(
     Type.Object({
@@ -109,9 +111,16 @@ const UpdateBlackboardParamsSchema = Type.Object({
 type UpdateBlackboardParams = Static<typeof UpdateBlackboardParamsSchema>;
 
 const SubmitFindingsParamsSchema = Type.Object({
-  answer: Type.Optional(Type.String({ description: 'Concise user-facing answer in the requested language, with source citations and uncertainty. Keep detailed reasoning in findings.' })),
-  findings: Type.Array(FindingSchema),
-  rationale: Type.String(),
+  summary_finding_ids: Type.Optional(Type.Array(Type.String(), { minItems: 1, maxItems: 4, description: 'Preferred answer: select 1–4 finding IDs in user-facing order. Their concise claims and their own evidence citations form the answer. Put the symptom explanation first, then cause and comparison. This avoids rewriting claims with mismatched citations.' })),
+  answer: Type.Optional(Type.String({ description: 'Legacy alternative when summary_finding_ids is absent: concise answer with exact source citations next to each claim.' })),
+  findings: Type.Optional(Type.Array(FindingSchema, { description: 'Full findings for the first submission. On a review retry, use corrections to keep other findings unchanged.' })),
+  corrections: Type.Optional(Type.Array(Type.Object({
+    finding_id: Type.String(), claim: Type.Optional(Type.String()), rationale: Type.Optional(Type.String()),
+    title: Type.Optional(Type.String()), evidence_citations: Type.Optional(FindingSchema.properties.evidence_citations),
+    status: Type.Optional(FindingSchema.properties.status), confidence: Type.Optional(FindingSchema.properties.confidence),
+    missing_coverage_flag: Type.Optional(Type.Boolean()),
+  }), { description: 'After a rejected submission, update only the named finding fields. All omitted fields and other findings remain unchanged. Evidence lists replace that finding’s list, so retain its existing relevant sources.' })),
+  rationale: Type.Optional(Type.String()),
 });
 type SubmitFindingsParams = Static<typeof SubmitFindingsParamsSchema>;
 
@@ -133,6 +142,9 @@ export class RootCauseOrchestrator {
 
   private finalFindings: Finding[] = [];
   private finalAnswer?: string;
+  private candidateFindings: Finding[] = [];
+  private candidateSummary?: string[];
+  private candidateAnswer?: string;
   private isConcluded = false;
 
   constructor(options: RootCauseOrchestratorOptions) {
@@ -195,6 +207,7 @@ export class RootCauseOrchestrator {
         this.blackboard.incrementIteration();
         return undefined;
       },
+      afterToolCall: async () => this.isConcluded ? { terminate: true } : undefined,
     });
 
     // 4. Initial prompt triggering the forensic investigation
@@ -235,6 +248,7 @@ Operational Protocol:
           anomaly_hint: overview.anomalyHint,
           recorder_drops: overview.recorderDrops,
           missing_feeds: overview.missingFeeds ?? [],
+          catalog: overview.catalog,
         };
         return {
           content: [{ type: "text", text: JSON.stringify(result) }],
@@ -347,10 +361,30 @@ Operational Protocol:
       description: "Concludes the investigation and submits final structured findings (CTR-04). Call this when root cause is corroborated or archive coverage is exhausted.",
       parameters: SubmitFindingsParamsSchema,
       execute: async (_callId: string, params: SubmitFindingsParams) => {
-        if (params.findings.some((finding) => finding.investigation_id !== this.investigationId)) throw new Error('Finding case mismatch');
-        await this.options.validateFindings?.(params.findings);
-        this.finalFindings = params.findings;
-        this.finalAnswer = params.answer;
+        const incoming = params.findings ?? this.candidateFindings;
+        if (!incoming.length) throw new Error('First submit findings before sending corrections');
+        if (incoming.some((finding) => finding.investigation_id !== this.investigationId)) throw new Error('Finding case mismatch');
+        if (new Set(incoming.map((f) => f.finding_id)).size !== incoming.length) throw new Error('Finding IDs must be unique');
+        const updated = incoming.map((finding) => ({ ...finding, evidence_citations: finding.evidence_citations.map((citation) => ({ ...citation })) }));
+        for (const correction of params.corrections ?? []) {
+          const index = updated.findIndex((finding) => finding.finding_id === correction.finding_id);
+          if (index < 0) throw new Error(`Unknown correction finding: ${correction.finding_id}`);
+          updated[index] = { ...updated[index]!, ...correction };
+        }
+        this.candidateFindings = updated;
+        if (params.summary_finding_ids) this.candidateSummary = params.summary_finding_ids;
+        if (params.answer !== undefined) { this.candidateAnswer = params.answer; if (!params.summary_finding_ids) this.candidateSummary = undefined; }
+        const selected = this.candidateSummary?.map((id) => {
+          const finding = updated.find((finding) => finding.finding_id === id);
+          if (!finding) throw new Error(`Unknown summary finding: ${id}`);
+          return finding;
+        });
+        const answer = selected?.length ? selected.map((finding) => `${finding.claim} ${[...new Set(finding.evidence_citations.map((citation) => EvidenceResolver.parseReference(citation.badge).badge))].filter((badge) => !finding.claim.includes(badge)).join(' ')}`).join('\n\n') : this.candidateAnswer;
+        if (!answer?.trim()) throw new Error('Submit summary_finding_ids or a cited answer with the findings');
+        try { await this.options.validateFindings?.(updated, answer); }
+        catch (error) { throw new Error(`${error instanceof Error ? error.message : String(error)} Draft retained. Use submit_findings corrections to change only the affected finding fields. Keep the other findings and their citations.`); }
+        this.finalFindings = updated;
+        this.finalAnswer = answer;
         this.isConcluded = true;
         const details = {
           concluded: true,
@@ -371,8 +405,14 @@ Operational Protocol:
 ${skillPlaybook}
 
 ${this.options.responseInstructions ?? ''}
-When calling submit_findings, put the concise final reply in answer. Cite source badges in that reply.
-Keep supporting detail in findings. Do not repeat all findings and their rationales in answer.
+When calling submit_findings, select summary_finding_ids in user-facing order. The controller renders their claims with their own source citations. Omit the legacy answer field.
+Write the selected claims as concise Hebrew paragraphs that directly answer the user. Put the symptom explanation first, followed by the cause and recovery comparison if relevant. Use 2–4 selected findings, up to 50 words per claim. Give the cause and misleading operator display separate findings when both need explanation. Keep additional detail in each rationale. Target 80–140 words total.
+The selected claims must stand alone: include each material causal link there, not only in rationale. When software compatibility explains a failure, name the relevant component software versions and request format. When display and effective state disagree, explain the display update trigger and whether the later processing result reached it. Preserve supported uncertainty. Distinguish track-record counts from distinct track identities.
+Selected claims are displayed directly. Use local +03:00 clock times in these claims, and say once that times are local. Keep source UTC timestamps in the rationale. Explain technical terms in plain Hebrew. If software compatibility is the cause, distinguish each component's software version from the request schema version.
+Use evidence_citations for the actual premises of each claim, including report, coverage and catalog definitions when needed. Every claimed step needs its source. A causal claim may need more than two sources. The reviewer checks claims against those references before the summary is rendered.
+Cite the returned calculation handle for counts, geometry and whole-window checks. Use kind=calculation and omit source_file for those handles. A calculation contains its own input records and coverage; do not replace it with a guessed raw row. Event claims still cite the matching original event.
+Keep time claims within the checked intervals. An incident-window calculation and a later applied-state snapshot can establish the incident and recovery comparison without claiming uninterrupted state throughout the time between them. Do not add an unneeded duration that would require a new continuity check. For a recovery request, use its effective-state transition when trace_request returns it; do not substitute a later sample and call the transition unknown.
+If review rejects a submission, the draft is retained. Use submit_findings corrections to change only the affected finding fields, instead of rewriting all findings. Retrieve additional evidence only if the review identifies an unresolved factual gap.
 
 === YOUR WORKING MEMORY (INVESTIGATION BLACKBOARD) ===
 ${this.blackboard.getSummaryForPrompt()}
@@ -383,6 +423,6 @@ ${this.blackboard.getSummaryForPrompt()}
 3. Iterative Fact-Finding: If you do not have sufficient baseline empirical facts, DO NOT guess hypotheses. Call get_case_overview and delegate an initial scan.
 4. Living Hypotheses: Propose at least two competing hypotheses (H1 vs H2) using update_blackboard only after observing baseline symptoms.
 5. Dynamic Re-evaluation: If an observation disproves a hypothesis, update the blackboard and pursue open leads.
-6. Stopping / Abstention Rule: Conclude via submit_findings with dual-source citations (e.g. sniffer.csv:row and log:line). If required feeds were filtered out of capture (e.g. case_004), submit an ABSTENTION finding.`;
+6. Stopping / Abstention Rule: Conclude via submit_findings with cross-source citations. If required feeds are missing, qualify the affected finding as ABSTENTION. Resolve available evidence for material open questions before concluding.`;
   }
 }
