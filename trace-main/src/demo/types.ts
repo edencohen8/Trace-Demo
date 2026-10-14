@@ -123,12 +123,15 @@ export interface ResolvedSource {
   lines: { number: number; content: string; highlight: boolean }[];
 }
 
+export interface ChatTimeRange { start: string; end: string }
+
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   text: string;
   createdAt: string;
   citations: string[];
+  timeRange?: ChatTimeRange;
   mode?: string;
   model?: string;
   validation?: string;

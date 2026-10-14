@@ -1,4 +1,4 @@
-import type { ChatMessage, ProgressEvent } from './types.ts';
+import type { ChatMessage, ChatTimeRange, ProgressEvent } from './types.ts';
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, init);
@@ -8,9 +8,9 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export async function streamChat(caseId: string, text: string, evidence: string[], signal: AbortSignal,
-  progress: (event: ProgressEvent) => void): Promise<ChatMessage> {
+  progress: (event: ProgressEvent) => void, timeRange?: ChatTimeRange): Promise<ChatMessage> {
   const response = await fetch(`/api/cases/${caseId}/chat`, { method: 'POST', signal,
-    headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, evidence }) });
+    headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, evidence, timeRange }) });
   if (!response.ok) { const error = await response.json(); throw new Error(error.error || 'Chat request failed'); }
   if (!response.body) throw new Error('Streaming is unavailable');
   const reader = response.body.getReader();

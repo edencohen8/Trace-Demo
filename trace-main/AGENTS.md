@@ -2,6 +2,8 @@
 
 Welcome to TRACE (Timeline Reconstruction, Analysis, Correlation & Explanation).
 
+Before changing timeline grouping or proposing UI prototypes, read [project memory](MEMORY.md) for rejected approaches.
+
 ## Agent skills
 
 ### Issue tracker

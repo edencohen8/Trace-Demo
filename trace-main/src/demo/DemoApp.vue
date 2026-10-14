@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
-import { Activity, ArrowLeft, ArrowRight, Check, ChevronDown, Download, FileText, Link2, Search, Send, Square, X, ZoomIn, ZoomOut, Radio, Radar, Monitor, Server, AudioLines, List, BookOpen, ShieldCheck } from 'lucide-vue-next';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
+import { Activity, ArrowLeft, ArrowRight, Check, ChevronDown, Download, FileText, Link2, Search, Send, Square, X, ZoomIn, ZoomOut, Radio, Radar, Monitor, Server, AudioLines, List, BookOpen, ShieldCheck, Focus, Undo2, ScanLine, MessageSquare, Clock3, LoaderCircle } from 'lucide-vue-next';
 import { api, streamChat } from './client.ts';
 import MessageBody from './MessageBody.ts';
 import CitationLink from './CitationLink.ts';
@@ -8,15 +8,16 @@ import { describeCitation } from './citations.ts';
 import InvestigationProgress from './InvestigationProgress.vue';
 import EvidenceDock from './EvidenceDock.vue';
 import TimelineGroupDock from './TimelineGroupDock.vue';
+import TimelineTooltip from './TimelineTooltip.vue';
 import { layoutTimelineGroups, layoutTimelinePoints } from './point-layout.ts';
 import { panTimeWindow, wheelZoomFactor, zoomTimeWindow, type TimeWindow } from './time-window.ts';
+import { evidencePoint, evidenceWindow, messageReferences, timeAtPointer } from './evidence-focus.ts';
+import { useEvidenceFocus } from './use-evidence-focus.ts';
+import { useTimelineCamera } from './use-timeline-camera.ts';
 import './messages.css';
+import './evidence-focus.css';
 import { TIMELINE_SYSTEMS, getTimelineSystem } from './systems.ts';
-import type { CaseSession, CaseSummary, ChatMessage, EventPage, EvidenceEvent, InvestigationStep, ProviderStatus, ResolvedSource, TimelineBin, TimelinePoint, TimelinePoints, TimelineFocus, TimelineGroup, TimelineGroupDetail } from './types.ts';
-
-// Throwaway visual study, excluded from production. Existing data and actions stay shared.
-const groupingPrototypeEnabled = import.meta.env.DEV && /^G(?:[1-9]|10)$/i.test(new URLSearchParams(location.search).get('variant') ?? '');
-const LogGroupingPrototype = import.meta.env.DEV ? defineAsyncComponent(() => import('./prototype/LogGroupingPrototype.vue')) : undefined;
+import type { CaseSession, CaseSummary, ChatMessage, EventPage, EvidenceEvent, InvestigationStep, ProviderStatus, ResolvedSource, TimelineBin, TimelinePoint, TimelinePoints, TimelineFocus, TimelineGroup, TimelineGroupDetail, ChatTimeRange } from './types.ts';
 
 const cases = ref<CaseSummary[]>([]);
 const caseId = ref(new URLSearchParams(location.search).get('case') || 'case_001');
@@ -39,10 +40,12 @@ const dockView = ref<'evidence' | 'group' | 'records' | 'diary' | 'coverage' | n
 const filtersOpen = ref(false);
 const mobileView = ref<'timeline' | 'chat'>('timeline');
 const lanesEl = ref<HTMLElement>();
+const timelineTooltip = ref<InstanceType<typeof TimelineTooltip>>();
 const trackWidth = ref(800);
 let laneObserver: ResizeObserver | undefined;
 const laneIcons = { iff: Radio, sensor: Radar, operator: Monitor, services: Server, radio: AudioLines };
 const start = ref(''); const end = ref('');
+const layoutWindow = ref({ start: '', end: '' });
 const system = ref('');
 const source = ref(''); const target = ref(''); const query = ref(''); const alertsOnly = ref(false); const offset = ref(0);
 const loading = ref(true); const error = ref(''); const chatError = ref('');
@@ -53,8 +56,28 @@ let wheelTimer: ReturnType<typeof setTimeout> | undefined;
 const draggingTimeline = ref(false);
 let timelineDrag: { pointerId: number; x: number; y: number; width: number; window: TimeWindow; recording: TimeWindow; element: HTMLElement } | undefined;
 let suppressDragClick = false;
-const clock = (value: string) => new Intl.DateTimeFormat('he-IL', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).format(new Date(value));
-const count = (value: number) => new Intl.NumberFormat('he-IL').format(value);
+const linked = useEvidenceFocus(caseId);
+const { events: linkedEvents, active: linkedBadges, hovered: hoveredBadge, messageId: linkedMessageId, pending: focusPending, notice: focusNotice, revision: focusRevision } = linked;
+const readWindow = (): TimeWindow => ({ start: Date.parse(start.value), end: Date.parse(end.value) });
+const recordingWindow = (): TimeWindow => ({ start: Date.parse(selectedCase.value?.start ?? ''), end: Date.parse(selectedCase.value?.end ?? '') });
+const camera = useTimelineCamera({ read: readWindow, recording: recordingWindow,
+  write: (window) => { start.value = new Date(window.start).toISOString(); end.value = new Date(window.end).toISOString(); offset.value = 0; },
+  settled: () => { void loadWindow(); } });
+const { moving: cameraMoving } = camera;
+interface ViewSnapshot { window: TimeWindow; system: string; source: string; target: string; query: string; alertsOnly: boolean }
+const previousView = ref<ViewSnapshot>();
+const selectionMode = ref(false);
+const selectedRange = ref<ChatTimeRange>();
+const draftRange = ref<ChatTimeRange>();
+let rangeDrag: { pointerId: number; anchor: number; x: number; left: number; width: number; window: TimeWindow; element: HTMLElement; moved: boolean } | undefined;
+const selectingRange = ref(false);
+let navigationRevision = 0;
+let lastNavigation = 0;
+let focusAction = 0;
+const clockFormatter = new Intl.DateTimeFormat('he-IL', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+const countFormatter = new Intl.NumberFormat('he-IL');
+const clock = (value: string) => clockFormatter.format(new Date(value));
+const count = (value: number) => countFormatter.format(value);
 const windowLabel = computed(() => start.value && end.value ? `${clock(start.value)} — ${clock(end.value)}` : '');
 const span = computed(() => Date.parse(end.value) - Date.parse(start.value));
 const durationValue = computed(() => {
@@ -71,16 +94,142 @@ const canPrevious = computed(() => evidenceIndex.value > 0 || (evidenceIndex.val
 const canNext = computed(() => evidenceIndex.value >= 0 && (evidenceIndex.value < inspectorPage.value.rows.length - 1 || inspectorPage.value.nextOffset !== null));
 const maxBin = computed(() => Math.max(1, ...overview.value.map((bin) => bin.count)));
 const availableSources = computed(() => (selectedCase.value?.sources ?? []).filter((entry) => !system.value || getTimelineSystem(system.value).sources.includes(entry)));
-const systemLanes = computed(() => TIMELINE_SYSTEMS
+const baseLanes = computed(() => TIMELINE_SYSTEMS
   .filter((entry) => (!system.value || entry.id === system.value) && (!source.value || entry.sources.includes(source.value)))
   .map((entry) => ({ ...entry,
     hasData: entry.sources.some((sourceId) => selectedCase.value?.sources.includes(sourceId)),
-    points: layoutTimelinePoints(detail.value.points.filter(point => point.system === entry.id && point.time >= start.value && point.time <= end.value), start.value, end.value, trackWidth.value),
-    groups: layoutTimelineGroups(focus.value.groups.filter(group => group.system === entry.id), start.value, end.value, trackWidth.value),
+    points: layoutTimelinePoints(detail.value.points.filter(point => point.system === entry.id), layoutWindow.value.start, layoutWindow.value.end, trackWidth.value),
+    groups: layoutTimelineGroups(focus.value.groups.filter(group => group.system === entry.id), layoutWindow.value.start, layoutWindow.value.end, trackWidth.value),
   })));
+function positionEvidence(events: EvidenceEvent[]) {
+  const points = events.flatMap(event => { const point = evidencePoint(event); return point ? [point] : []; });
+  // Vertical placement stays fixed through the camera move. Only x encodes time.
+  const bounds = evidenceWindow(events, recordingWindow());
+  if (!bounds) return [];
+  return TIMELINE_SYSTEMS.flatMap(lane => layoutTimelinePoints(points.filter(point => point.system === lane.id),
+    new Date(bounds.start).toISOString(), new Date(bounds.end).toISOString(), trackWidth.value));
+}
+const focusPoints = computed(() => positionEvidence(linked.events.value));
+const previewPoints = computed(() => positionEvidence(linked.previewEvents.value.filter(event => !linkedBadges.value.has(event.badge))));
+const percentAt = (time: string) => (Date.parse(time) - Date.parse(start.value)) / span.value * 100;
+const systemLanes = computed(() => baseLanes.value.map(lane => ({ ...lane,
+  points: lane.points.filter(point => point.time >= start.value && point.time <= end.value).map(point => ({ ...point, left: percentAt(point.time) })),
+  groups: lane.groups.filter(group => group.end >= start.value && group.time <= end.value).map(group => ({ ...group,
+    left: Math.max(0, percentAt(group.time)), width: Math.max(0, Math.min(100, percentAt(group.end)) - Math.max(0, percentAt(group.time))) })),
+  evidencePoints: [...focusPoints.value, ...previewPoints.value].filter(point => point.system === lane.id && point.time >= start.value && point.time <= end.value)
+    .map(point => ({ ...point, left: percentAt(point.time) })),
+  referenceCount: linkedEvents.value.filter(event => lane.sources.includes(event.source)).length,
+})));
+const rangeStyle = computed(() => {
+  if (!selectedRange.value) return undefined;
+  const left = Math.max(0, percentAt(selectedRange.value.start)); const right = Math.min(100, percentAt(selectedRange.value.end));
+  return right >= left ? { left: `${left}%`, width: `${right - left}%` } : undefined;
+});
+const previewOutside = computed(() => {
+  const event = linked.previewEvents.value[0];
+  return event && (event.time < start.value || event.time > end.value || !baseLanes.value.some(lane => lane.sources.includes(event.source))) ? event : undefined;
+});
 const coverageLimited = computed(() => Boolean(selectedCase.value?.excludedTypes.length || selectedCase.value?.recorderDrops !== 0 || selectedCase.value?.parseErrors.length));
 const modeNames: Record<string, string> = { cause: 'תחקיר', health: 'מצב המערכות', timeline: 'סיכום אירועים', signal: 'ניתוח נתונים', evidence_followup: 'בדיקת מקור' };
 const suggestions = ['סכם את רצף האירועים סביב הדיווח החריג ביומן המפעיל.', 'אילו מערכות היו לא תקינות בזמן האירוע?', 'חקור מדוע התרחש האירוע שעליו דווח ביומן. בדוק גם הסברים חלופיים.'];
+
+function manualNavigation() {
+  navigationRevision++; lastNavigation = performance.now(); focusAction++;
+  const interrupted = cameraMoving.value;
+  camera.cancel(); linked.cancelPending(); linked.leave();
+  if (interrupted) void loadWindow();
+}
+function saveView() {
+  if (!previousView.value) previousView.value = { window: readWindow(), system: system.value, source: source.value,
+    target: target.value, query: query.value, alertsOnly: alertsOnly.value };
+}
+function moveCamera(window: TimeWindow) {
+  clearTimeout(wheelTimer); requestNumber++; camera.move(window);
+}
+async function focusReferences(badges: string[], messageId = '', automatic = false, turnNavigation = navigationRevision) {
+  if (!badges.length || !selectedCase.value) return;
+  if (automatic && (turnNavigation !== navigationRevision || timelineDrag || rangeDrag || performance.now() - lastNavigation < 1200)) return;
+  const action = ++focusAction;
+  const interrupted = cameraMoving.value;
+  camera.cancel();
+  if (interrupted) void loadWindow();
+  const events = await linked.focus(badges, messageId);
+  if (!events || action !== focusAction) return;
+  const window = evidenceWindow(events, recordingWindow());
+  if (!window) return;
+  saveView(); resetFilters(); selectedRange.value = undefined; selectionMode.value = false;
+  timelineTooltip.value?.hide();
+  if (matchMedia('(max-width: 700px)').matches) dockView.value = null;
+  if (!automatic) mobileView.value = 'timeline';
+  // Let filter watchers settle before the single animated navigation.
+  await nextTick();
+  if (action === focusAction) moveCamera(window);
+}
+async function focusCitation(badge: string) {
+  const activeCase = caseId.value;
+  navigationRevision++;
+  await Promise.all([focusReferences([badge]), openEvidence(badge, false)]);
+  if (activeCase === caseId.value) {
+    mobileView.value = 'timeline';
+    if (matchMedia('(max-width: 700px)').matches) dockView.value = null;
+  }
+}
+function showReferences(message: ChatMessage) { navigationRevision++; void focusReferences(messageReferences(message), message.id); }
+function clearFocus() { manualNavigation(); linked.clear(); }
+function restoreView() {
+  const previous = previousView.value; if (!previous) return;
+  manualNavigation(); linked.clear(); selectedRange.value = undefined; selectionMode.value = false; previousView.value = undefined;
+  system.value = previous.system; source.value = previous.source; target.value = previous.target; query.value = previous.query; alertsOnly.value = previous.alertsOnly;
+  void nextTick(() => moveCamera(previous.window));
+}
+function askRange(range = selectedRange.value ?? { start: start.value, end: end.value }) {
+  draftRange.value = { ...range }; selectionMode.value = false;
+  if (!draft.value.trim()) draft.value = 'מה קרה בטווח הזמן שנבחר?';
+  mobileView.value = 'chat'; void nextTick(() => draftEl.value?.focus());
+}
+function toggleRangeSelection() {
+  manualNavigation(); linked.clear(); selectionMode.value = !selectionMode.value; selectedRange.value = undefined;
+  timelineTooltip.value?.hide();
+}
+function beginRangeSelection(event: PointerEvent, rect: DOMRect) {
+  if (!(event.currentTarget instanceof HTMLElement)) return;
+  manualNavigation(); linked.clear();
+  const window = readWindow();
+  const anchor = timeAtPointer(window, event.clientX, rect.left, rect.width);
+  rangeDrag = { pointerId: event.pointerId, anchor, x: event.clientX, left: rect.left, width: rect.width, window, element: event.currentTarget, moved: false };
+  selectingRange.value = true; timelineTooltip.value?.hide();
+  selectedRange.value = { start: new Date(anchor).toISOString(), end: new Date(anchor).toISOString() };
+  rangeDrag.element.setPointerCapture(event.pointerId); event.preventDefault();
+}
+function moveRangeSelection(event: PointerEvent) {
+  if (!rangeDrag || event.pointerId !== rangeDrag.pointerId) return;
+  event.preventDefault();
+  if (Math.abs(event.clientX - rangeDrag.x) >= 5) rangeDrag.moved = true;
+  const time = timeAtPointer(rangeDrag.window, event.clientX, rangeDrag.left, rangeDrag.width);
+  selectedRange.value = { start: new Date(Math.min(rangeDrag.anchor, time)).toISOString(), end: new Date(Math.max(rangeDrag.anchor, time)).toISOString() };
+}
+function finishRangeSelection(canceled = false) {
+  const drag = rangeDrag; if (!drag) return;
+  rangeDrag = undefined; selectingRange.value = false; suppressDragClick = true;
+  if (drag.element.hasPointerCapture(drag.pointerId)) drag.element.releasePointerCapture(drag.pointerId);
+  if (canceled || !drag.moved) selectedRange.value = undefined;
+  else selectionMode.value = false;
+}
+function handleEscape(event: KeyboardEvent) {
+  if (event.key !== 'Escape') return;
+  if (rangeDrag || selectionMode.value || selectedRange.value) {
+    finishRangeSelection(true); selectionMode.value = false; selectedRange.value = undefined; return;
+  }
+  if (linked.sources.value.length || focusPending.value) clearFocus();
+}
+function pickPoint(point: TimelinePoint, event: MouseEvent) {
+  if (event.ctrlKey || event.metaKey) { attach(point.badge); return; }
+  clearFocus(); void inspectPoint(point);
+}
+function pickGroup(group: TimelineGroup, event: MouseEvent) {
+  if ((event.ctrlKey || event.metaKey) && group.count === 1) { attach(group.badge); return; }
+  clearFocus(); void inspectGroup(group);
+}
 
 async function refreshProvider() { try { provider.value = await api<ProviderStatus>('/status'); } catch (failure) { error.value = String(failure); } }
 function params(withWindow = true) {
@@ -90,7 +239,7 @@ function params(withWindow = true) {
 }
 async function loadWindow() {
   clearTimeout(wheelTimer);
-  if (!start.value || !selectedCase.value) return false;
+  if (!start.value || !selectedCase.value || cameraMoving.value) return false;
   const ticket = ++requestNumber;
   loading.value = true; error.value = '';
   try {
@@ -100,6 +249,7 @@ async function loadWindow() {
       ? api<TimelineFocus>(`${base}/timeline-focus?${scope}`) : api<TimelinePoints>(`${base}/timeline-points?${scope}`)]);
     if (ticket !== requestNumber) return false;
     page.value = events;
+    layoutWindow.value = { start: start.value, end: end.value };
     if ('groups' in timeline) { focus.value = timeline; focusScope.value = scope; } else detail.value = timeline;
     return true;
   } catch (failure) { if (ticket === requestNumber) error.value = String(failure); return false; }
@@ -128,11 +278,14 @@ function startTimelineDrag(event: PointerEvent) {
   const current = selectedCase.value;
   if (!rect?.width || !current || !start.value || !(event.currentTarget instanceof HTMLElement)
     || event.clientX < rect.left || event.clientX > rect.right) return;
+  if (selectionMode.value || event.shiftKey) { beginRangeSelection(event, rect); return; }
+  manualNavigation();
   timelineDrag = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, width: rect.width,
     window: { start: Date.parse(start.value), end: Date.parse(end.value) },
     recording: { start: Date.parse(current.start), end: Date.parse(current.end) }, element: event.currentTarget };
 }
 function moveTimelineDrag(event: PointerEvent) {
+  if (rangeDrag) { moveRangeSelection(event); return; }
   const drag = timelineDrag;
   if (!drag || event.pointerId !== drag.pointerId) return;
   const dx = event.clientX - drag.x; const dy = event.clientY - drag.y;
@@ -158,6 +311,10 @@ function finishTimelineDrag(reload = true) {
   if (moved && reload) void loadWindow();
 }
 function endTimelineDrag(event: PointerEvent) {
+  if (rangeDrag && event.pointerId === rangeDrag.pointerId) {
+    if (event.type === 'pointerup') moveRangeSelection(event);
+    finishRangeSelection(event.type !== 'pointerup'); return;
+  }
   if (event.pointerId !== timelineDrag?.pointerId) return;
   if (event.type === 'pointerup' && draggingTimeline.value) moveTimelineDrag(event);
   finishTimelineDrag();
@@ -169,23 +326,24 @@ function preventDragClick(event: MouseEvent) {
 }
 function onTimelineWheel(event: WheelEvent) {
   if (event.ctrlKey || event.metaKey || !event.deltaY || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
-  if (timelineDrag) { event.preventDefault(); return; }
+  if (timelineDrag || rangeDrag) { event.preventDefault(); return; }
   if (!(event.target instanceof Element) || !event.target.closest('.source-lanes, .timeline-axis')) return;
   const track = lanesEl.value?.querySelector('.lane-track, .lane-no-data');
   const rect = track?.getBoundingClientRect();
   const current = selectedCase.value;
   if (!rect?.width || !current || !start.value || event.clientX < rect.left || event.clientX > rect.right) return;
   event.preventDefault();
+  manualNavigation();
   const next = zoomTimeWindow({ start: Date.parse(start.value), end: Date.parse(end.value) },
     { start: Date.parse(current.start), end: Date.parse(current.end) },
     wheelZoomFactor(event.deltaY, event.deltaMode, lanesEl.value?.clientHeight ?? 600),
     (event.clientX - rect.left) / rect.width);
   setWindow((next.start + next.end) / 2, next.end - next.start, true);
 }
-function focusTime(time: string) { setWindow(Date.parse(time), 300_000); }
-function zoom(factor: number) { setWindow((Date.parse(start.value) + Date.parse(end.value)) / 2, span.value * factor); }
-function pan(direction: number) { setWindow((Date.parse(start.value) + Date.parse(end.value)) / 2 + direction * span.value / 2, span.value); }
-function fullWindow() { if (selectedCase.value) setWindow((Date.parse(selectedCase.value.start) + Date.parse(selectedCase.value.end)) / 2, Date.parse(selectedCase.value.end) - Date.parse(selectedCase.value.start)); }
+function focusTime(time: string) { manualNavigation(); setWindow(Date.parse(time), 300_000); }
+function zoom(factor: number) { manualNavigation(); setWindow((Date.parse(start.value) + Date.parse(end.value)) / 2, span.value * factor); }
+function pan(direction: number) { manualNavigation(); setWindow((Date.parse(start.value) + Date.parse(end.value)) / 2 + direction * span.value / 2, span.value); }
+function fullWindow() { manualNavigation(); if (selectedCase.value) setWindow((Date.parse(selectedCase.value.start) + Date.parse(selectedCase.value.end)) / 2, Date.parse(selectedCase.value.end) - Date.parse(selectedCase.value.start)); }
 async function openEvidence(badge: string, scroll = true, selection?: RecordSelection) {
   groupLoading.value = false;
   const ticket = ++evidenceRequest; const activeCase = caseId.value;
@@ -195,9 +353,15 @@ async function openEvidence(badge: string, scroll = true, selection?: RecordSele
     evidence.value = result; pointSelection.value = selection; dockView.value = 'evidence';
     if (scroll) mobileView.value = 'timeline';
     if (scroll) { await nextTick(); document.querySelector('.source-inspector')?.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }
-  } catch (failure) { error.value = String(failure); }
+  } catch (failure) { if (ticket === evidenceRequest && activeCase === caseId.value) error.value = String(failure); }
 }
-function attach(badge: string) { if (!tags.value.includes(badge) && tags.value.length < 8) tags.value.push(badge); mobileView.value = 'chat'; void nextTick(() => draftEl.value?.focus()); }
+function attach(badge: string) {
+  if (!tags.value.includes(badge)) {
+    if (tags.value.length >= 8) chatError.value = 'אפשר לצרף עד 8 מקורות לשאלה. הסר מקור כדי לצרף אחר.';
+    else tags.value.push(badge);
+  }
+  mobileView.value = 'chat'; void nextTick(() => draftEl.value?.focus());
+}
 async function inspectPoint(point: TimelinePoint) {
   const ticket = ++evidenceRequest; const activeCase = caseId.value;
   const scope = params();
@@ -241,7 +405,7 @@ async function openGroupEvidence(badge: string) {
   await openEvidence(badge, true, { params: selection.params, page: selection.detail.page, endpoint: 'timeline-group' });
 }
 function resetFilters() { system.value = ''; source.value = ''; target.value = ''; query.value = ''; alertsOnly.value = false; }
-function changeDuration(event: Event) { const value = Number((event.target as HTMLSelectElement).value); if (value > 0) setWindow((Date.parse(start.value) + Date.parse(end.value)) / 2, value); else if (value === 0) fullWindow(); }
+function changeDuration(event: Event) { manualNavigation(); const value = Number((event.target as HTMLSelectElement).value); if (value > 0) setWindow((Date.parse(start.value) + Date.parse(end.value)) / 2, value); else if (value === 0) fullWindow(); }
 async function moveEvidence(direction: number) {
   if (loading.value || evidenceIndex.value < 0) return;
   const index = evidenceIndex.value + direction;
@@ -270,6 +434,7 @@ async function moveEvidence(direction: number) {
 }
 function toggleDock(view: Exclude<typeof dockView.value, null>) { dockView.value = dockView.value === view ? null : view; }
 async function selectCase() {
+  manualNavigation(); linked.clear(); finishRangeSelection(true); previousView.value = undefined; selectedRange.value = undefined; draftRange.value = undefined; selectionMode.value = false;
   finishTimelineDrag(false);
   clearTimeout(wheelTimer);
   const ticket = ++caseRequest;
@@ -293,11 +458,15 @@ async function selectCase() {
 }
 async function send(text = draft.value) {
   if (!text.trim() || busy.value) return;
+  busy.value = true;
+  const activeCase = caseId.value;
   await refreshProvider();
-  if (!provider.value?.configured) { chatError.value = provider.value?.problem ?? 'AI is not configured'; return; }
-  const activeCase = caseId.value; const controller = new AbortController(); abort = controller;
-  const user: ChatMessage = { id: crypto.randomUUID(), role: 'user', text: text.trim(), citations: [...tags.value], createdAt: new Date().toISOString() };
-  session.value.messages.push(user); draft.value = ''; tags.value = []; busy.value = true; chatError.value = ''; progress.value = [];
+  if (caseId.value !== activeCase) return;
+  if (!provider.value?.configured) { busy.value = false; chatError.value = provider.value?.problem ?? 'AI is not configured'; return; }
+  const controller = new AbortController(); abort = controller;
+  const turnNavigation = navigationRevision;
+  const user: ChatMessage = { id: crypto.randomUUID(), role: 'user', text: text.trim(), citations: [...tags.value], timeRange: draftRange.value ? { ...draftRange.value } : undefined, createdAt: new Date().toISOString() };
+  session.value.messages.push(user); draft.value = ''; tags.value = []; draftRange.value = undefined; busy.value = true; chatError.value = ''; progress.value = [];
   await nextTick(); messagesEl.value?.scrollTo({ top: messagesEl.value.scrollHeight });
   try {
     const answer = await streamChat(activeCase, user.text, user.citations, controller.signal, (event) => {
@@ -306,12 +475,15 @@ async function send(text = draft.value) {
       const index = progress.value.findIndex((step) => step.id === event.step!.id);
       if (index < 0) progress.value.push(event.step); else progress.value[index] = event.step;
       if (follow) void nextTick(() => messagesEl.value?.scrollTo({ top: messagesEl.value.scrollHeight }));
-    });
-    if (caseId.value === activeCase) session.value.messages.push(answer);
+    }, user.timeRange);
+    if (caseId.value === activeCase) {
+      session.value.messages.push(answer);
+      void focusReferences(messageReferences(answer), answer.id, true, turnNavigation);
+    }
   } catch (failure) {
     if (caseId.value === activeCase) {
       chatError.value = controller.signal.aborted ? 'הבדיקה נעצרה. אפשר לנסות שוב.' : (failure instanceof Error ? failure.message : String(failure));
-      draft.value = user.text; tags.value = user.citations;
+      draft.value = user.text; tags.value = user.citations; draftRange.value = user.timeRange;
       session.value.messages = session.value.messages.filter((message) => message.id !== user.id);
     }
   } finally {
@@ -333,6 +505,7 @@ watch(system, () => {
 });
 watch(query, () => { clearTimeout(queryTimer); queryTimer = setTimeout(() => { offset.value = 0; void loadWindow(); }, 250); });
 onMounted(async () => {
+  window.addEventListener('keydown', handleEscape);
   try {
     await refreshProvider(); cases.value = await api<CaseSummary[]>('/cases');
     if (!cases.value.some((item) => item.id === caseId.value)) caseId.value = cases.value[0]!.id;
@@ -345,7 +518,7 @@ onMounted(async () => {
     if (lanesEl.value) laneObserver.observe(lanesEl.value);
   } catch (failure) { error.value = String(failure); loading.value = false; }
 });
-onUnmounted(() => { finishTimelineDrag(false); abort?.abort(); clearTimeout(queryTimer); clearTimeout(wheelTimer); laneObserver?.disconnect(); });
+onUnmounted(() => { window.removeEventListener('keydown', handleEscape); finishRangeSelection(true); finishTimelineDrag(false); abort?.abort(); clearTimeout(queryTimer); clearTimeout(wheelTimer); laneObserver?.disconnect(); });
 </script>
 
 <template>
@@ -367,26 +540,48 @@ onUnmounted(() => { finishTimelineDrag(false); abort?.abort(); clearTimeout(quer
             <div class="overview-chart" dir="ltr"><button v-for="bin in overview" :key="bin.start" :title="`${clock(bin.start)} · ${count(bin.count)} רשומות`" :aria-label="`התמקדות בשעה ${clock(bin.start)}`" :class="{ active: bin.end >= start && bin.start <= end, alert: bin.alerts > 0 }" @click="focusTime(bin.start)"><span :style="{ height: `${Math.max(3, bin.count / maxBin * 100)}%` }"></span></button></div>
             <div class="time-edges" dir="ltr"><span v-for="(tick, index) in overviewTicks" :key="index">{{ tick }}</span></div>
           </section>
-          <section class="timeline-section" :class="{ 'focused-mode': displayMode === 'focused', 'is-dragging': draggingTimeline }" aria-label="חלון הזמן הנבחר" @wheel="onTimelineWheel" @pointerdown="startTimelineDrag" @pointermove="moveTimelineDrag" @pointerup="endTimelineDrag" @pointercancel="endTimelineDrag" @lostpointercapture="endTimelineDrag" @pointerleave="timelinePointerLeave" @click.capture="preventDragClick">
+          <section class="timeline-section" :data-window-start="start" :data-window-end="end" :class="{ 'focused-mode': displayMode === 'focused', 'is-dragging': draggingTimeline, 'is-focusing': cameraMoving, 'has-evidence-focus': linkedEvents.length > 0, 'is-selecting-range': selectionMode || selectingRange, 'has-citation-preview': hoveredBadge }" aria-label="חלון הזמן הנבחר" @wheel="onTimelineWheel" @pointerdown="startTimelineDrag" @pointermove="moveTimelineDrag" @pointerup="endTimelineDrag" @pointercancel="endTimelineDrag" @lostpointercapture="endTimelineDrag" @pointerleave="timelinePointerLeave" @click.capture="preventDragClick">
             <div class="section-line timeline-heading"><div class="timeline-title"><h2>רצף האירועים</h2><span class="window-label" dir="ltr">{{ windowLabel }}</span><span class="record-count">{{ count(page.total) }} רשומות</span></div><div class="timeline-controls" dir="ltr"><button @click="pan(-1)" title="מוקדם יותר" aria-label="מוקדם יותר"><ArrowLeft :size="16"/></button><button @click="zoom(.5)" title="הגדלה" aria-label="הגדלה"><ZoomIn :size="16"/></button><button @click="zoom(2)" title="הקטנה" aria-label="הקטנה"><ZoomOut :size="16"/></button><button @click="pan(1)" title="מאוחר יותר" aria-label="מאוחר יותר"><ArrowRight :size="16"/></button><select aria-label="משך חלון הזמן" :value="durationValue" @change="changeDuration"><option :value="30000">30 שניות</option><option :value="60000">דקה</option><option :value="300000">5 דקות</option><option :value="900000">15 דקות</option><option :value="0">כל ההקלטה</option><option v-if="durationValue === -1" :value="-1" disabled>חלון מותאם</option></select><button @click="fullWindow" title="כל ההקלטה" aria-label="כל ההקלטה">הכול</button><button :aria-expanded="filtersOpen" aria-controls="timeline-filters" :class="{ toggled: activeFilters }" @click="filtersOpen = !filtersOpen" title="חיפוש וסינון" aria-label="חיפוש וסינון"><Search :size="16"/><small v-if="activeFilters">{{ activeFilters }}</small></button></div></div>
-            <div v-if="filtersOpen" id="timeline-filters" class="filters"><label class="search-field"><Search :size="14"/><input v-model="query" aria-label="חיפוש ברשומות" placeholder="מזהה, הודעה או שדה…"/><button v-if="query" @click="query = ''" aria-label="ניקוי חיפוש"><X :size="13"/></button></label><select v-model="system" aria-label="סינון מערכת"><option value="">כל המערכות</option><option v-for="item in TIMELINE_SYSTEMS" :key="item.id" :value="item.id">{{ item.name }}</option></select><select v-model="source" aria-label="סינון מקור"><option value="">כל המקורות</option><option v-for="item in availableSources" :key="item">{{ item }}</option></select><select v-model="target" aria-label="סינון מטרה"><option value="">כל המטרות</option><option v-for="item in selectedCase?.targets" :key="item">{{ item }}</option></select><button :class="{ toggled: alertsOnly }" :aria-pressed="alertsOnly" @click="alertsOnly = !alertsOnly">אזהרות ושגיאות</button><button v-if="activeFilters" @click="resetFilters">ניקוי</button></div>
-            <div class="timeline-display"><span v-if="groupingPrototypeEnabled" class="subtle">ניסוי תצוגה · 10 דרכים להציג שגרה · מעבר בחצים למטה</span><div v-else class="display-options" role="group" aria-label="רמת פירוט בציר הזמן"><button :aria-pressed="displayMode === 'focused'" @click="displayMode = 'focused'">ממוקד</button><button :aria-pressed="displayMode === 'records'" @click="displayMode = 'records'">תצוגה מלאה</button></div><div v-if="displayMode === 'focused'" class="focus-legend"><span v-if="!groupingPrototypeEnabled"><i class="activity-key"></i>עדכונים מחזוריים</span><span><i class="event-key"></i>אירועים ושינויים</span><span><i class="alert-key"></i>אזהרות</span></div><span v-else class="subtle">נקודות לפי זמן המקור</span></div>
+            <div v-if="filtersOpen" id="timeline-filters" class="filters"><label class="search-field"><Search :size="14"/><input v-model="query" aria-label="חיפוש ברשומות" @input="clearFocus" placeholder="מזהה, הודעה או שדה…"/><button v-if="query" @click="query = ''" aria-label="ניקוי חיפוש"><X :size="13"/></button></label><select v-model="system" aria-label="סינון מערכת" @change="clearFocus"><option value="">כל המערכות</option><option v-for="item in TIMELINE_SYSTEMS" :key="item.id" :value="item.id">{{ item.name }}</option></select><select v-model="source" aria-label="סינון מקור" @change="clearFocus"><option value="">כל המקורות</option><option v-for="item in availableSources" :key="item">{{ item }}</option></select><select v-model="target" aria-label="סינון מטרה" @change="clearFocus"><option value="">כל המטרות</option><option v-for="item in selectedCase?.targets" :key="item">{{ item }}</option></select><button :class="{ toggled: alertsOnly }" :aria-pressed="alertsOnly" @click="clearFocus(); alertsOnly = !alertsOnly">אזהרות ושגיאות</button><button v-if="activeFilters" @click="resetFilters">ניקוי</button></div>
+            <div class="timeline-display"><div class="display-options" role="group" aria-label="רמת פירוט בציר הזמן"><button :aria-pressed="displayMode === 'focused'" @click="manualNavigation(); displayMode = 'focused'">ממוקד</button><button :aria-pressed="displayMode === 'records'" @click="manualNavigation(); displayMode = 'records'">תצוגה מלאה</button></div><div v-if="displayMode === 'focused'" class="focus-legend"><span><i class="activity-key"></i>עדכונים מחזוריים</span><span><i class="event-key"></i>אירועים ושינויים</span><span><i class="alert-key"></i>אזהרות</span></div><span v-else class="subtle">נקודות לפי זמן המקור</span></div>
+            <div class="timeline-contextbar" :class="{ active: linkedEvents.length || selectedRange || selectionMode }">
+              <div class="context-status" aria-live="polite">
+                <template v-if="focusPending"><LoaderCircle :size="14" class="focus-spinner"/><span>מאתר את המקורות בציר הזמן…</span></template>
+                <template v-else-if="selectedRange"><ScanLine :size="14"/><span>טווח נבחר</span><bdi>{{ clock(selectedRange.start) }} — {{ clock(selectedRange.end) }}</bdi></template>
+                <template v-else-if="selectionMode"><ScanLine :size="14"/><span>גררו על הציר לבחירת טווח</span></template>
+                <template v-else-if="previewOutside"><Focus :size="14"/><span>מקור מחוץ לתצוגה</span><bdi>{{ clock(previewOutside.time) }}</bdi><span class="context-caption">לחצו עליו למיקוד</span></template>
+                <template v-else-if="linkedEvents.length"><Focus :size="14"/><span>{{ linkedEvents.length === 1 ? 'מקור אחד במיקוד' : `${count(linkedEvents.length)} מקורות במיקוד` }}</span><span class="context-caption">שאר הרשומות מעומעמות</span></template>
+                <template v-else><Link2 :size="13"/><span class="context-caption">המקורות בשיחה מחוברים לציר הזמן</span></template>
+              </div>
+              <div class="context-actions">
+                <button v-if="selectedRange" class="ask-selection" @click="askRange()"><MessageSquare :size="13"/>שאל על הטווח</button>
+                <button v-else-if="selectionMode" @click="askRange()">שאל על החלון הנוכחי</button>
+                <button v-else :aria-pressed="selectionMode" title="אפשר גם לגרור עם Shift" @click="toggleRangeSelection"><ScanLine :size="13"/>בחירת טווח</button>
+                <button v-if="previousView && !selectedRange && !selectionMode" class="restore-view" title="שחזור חלון הזמן והמסננים הקודמים" @click="restoreView"><Undo2 :size="13"/>חזרה לתצוגה</button>
+                <button v-if="linkedEvents.length || focusPending || selectedRange || selectionMode" class="clear-focus" :aria-label="selectedRange || selectionMode ? 'ניקוי בחירת טווח' : 'ניקוי מיקוד'" @click="selectedRange || selectionMode ? (selectedRange = undefined, selectionMode = false) : clearFocus()"><X :size="14"/></button>
+              </div>
+            </div>
+            <p v-if="focusNotice" class="focus-notice" role="status">{{ focusNotice }}</p>
             <div class="timeline-axis" dir="ltr" title="גרירה מזיזה את הזמן · גלגלת מקרבת ומרחיקה סביב הסמן"><div><span v-for="(tick, index) in timeTicks" :key="index">{{ tick }}</span></div><span></span></div>
             <div ref="lanesEl" class="source-lanes system-lanes" :aria-busy="loading" aria-description="גרירה ימינה חושפת זמן מוקדם יותר, ושמאלה זמן מאוחר יותר. גלגלת מקרבת ומרחיקה. המיקום האופקי מציין זמן; הגובה מפריד בין רשומות ואינו מייצג ערך מדוד.">
-              <LogGroupingPrototype v-if="groupingPrototypeEnabled" :lanes="systemLanes" :case-id="caseId" :scope="focusScope" :start="start" :end="end" :system="system" :selected="groupSelection?.detail.group.id" :loading="loading" :total="focus.totalRecords" :bucket-ms="focus.bucketMs" @open="inspectGroup" @system="system = $event"/>
-              <template v-else><div v-for="lane in systemLanes" :key="lane.id" class="source-lane" :data-system="lane.id">
+              <div v-for="lane in systemLanes" :key="lane.id" class="source-lane" :data-system="lane.id">
                 <div v-if="lane.hasData" class="lane-track" :class="{ 'focused-track': displayMode === 'focused' }" dir="ltr">
-                  <template v-if="displayMode === 'focused'"><button v-for="group in lane.groups" :key="group.id" :data-group="group.id" :data-kind="group.kind" :disabled="loading" :title="`${group.label} · ${clock(group.time)}${group.end !== group.time ? `–${clock(group.end)}` : ''} · ${count(group.count)} רשומות`" :aria-label="`${group.label}, ${count(group.count)} רשומות, ${clock(group.time)}`" :style="{ left: `${group.left}%`, top: `${group.top}%`, ...(group.kind === 'activity' ? { width: `${group.width}%` } : {}) }" :class="['focus-marker', group.kind, { alert: group.severity === 'WARN', critical: group.severity === 'ERROR', selected: ((dockView === 'group' || pointSelection?.endpoint === 'timeline-group') && groupSelection?.detail.group.id === group.id) || evidence?.badge === group.badge }]" @click="inspectGroup(group)"><span></span><b v-if="group.kind === 'activity' && group.width > 3">{{ count(group.count) }}</b><small v-else-if="group.count > 1">{{ count(group.count) }}</small></button></template>
-                  <template v-else><button v-for="point in lane.points" :key="point.badge" :data-badge="point.badge" :disabled="loading" :title="`${lane.name} · ${clock(point.time)} · ${point.type}${point.count > 1 ? ` · ${count(point.count)} רשומות באותו זמן` : ''}`" :aria-label="`פתיחת ${point.badge} בשעה ${clock(point.time)}`" :style="{ left: `${point.left}%`, top: `${point.top}%` }" :class="{ populated: true, alert: point.severity === 'WARN', critical: point.severity === 'ERROR', diary: point.diary, selected: evidence?.event && lane.sources.includes(evidence.event.source) && evidence.event.time === point.time }" @click="inspectPoint(point)"><span></span></button></template>
+                  <template v-if="displayMode === 'focused'"><button v-for="group in lane.groups" :key="group.id" :data-group="group.id" :data-kind="group.kind" :disabled="loading && !cameraMoving" :aria-label="`${group.label}, ${count(group.count)} רשומות, ${clock(group.time)}`" :style="{ left: `${group.left}%`, top: `${group.top}%`, ...(group.kind === 'activity' ? { width: `${group.width}%` } : {}) }" :class="['focus-marker', group.kind, { 'is-evidence-duplicate': group.count === 1 && linkedBadges.has(group.badge), alert: group.severity === 'WARN', critical: group.severity === 'ERROR', selected: ((dockView === 'group' || pointSelection?.endpoint === 'timeline-group') && groupSelection?.detail.group.id === group.id) || evidence?.badge === group.badge }]"
+                    @pointerenter="timelineTooltip?.show($event, group)" @pointerleave="timelineTooltip?.leave()" @focus="timelineTooltip?.show($event, group)" @blur="timelineTooltip?.hide()" @pointerdown="timelineTooltip?.hide()" @click="timelineTooltip?.hide(); pickGroup(group, $event)"><span></span><b v-if="group.kind === 'activity' && group.width > 3">{{ count(group.count) }}</b><small v-else-if="group.count > 1">{{ count(group.count) }}</small></button></template>
+                  <template v-else><button v-for="point in lane.points" :key="point.badge" :data-badge="point.badge" :disabled="loading && !cameraMoving" :aria-label="`פתיחת ${point.badge} בשעה ${clock(point.time)}`" :style="{ left: `${point.left}%`, top: `${point.top}%` }" :class="{ populated: true, 'is-evidence-duplicate': point.count === 1 && linkedBadges.has(point.badge), alert: point.severity === 'WARN', critical: point.severity === 'ERROR', diary: point.diary, selected: evidence?.event && lane.sources.includes(evidence.event.source) && evidence.event.time === point.time }"
+                    @pointerenter="timelineTooltip?.show($event, point)" @pointerleave="timelineTooltip?.leave()" @focus="timelineTooltip?.show($event, point)" @blur="timelineTooltip?.hide()" @pointerdown="timelineTooltip?.hide()" @click="timelineTooltip?.hide(); pickPoint(point, $event)"><span></span></button></template>
+                  <div v-if="rangeStyle" class="range-brush" :style="rangeStyle" aria-hidden="true"></div>
+                  <button v-for="point in lane.evidencePoints" :key="point.badge + ':' + focusRevision" class="evidence-marker" :class="{ 'is-preview': hoveredBadge === point.badge, 'is-linked': linkedBadges.has(point.badge), 'is-approximate': point.diary }" :data-evidence-point="point.badge" :data-time="point.time" :style="{ left: point.left + '%', top: point.top + '%' }" :aria-label="'מקור בשיחה: ' + describeCitation(point.badge).description + ', ' + clock(point.time)" :title="point.diary ? 'זמן דיווח משוער · הדיוק מופיע ברשומה' : undefined"
+                    @pointerenter="timelineTooltip?.show($event, point)" @pointerleave="timelineTooltip?.leave()" @focus="timelineTooltip?.show($event, point)" @blur="timelineTooltip?.hide()" @click="timelineTooltip?.hide(); openEvidence(point.badge)"><span></span><i aria-hidden="true"></i></button>
                 </div>
                 <div v-else class="lane-no-data">{{ loading ? 'טוען…' : 'לא סופקו נתונים' }}</div>
-                <button class="lane-name" :aria-pressed="system === lane.id" :title="lane.sources.join(', ') || 'לא סופקו נתונים'" @click="system = system === lane.id ? '' : lane.id"><span dir="ltr">{{ lane.name }}</span><component :is="laneIcons[lane.id as keyof typeof laneIcons]" :size="16"/></button>
+                <button class="lane-name" :aria-pressed="system === lane.id" :title="lane.sources.join(', ') || 'לא סופקו נתונים'" @click="clearFocus(); system = system === lane.id ? '' : lane.id"><span v-if="lane.referenceCount" class="lane-reference-count" :aria-label="lane.referenceCount + ' מקורות בשיחה'">{{ lane.referenceCount }}</span><span dir="ltr">{{ lane.name }}</span><component :is="laneIcons[lane.id as keyof typeof laneIcons]" :size="16"/></button>
               </div>
-              </template>
               <div v-if="!systemLanes.length" class="empty-records">אין מערכות התואמות למסננים. <button @click="resetFilters">ניקוי מסננים</button></div>
             </div>
             <div class="workspace-tools"><div class="source-tools"><button :aria-pressed="dockView === 'records'" @click="toggleDock('records')"><List :size="13"/>רשומות <span>{{ count(page.total) }}</span></button><button :aria-pressed="dockView === 'diary'" @click="toggleDock('diary')"><BookOpen :size="13"/>יומן המפעיל</button><button :aria-pressed="dockView === 'coverage'" :class="{ 'coverage-warning': coverageLimited }" @click="toggleDock('coverage')"><ShieldCheck :size="13"/>{{ coverageLimited ? 'כיסוי חלקי' : 'כיסוי הקליטה' }}</button><button v-if="evidence && dockView !== 'evidence'" @click="dockView = 'evidence'"><FileText :size="13"/>הרשומה שנבחרה</button></div><span class="timeline-note" :class="{ limited: displayMode === 'focused' || detail.truncated }">{{ loading ? 'טוען רשומות…' : displayMode === 'focused' ? `${count(focus.groups.length)} סימונים מייצגים ${count(focus.totalRecords)} רשומות · התקרבו לפירוט` : detail.truncated ? `מוצגות ${count(detail.points.length)} מתוך ${count(detail.totalPoints)} נקודות זמן · התקרבו לפירוט` : 'הזמן בציר האופקי · הגובה מפריד בין רשומות' }}</span></div>
           </section>
+          <TimelineTooltip ref="timelineTooltip" :disabled="loading || draggingTimeline || cameraMoving || selectionMode || selectingRange"/>
           <TimelineGroupDock v-if="dockView === 'group' && groupSelection" :detail="groupSelection.detail" :loading="groupLoading" @close="dockView = null" @open="openGroupEvidence" @page="loadGroupPage($event)" @series="loadGroupPage(0, $event || '')"/>
           <EvidenceDock v-else-if="dockView === 'evidence' && evidence" :evidence="evidence" :position="evidencePosition" :previous="canPrevious" :next="canNext" :loading="loading" :grouped="pointSelection?.endpoint === 'timeline-group'" @group="dockView = 'group'" @attach="attach" @close="dockView = null" @navigate="moveEvidence"/>
           <section v-else-if="dockView && dockView !== 'evidence' && dockView !== 'group'" class="bottom-dock data-dock" :aria-label="dockView === 'records' ? 'רשומות המקור' : dockView === 'diary' ? 'יומן המפעיל' : 'כיסוי הקליטה'">
@@ -399,13 +594,13 @@ onUnmounted(() => { finishTimelineDrag(false); abort?.abort(); clearTimeout(quer
           </section>
         </main>
         <!-- Existing live chat, evidence links, progress and saved conclusions. -->
-        <aside class="chat-panel" aria-label="עוזר התחקור"><div class="chat-header"><div><Activity :size="18"/><h2>עוזר התחקיר</h2></div><span dir="ltr">{{ caseId }}</span></div><div class="model-caption" dir="ltr">{{ provider?.model || 'מתחבר…' }}</div>
+        <aside class="chat-panel" aria-label="עוזר התחקור"><div class="chat-header"><div><Activity :size="18"/><h2>עוזר התחקיר</h2></div><span dir="ltr">{{ caseId }}</span></div>
         <div v-if="provider && !provider.configured" class="setup-notice"><b>חיבור AI עדיין לא הוגדר</b><p>הוסף מפתח ל־<code dir="ltr">trace-main/.env</code>. אפשר לעיין בנתונים כבר עכשיו.</p><button @click="refreshProvider">בדוק חיבור מחדש</button></div>
         <div ref="messagesEl" class="chat-messages" aria-live="polite"><div v-if="!session.messages.length" class="chat-welcome"><div class="trace-orbit"><Activity :size="26"/></div><h3>מאיפה מתחילים?</h3><p>בחר רשומה, צרף אותה לשיחה, או בקש לבדוק מה קרה סביב דיווח המפעיל.</p><button v-for="suggestion in suggestions" :key="suggestion" :disabled="busy || !provider?.configured" @click="send(suggestion)">{{ suggestion }}<ArrowLeft :size="15"/></button></div>
-          <article v-for="message in session.messages" :key="message.id" class="chat-message" :class="message.role"><div class="message-role">{{ message.role === 'user' ? 'אתה' : 'TRACE' }}<small v-if="message.role === 'assistant'">{{ modeNames[message.mode || ''] || '' }}</small></div><details v-if="message.activity?.length" class="activity-history"><summary>מהלך הבדיקה · {{ message.activity.filter(step => step.id.startsWith('tool:')).length }} בדיקות</summary><InvestigationProgress :steps="message.activity" :running="false" @citation="openEvidence($event, true)"/></details><MessageBody :text="message.text" @citation="openEvidence($event, true)"/><details v-if="message.details?.length" class="answer-details"><summary>פירוט הבדיקות והמקורות</summary><section v-for="(finding, index) in message.details" :key="index"><h4>{{ finding.title }}</h4><MessageBody :text="finding.explanation" @citation="openEvidence($event, true)"/><div class="detail-citations"><CitationLink v-for="badge in finding.citations" :key="badge" :badge="badge" @open="openEvidence($event, true)"/></div></section></details><div v-if="message.role === 'user' && message.citations.length" class="message-attachments"><CitationLink v-for="badge in message.citations" :key="badge" :badge="badge" @open="openEvidence($event, true)"/></div><div v-if="message.role === 'assistant' && message.validation === 'satisfied'" class="message-actions"><span><Check :size="12"/>אסמכתאות מקור אומתו</span><button :disabled="approved(message.id)" @click="approve(message.id)">{{ approved(message.id) ? 'נשמר במסקנות' : 'אשר ושמור מסקנה' }}</button></div></article>
-          <InvestigationProgress v-if="busy || (chatError && progress.length)" :steps="progress" :running="busy" @citation="openEvidence($event, true)"/>
+          <article v-for="message in session.messages" :key="message.id" class="chat-message" :class="[message.role, { 'has-linked-evidence': linkedMessageId === message.id && linkedEvents.length }]" :data-message-id="message.id"><div class="message-role">{{ message.role === 'user' ? 'אתה' : 'TRACE' }}<small v-if="message.role === 'assistant'">{{ modeNames[message.mode || ''] || '' }}</small></div><details v-if="message.activity?.length" class="activity-history"><summary>מהלך הבדיקה · {{ message.activity.filter(step => step.id.startsWith('tool:')).length }} בדיקות</summary><InvestigationProgress :steps="message.activity" :running="false" @citation="focusCitation"/></details><div v-if="message.timeRange" class="message-time-range"><Clock3 :size="12"/><span>טווח השאלה</span><bdi>{{ clock(message.timeRange.start) }} — {{ clock(message.timeRange.end) }}</bdi></div><MessageBody :text="message.text" @citation="focusCitation"/><details v-if="message.details?.length" class="answer-details"><summary>פירוט הבדיקות והמקורות</summary><section v-for="(finding, index) in message.details" :key="index"><h4>{{ finding.title }}</h4><MessageBody :text="finding.explanation" @citation="focusCitation"/><div class="detail-citations"><CitationLink v-for="badge in finding.citations" :key="badge" :badge="badge" @open="focusCitation"/></div></section></details><div v-if="message.role === 'user' && message.citations.length" class="message-attachments"><CitationLink v-for="badge in message.citations" :key="badge" :badge="badge" @open="focusCitation"/></div><div v-if="message.role === 'assistant' && messageReferences(message).length" class="answer-evidence-action"><button :aria-pressed="linkedMessageId === message.id && linkedEvents.length > 0" @click="showReferences(message)"><Focus :size="14"/><span>הצג את כל המקורות</span><b>{{ messageReferences(message).length }}</b></button><span v-if="linkedMessageId === message.id && linkedEvents.length" class="answer-focus-status">מוצגים בציר</span></div><div v-if="message.role === 'assistant' && message.validation === 'satisfied'" class="message-actions"><span><Check :size="12"/>אסמכתאות מקור אומתו</span><button :disabled="approved(message.id)" @click="approve(message.id)">{{ approved(message.id) ? 'נשמר במסקנות' : 'אשר ושמור מסקנה' }}</button></div></article>
+          <InvestigationProgress v-if="busy || (chatError && progress.length)" :steps="progress" :running="busy" @citation="focusCitation"/>
         </div>
-        <div class="composer"><div v-if="chatError" class="chat-error" role="alert" dir="auto">{{ chatError }}</div><div v-if="tags.length" class="attachment-chips"><button v-for="badge in tags" :key="badge" @click="tags = tags.filter(value => value !== badge)"><span dir="rtl" :title="badge">{{ describeCitation(badge).label }}</span><X :size="12"/></button></div><textarea ref="draftEl" v-model="draft" aria-label="שאלה לחוקר" placeholder="שאל על האירוע, בקש לבדוק השערה…" :disabled="busy" @keydown.ctrl.enter.prevent="send()" @keydown.meta.enter.prevent="send()"></textarea><div class="composer-footer"><span>{{ session.lessons.length ? `${session.lessons.length} מסקנות שמורות` : '⌘ / Ctrl + Enter לשליחה' }}</span><button v-if="busy" class="send-button stop" @click="abort?.abort()"><Square :size="13"/>עצור</button><button v-else class="send-button" :disabled="!draft.trim() || !provider?.configured" @click="send()"><Send :size="15"/>שלח</button></div></div>
+        <div class="composer"><div v-if="chatError" class="chat-error" role="alert" dir="auto">{{ chatError }}</div><div v-if="tags.length" class="attachment-chips"><button v-for="badge in tags" :key="badge" @click="tags = tags.filter(value => value !== badge)"><span dir="rtl" :title="badge">{{ describeCitation(badge).label }}</span><X :size="12"/></button></div><div v-if="draftRange" class="composer-range"><ScanLine :size="14"/><div><span>השאלה תתמקד בטווח שנבחר</span><bdi>{{ clock(draftRange.start) }} — {{ clock(draftRange.end) }}</bdi></div><button aria-label="הסרת טווח הזמן מהשאלה" @click="draftRange = undefined"><X :size="13"/></button></div><textarea ref="draftEl" v-model="draft" aria-label="שאלה לחוקר" placeholder="שאל על האירוע, בקש לבדוק השערה…" :disabled="busy" dir="auto" @keydown.ctrl.enter.prevent="send()" @keydown.meta.enter.prevent="send()"></textarea><div class="composer-footer"><span>{{ session.lessons.length ? `${session.lessons.length} מסקנות שמורות` : '⌘ / Ctrl + Enter לשליחה' }}</span><button v-if="busy" class="send-button stop" @click="abort?.abort()"><Square :size="13"/>עצור</button><button v-else class="send-button" :disabled="!draft.trim() || !provider?.configured" @click="send()"><Send :size="15"/>שלח</button></div></div>
       </aside>
       </div>
     </div>

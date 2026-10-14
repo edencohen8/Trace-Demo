@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "node --import tsx scripts/serve.ts",
-    "prototype:groups": "PORT=5189 node --import tsx scripts/serve.ts",
     "build": "vite build",
     "test:agent": "node --import tsx scripts/verify-subtask-3-1.ts",
     "test:skills": "node --import tsx scripts/verify-subtask-3-2.ts",
@@ -20,7 +19,7 @@
     "test": "npm run test:agent && npm run test:skills && npm run test:router && npm run test:validator && npm run test:investigator && npm run test:demo && npm run test:quality && npm run test:progress && npm run test:timeline",
     "check:ai": "node --import tsx scripts/check-ai.ts",
     "test:progress": "node --import tsx --test scripts/verify-progress-order.ts",
-    "test:timeline": "node --import tsx --test scripts/verify-timeline-points.ts scripts/verify-timeline-focus.ts"
+    "test:timeline": "node --import tsx --test scripts/verify-timeline-points.ts scripts/verify-timeline-focus.ts scripts/verify-chat-timeline.ts"
   },
   "dependencies": {
     "@earendil-works/pi-agent-core": "^1.2.0",

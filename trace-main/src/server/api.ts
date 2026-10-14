@@ -4,6 +4,7 @@ import { EvidenceStore } from './evidence-store.ts';
 import { SessionStore } from './session-store.ts';
 import { readConfig, providerStatus, safeError, type AIConfig } from './config.ts';
 import { runChat } from './chat.ts';
+import { parseChatTimeRange } from './chat-time-range.ts';
 import type { EventFilter, ProgressEvent } from '../demo/types.ts';
 
 function json(response: ServerResponse, status: number, value: unknown): void {
@@ -78,6 +79,7 @@ export function createApi(options: { store?: EvidenceStore; sessions?: SessionSt
       const evidence = input.evidence ?? [];
       if (!Array.isArray(evidence) || evidence.length > 8 || evidence.some((value) => typeof value !== 'string')) throw new Error('Attach at most 8 evidence references');
       await Promise.all(evidence.map((badge) => store.resolve(caseId, badge as string)));
+      const timeRange = parseChatTimeRange(input.timeRange, await store.summary(caseId));
       config = await getConfig();
       if (!providerStatus(config).configured) { json(response, 503, { error: providerStatus(config).problem }); return true; }
       if (busy.has(caseId)) { json(response, 409, { error: 'An investigation is already running for this case' }); return true; }
@@ -91,10 +93,10 @@ export function createApi(options: { store?: EvidenceStore; sessions?: SessionSt
       const heartbeat = setInterval(() => { if (!response.destroyed) response.write(': heartbeat\n\n'); }, 15_000);
       try {
         const session = await sessions.read(caseId);
-        const answer = await chat({ caseId, text: input.text.trim(), evidence }, session, store, config, abort.signal, emit);
+        const answer = await chat({ caseId, text: input.text.trim(), evidence, timeRange }, session, store, config, abort.signal, emit);
         abort.signal.throwIfAborted();
         await sessions.append(caseId, [{ id: randomUUID(), role: 'user', text: input.text.trim(), citations: evidence,
-          createdAt: new Date().toISOString() }, answer]);
+          timeRange, createdAt: new Date().toISOString() }, answer]);
         emit({ type: 'done', message: answer });
       } catch (error) { emit({ type: 'error', text: safeError(error, config) }); }
       finally {

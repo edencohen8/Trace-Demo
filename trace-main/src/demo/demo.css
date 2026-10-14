@@ -240,7 +240,6 @@ summary { cursor: pointer; }
 .chat-header > div { display: flex; gap: 8px; align-items: center; }
 .chat-header svg { color: var(--accent); }
 .chat-header > span { font-size: 10px; color: var(--muted); }
-.model-caption { color: var(--muted); font-size: 9px; padding: 0 25px 10px 0; }
 .chat-messages { flex: 1; min-height: 0; overflow: auto; padding: 20px 0 0; scrollbar-width: thin; scrollbar-color: var(--line) transparent; scrollbar-gutter: stable; overscroll-behavior: contain; }
 .chat-welcome { padding: 12px 0; }
 .trace-orbit { color: var(--accent); margin-bottom: 18px; }
@@ -339,7 +338,6 @@ summary { cursor: pointer; }
   .mobile-timeline .chat-panel, .mobile-chat .investigation-main { display: none; }
   .chat-panel { padding: 0; border: 0; }
   .chat-header { display: none; }
-  .model-caption { padding: 0 0 6px; }
   .timeline-heading { flex: 0 0 66px; flex-wrap: wrap; gap: 7px; margin-bottom: 6px; }
   .timeline-title { width: 100%; justify-content: space-between; gap: 4px; }
   .timeline-title h2 { font-size: 13px; }

@@ -43,7 +43,7 @@ an `error` field. Each case endpoint rejects unknown case IDs.
 | GET | `/api/cases/:id/evidence?badge=…` | Exact original lines, source metadata and hash |
 | GET | `/api/cases/:id/session` | Saved chat and approved answers |
 | GET | `/api/cases/:id/export` | Download the same state as JSON |
-| POST | `/api/cases/:id/chat` | `{text, evidence: string[]}` → SSE progress and final answer |
+| POST | `/api/cases/:id/chat` | `{text, evidence: string[], timeRange?: {start, end}}` → SSE progress and final answer |
 | POST | `/api/cases/:id/approve` | `{messageId}` → save a validated answer as an approved lesson |
 
 Event/timeline filters: `start`, `end` (ISO timestamps with offsets), `system`, `source`,
@@ -100,9 +100,36 @@ Vertical position is only for readability;
 it does not encode severity or a measured value. Horizontal positions retain the
 exact source timestamps. Selection does not recalculate the layout.
 
-Selecting a point, diary entry, record row or chat citation changes only source
-selection and the bottom card. It never changes the time window or source/system
-filters. Only explicit timeline navigation, zoom and filter controls do that.
+Selecting a point, diary entry or record row opens its source in the bottom card.
+Chat citations also focus the exact cited event on the timeline. Hover and keyboard
+focus preview it without moving the window; a source outside the view is identified
+by its time. Sources without an event timestamp remain available in the inspector
+and do not receive an invented timeline position.
+
+A completed answer focuses all unique citations from its body and detailed
+findings, excluding unrelated tool history. Saved answers have an explicit action
+to restore their evidence view. The camera fits the actual timestamps with 20%
+padding on each side and a 30-second minimum window, clamped to the recording.
+Exact evidence pins remain visible independently of grouping or sampling. Other
+timeline records dim but remain interactive. Diary pins retain their approximate
+time distinction. Focus temporarily clears filters; Back restores the prior
+window and filters. Clear removes highlights without moving the window.
+
+The 560ms camera transition uses bounded interpolation with no endpoint overshoot.
+Manual navigation cancels it. A turn never takes back the camera if the user
+navigated while waiting. No camera changes occur during streamed tool progress.
+Reduced-motion preferences skip the animation. Changing cases cancels pending
+source focus and clears selections. Evidence resolution runs at most six reads
+concurrently and reports unavailable or untimed sources.
+
+The range-selection control or Shift-drag selects an interval. The selected range
+appears in the composer before sending and can be removed. The current window can
+also be attached without dragging. Individual evidence attachments retain the
+eight-reference limit. Ctrl/Command-click attaches an individual timeline record.
+The optional chat `timeRange` uses explicit timezone timestamps, is validated
+against the active recording, and has positive duration. It is saved on the user
+message and supplied to routing, investigation and answer validation as explicit
+question scope. It contains no raw row dump. Existing messages remain compatible.
 The mouse wheel over the system plot or its time axis zooms around the pointer:
 up zooms in, down zooms out. It stops at 15 seconds or the full recording extent.
 The axis updates immediately; event queries wait for a 90ms pause in the gesture.
